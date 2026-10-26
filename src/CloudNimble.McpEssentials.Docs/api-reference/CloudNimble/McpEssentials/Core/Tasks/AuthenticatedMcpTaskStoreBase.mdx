@@ -1,0 +1,425 @@
+---
+title: AuthenticatedMcpTaskStoreBase
+description: "Base type for authenticated MCP task stores. Wires the current-user callback, fail-closed identity, [AuthenticatedMcpTaskStoreBase.InputResponseReceived](/ap..."
+icon: shapes
+tag: "ABSTRACT"
+keywords: ['AuthenticatedMcpTaskStoreBase', 'CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase', 'CloudNimble.McpEssentials.Core.Tasks', 'class', 'System.Object', 'CloudNimble.McpEssentials.Core.Tasks.IPerUserMcpTaskStore', 'ModelContextProtocol.Extensions.Tasks.IMcpTaskStore']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Core.dll
+
+**Namespace:** CloudNimble.McpEssentials.Core.Tasks
+
+**Inheritance:** System.Object
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase
+```
+
+## Summary
+
+Base type for authenticated MCP task stores. Wires the current-user callback, fail-closed
+identity, [AuthenticatedMcpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase#inputresponsereceived), and the mapping from
+`IMcpTaskStore` / [IPerUserMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore) into per-user core methods.
+
+## Remarks
+
+Subclass and implement the `Core` methods to persist snapshots. Do not wrap the SDK
+`InMemoryMcpTaskStore`; each provider owns its storage.
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public Object()
+```
+
+## Methods
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> CreateTaskAsync <Badge color="orange">Virtual</Badge>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> CreateTaskAsync(System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> CreateTaskAsync <Badge color="orange">Virtual</Badge>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> CreateTaskAsync(System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `user` | `System.Security.Claims.ClaimsPrincipal` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual bool Equals(object obj)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `obj` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool Equals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetHashCode <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual int GetHashCode()
+```
+
+#### Returns
+
+Type: `int`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetTaskAsync <Badge color="orange">Virtual</Badge>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> GetTaskAsync(string taskId, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo?>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetTaskAsync <Badge color="orange">Virtual</Badge>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> GetTaskAsync(string taskId, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `user` | `System.Security.Claims.ClaimsPrincipal` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo?>`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetType <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public System.Type GetType()
+```
+
+#### Returns
+
+Type: `System.Type`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetUserId
+
+Resolves a stable user identifier from *principal*.
+
+#### Syntax
+
+```csharp
+public static string GetUserId(System.Security.Claims.ClaimsPrincipal principal)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `principal` | `System.Security.Claims.ClaimsPrincipal?` | The principal for the current request. |
+
+#### Returns
+
+Type: `string?`
+The first non-whitespace claim in SDK session-identity order, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null)
+when the principal is missing or unauthenticated.
+
+#### Remarks
+
+Claim lookup matches the MCP C# SDK session identity order:
+[NameIdentifier](https://learn.microsoft.com/dotnet/api/system.security.claims.claimtypes.nameidentifier), `sub`, [Upn](https://learn.microsoft.com/dotnet/api/system.security.claims.claimtypes.upn),
+[Name](https://learn.microsoft.com/dotnet/api/system.security.claims.claimtypes.name), then [Name](https://learn.microsoft.com/dotnet/api/system.security.principal.iidentity.name).
+The principal must be authenticated.
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MemberwiseClone <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+protected internal object MemberwiseClone()
+```
+
+#### Returns
+
+Type: `object`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ReferenceEquals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool ReferenceEquals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ResolveInputRequestsAsync <Badge color="orange">Virtual</Badge>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task ResolveInputRequestsAsync(string taskId, System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse> inputResponses, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `inputResponses` | `System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse>` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ResolveInputRequestsAsync <Badge color="orange">Virtual</Badge>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task ResolveInputRequestsAsync(string taskId, System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse> inputResponses, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `inputResponses` | `System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse>` | - |
+| `user` | `System.Security.Claims.ClaimsPrincipal` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetCancelledAsync <Badge color="orange">Virtual</Badge>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task<bool> SetCancelledAsync(string taskId, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task<bool>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetCancelledAsync <Badge color="orange">Virtual</Badge>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task<bool> SetCancelledAsync(string taskId, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `user` | `System.Security.Claims.ClaimsPrincipal` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task<bool>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetCompletedAsync <Badge color="orange">Virtual</Badge>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task SetCompletedAsync(string taskId, System.Text.Json.JsonElement result, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `result` | `System.Text.Json.JsonElement` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetFailedAsync <Badge color="orange">Virtual</Badge>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task SetFailedAsync(string taskId, System.Text.Json.JsonElement error, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `error` | `System.Text.Json.JsonElement` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetInputRequestsAsync <Badge color="orange">Virtual</Badge>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task SetInputRequestsAsync(string taskId, System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputRequest> inputRequests, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `inputRequests` | `System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputRequest>` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToString <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual string ToString()
+```
+
+#### Returns
+
+Type: `string?`
+
+## Events
+
+### <Icon icon="bell" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> InputResponseReceived
+
+#### Syntax
+
+```csharp
+public virtual System.Action<ModelContextProtocol.Extensions.Tasks.InputResponseReceivedEventArgs> InputResponseReceived
+```
+
+## Related APIs
+
+- CloudNimble.McpEssentials.Core.Tasks.IPerUserMcpTaskStore
+- ModelContextProtocol.Extensions.Tasks.IMcpTaskStore
+

@@ -1,0 +1,31 @@
+---
+title: "McpEssentials"
+description: "Useful extensions to the Model Context Protocol C# SDK that make it easier to build generic MCP servers."
+---
+
+McpEssentials is CloudNimble's companion to the official [MCP C# SDK](https://csharp.sdk.modelcontextprotocol.io/). It fills the gaps that show up the moment you host a **generic** MCP server for more than one user: per-user task isolation, and a family of stores that persist those tasks in the engine you already run.
+
+The first package is **McpEssentials.Core**. It ships `InMemoryAuthenticatedMcpTaskStore`, an `IPerUserMcpTaskStore` that records who started a task and refuses `tasks/get`, `tasks/update`, and `tasks/cancel` from anyone else.
+
+<CardGroup cols={2}>
+  <Card title="Authenticated tasks" icon="user-lock" href="/guides/authenticated-tasks">
+    Stamp the logged-in user on create. Isolate later manipulation to that user.
+  </Card>
+  <Card title="Provider stores" icon="database" href="/guides/task-store-providers">
+    Spec for Entity Framework Core, PostgreSQL, Redis, SQL Server, Cosmos DB, and more.
+  </Card>
+</CardGroup>
+
+## Install
+
+```bash
+dotnet add package McpEssentials.Core
+```
+
+## Why this exists
+
+The SDK `InMemoryMcpTaskStore` is process-wide. Under stateless Streamable HTTP that is the right default for a single-purpose server. A multi-user remote MCP server needs one more rule: a client who can guess (or be handed) another user's task id must not be able to poll, cancel, or complete that work.
+
+Core owns the snapshots and keeps an owner on each one. HTTP hosts call `AddHttpContextAccessor()` and pass `sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User` into `WithAuthenticatedTasks`. Stdio hosts pass a constant user id. Client-facing code that already has a principal calls `IPerUserMcpTaskStore` overloads directly.
+
+The Streamable HTTP sample is [`samples/CloudNimble.McpEssentials.Samples.Web`](https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.Web).

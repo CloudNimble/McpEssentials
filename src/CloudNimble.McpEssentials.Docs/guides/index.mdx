@@ -1,0 +1,15 @@
+---
+title: "Guides"
+description: "Authenticated MCP task stores for generic servers, and the provider packages that persist them."
+---
+
+Start with the in-memory store in Core. HTTP hosts call `AddHttpContextAccessor()` and pass a factory that resolves `IHttpContextAccessor` from the built provider. When the host scales out, swap in a durable provider that implements the same contract.
+
+<CardGroup cols={2}>
+  <Card title="Authenticated tasks" href="/guides/authenticated-tasks">
+    `IPerUserMcpTaskStore`, `InMemoryAuthenticatedMcpTaskStore`, DI factory wiring, and the web sample.
+  </Card>
+  <Card title="Provider stores" href="/guides/task-store-providers">
+    Planned packages for EF Core, PostgreSQL, Redis, SQL Server, Cosmos DB, NATS, and MongoDB.
+  </Card>
+</CardGroup>

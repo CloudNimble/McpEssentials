@@ -1,0 +1,232 @@
+---
+title: StoredTask
+description: "An immutable in-memory snapshot of a task and its owner."
+icon: file-brackets-curly
+keywords: ['StoredTask', 'CloudNimble.McpEssentials.Core.Tasks.StoredTask', 'CloudNimble.McpEssentials.Core.Tasks', 'class', 'System.Object']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Core.dll
+
+**Namespace:** CloudNimble.McpEssentials.Core.Tasks
+
+**Inheritance:** System.Object
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Core.Tasks.StoredTask
+```
+
+## Summary
+
+An immutable in-memory snapshot of a task and its owner.
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance of the [StoredTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredTask) class.
+
+#### Syntax
+
+```csharp
+public StoredTask(string ownerUserId, ModelContextProtocol.Extensions.Tasks.McpTaskInfo info)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `ownerUserId` | `string` | The user recorded when the task was created. |
+| `info` | `ModelContextProtocol.Extensions.Tasks.McpTaskInfo` | The protocol-facing snapshot. Must not include the owner. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentException` | Thrown when *ownerUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or whitespace. |
+| `ArgumentNullException` | Thrown when *info* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public Object()
+```
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Info
+
+Gets the protocol-facing snapshot.
+
+#### Syntax
+
+```csharp
+public ModelContextProtocol.Extensions.Tasks.McpTaskInfo Info { get; }
+```
+
+#### Property Value
+
+Type: `ModelContextProtocol.Extensions.Tasks.McpTaskInfo`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> OwnerUserId
+
+Gets the user recorded when the task was created.
+
+#### Syntax
+
+```csharp
+public string OwnerUserId { get; }
+```
+
+#### Property Value
+
+Type: `string`
+
+## Methods
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual bool Equals(object obj)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `obj` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool Equals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetHashCode <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual int GetHashCode()
+```
+
+#### Returns
+
+Type: `int`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetType <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public System.Type GetType()
+```
+
+#### Returns
+
+Type: `System.Type`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MemberwiseClone <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+protected internal object MemberwiseClone()
+```
+
+#### Returns
+
+Type: `object`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ReferenceEquals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool ReferenceEquals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToString <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual string ToString()
+```
+
+#### Returns
+
+Type: `string?`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> With <Badge color="orange">Virtual</Badge>
+
+Returns a snapshot with the same owner and a new [StoredTask.Info](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredTask#info).
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.StoredTask With(ModelContextProtocol.Extensions.Tasks.McpTaskInfo info)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `info` | `ModelContextProtocol.Extensions.Tasks.McpTaskInfo` | The protocol-facing snapshot to store. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.StoredTask`
+A new snapshot with the same [StoredTask.OwnerUserId](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredTask#owneruserid).
+

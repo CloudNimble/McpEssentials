@@ -1,0 +1,89 @@
+{
+  "colors": {
+    "primary": "#419AC5",
+    "dark": "#3CD0E2",
+    "light": "#419AC5"
+  },
+  "name": "McpEssentials",
+  "navigation": {
+    "pages": [
+      {
+        "group": "Getting Started",
+        "icon": "stars",
+        "pages": [
+          "index"
+        ]
+      },
+      {
+        "group": "Guides",
+        "root": "guides/index",
+        "icon": "dog-leashed",
+        "pages": [
+          "guides/index",
+          "guides/authenticated-tasks",
+          "guides/task-store-providers"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "icon": "code",
+        "pages": [
+          {
+            "group": "CloudNimble",
+            "icon": "folder-tree",
+            "pages": [
+              {
+                "group": "McpEssentials",
+                "icon": "folder-tree",
+                "pages": [
+                  {
+                    "group": "Core",
+                    "icon": "folder-tree",
+                    "pages": [
+                      {
+                        "group": "Tasks",
+                        "icon": "folder-tree",
+                        "pages": [
+                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/index",
+                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/ApplyResult",
+                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase",
+                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryAuthenticatedMcpTaskStore",
+                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore",
+                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskUserRequiredException",
+                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredTask"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Microsoft",
+            "icon": "folder-tree",
+            "pages": [
+              {
+                "group": "Extensions",
+                "icon": "folder-tree",
+                "pages": [
+                  {
+                    "group": "DependencyInjection",
+                    "icon": "folder-tree",
+                    "pages": [
+                      "api-reference/Microsoft/Extensions/DependencyInjection/index",
+                      "api-reference/Microsoft/Extensions/DependencyInjection/IMcpServerBuilder",
+                      "api-reference/Microsoft/Extensions/DependencyInjection/IServiceCollection"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple"
+}

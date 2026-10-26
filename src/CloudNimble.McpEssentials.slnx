@@ -1,0 +1,31 @@
+
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Core/">
+    <Project Path="CloudNimble.McpEssentials.Core/CloudNimble.McpEssentials.Core.csproj" />
+  </Folder>
+  <Folder Name="/Docs/">
+    <Project Path="CloudNimble.McpEssentials.Docs/CloudNimble.McpEssentials.Docs.docsproj" Type="C#" />
+  </Folder>
+  <Folder Name="/Samples/">
+    <Project Path="../samples/CloudNimble.McpEssentials.Samples.Web/CloudNimble.McpEssentials.Samples.Web.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="../LICENSE" />
+    <File Path="../README.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="global.json" />
+  </Folder>
+  <Folder Name="/Solution Items/Specs/">
+    <File Path="../specs/authenticated-task-stores.md" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="CloudNimble.McpEssentials.Tests.AspNetCore/CloudNimble.McpEssentials.Tests.AspNetCore.csproj" />
+    <Project Path="CloudNimble.McpEssentials.Tests.Core/CloudNimble.McpEssentials.Tests.Core.csproj" />
+  </Folder>
+</Solution>

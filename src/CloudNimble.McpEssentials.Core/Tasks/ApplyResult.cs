@@ -1,0 +1,19 @@
+namespace CloudNimble.McpEssentials.Core.Tasks
+{
+
+    /// <summary>
+    /// Result of <see cref="InMemoryAuthenticatedMcpTaskStore.TryApply"/>.
+    /// </summary>
+    public enum ApplyResult
+    {
+        /// <summary>No snapshot was present, or it had expired.</summary>
+        Missing = 0,
+
+        /// <summary>The snapshot was present and left unchanged.</summary>
+        Unchanged = 1,
+
+        /// <summary>The snapshot was replaced.</summary>
+        Updated = 2
+    }
+
+}
