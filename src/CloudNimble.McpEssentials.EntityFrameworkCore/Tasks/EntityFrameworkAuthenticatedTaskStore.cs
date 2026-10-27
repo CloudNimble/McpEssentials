@@ -21,7 +21,12 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
     /// <typeparamref name="TContext"/> as scoped (standard <c>AddDbContext</c>); this store opens
     /// a scope per operation.
     /// </summary>
-    /// <typeparam name="TContext">The host <see cref="DbContext"/>. Apply <see cref="McpTaskEntityConfiguration"/> in <c>OnModelCreating</c>.</typeparam>
+    /// <typeparam name="TContext">
+    /// The host <see cref="DbContext"/>. Map <see cref="McpTaskEntity"/> with
+    /// <c>ModelBuilder.AddMcpTasksTable</c> in <c>OnModelCreating</c>, or with
+    /// <c>DbContextOptionsBuilder.AddMcpTasksTable</c> from <c>AddDbContext</c> when the context
+    /// project must not reference this package.
+    /// </typeparam>
     /// <remarks>
     /// Client-facing operations require a current user and treat another user's task as missing.
     /// Server-side completion skips the live-user check. Optional <see cref="IMcpTaskInputSignalBus"/>

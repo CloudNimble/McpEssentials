@@ -1,0 +1,121 @@
+---
+title: DbContextOptionsBuilder
+description: "Extension methods for DbContextOptionsBuilder from Microsoft.EntityFrameworkCore"
+icon: file-brackets-curly
+keywords: ['DbContextOptionsBuilder', 'Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext>', 'Microsoft.EntityFrameworkCore', 'error']
+---
+
+## Definition
+
+**Assembly:** Microsoft.EntityFrameworkCore.dll
+
+**Namespace:** Microsoft.EntityFrameworkCore
+
+## Syntax
+
+```csharp
+Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> where TContext : Microsoft.EntityFrameworkCore.DbContext
+```
+
+## Summary
+
+This type is defined in Microsoft.EntityFrameworkCore.
+
+## Remarks
+
+See [Microsoft documentation](https://learn.microsoft.com/dotnet/api/microsoft.entityframeworkcore.dbcontextoptionsbuilder{tcontext}) for more information about the rest of the API.
+
+## Methods
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddMcpTasksTable <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.EntityFrameworkCore.McpEssentials_EntityFrameworkCore_DbContextOptionsBuilderExtensions`</Note>
+
+Maps [McpTaskEntity](/api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/McpTaskEntity) to table `McpTasks` after the host
+`OnModelCreating`. Call from `AddDbContext` in the application project.
+
+#### Syntax
+
+```csharp
+public static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> AddMcpTasksTable<TContext>(Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder) where TContext : Microsoft.EntityFrameworkCore.DbContext
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `optionsBuilder` | `Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext>` | The options builder for the host context. |
+
+#### Returns
+
+Type: `Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext>`
+The same *optionsBuilder*.
+
+#### Type Parameters
+
+- `TContext` - The host [DbContext](https://learn.microsoft.com/dotnet/api/microsoft.entityframeworkcore.dbcontext).
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *optionsBuilder* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+#### Remarks
+
+Use this from `AddDbContext` in the application project when the
+[DbContext](https://learn.microsoft.com/dotnet/api/microsoft.entityframeworkcore.dbcontext) type lives in a library that must not reference this package.
+The mapping runs after `OnModelCreating` on the same host context. Use
+`ModelBuilder.AddMcpTasksTable` in `OnModelCreating` when the context project
+already references this package. Pick one. Run `dotnet ef migrations add` with this
+project as the startup project so the table is included. A migration from a project that
+does not call this method will not see `McpTasks`.
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddMcpTasksTable <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.EntityFrameworkCore.McpEssentials_EntityFrameworkCore_DbContextOptionsBuilderExtensions`</Note>
+
+Maps [McpTaskEntity](/api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/McpTaskEntity) to *tableName* in
+*schema* after the host `OnModelCreating`. Call from
+`AddDbContext` in the application project.
+
+#### Syntax
+
+```csharp
+public static Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> AddMcpTasksTable<TContext>(Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext> optionsBuilder, string tableName, string schema = null) where TContext : Microsoft.EntityFrameworkCore.DbContext
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `optionsBuilder` | `Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext>` | The options builder for the host context. |
+| `tableName` | `string` | The table name. |
+| `schema` | `string?` | The schema, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) for the database default. |
+
+#### Returns
+
+Type: `Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<TContext>`
+The same *optionsBuilder*.
+
+#### Type Parameters
+
+- `TContext` - The host [DbContext](https://learn.microsoft.com/dotnet/api/microsoft.entityframeworkcore.dbcontext).
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *optionsBuilder* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `ArgumentException` | Thrown when *tableName* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or whitespace. |
+
+#### Remarks
+
+Use this from `AddDbContext` in the application project when the
+[DbContext](https://learn.microsoft.com/dotnet/api/microsoft.entityframeworkcore.dbcontext) type lives in a library that must not reference this package.
+The mapping runs after `OnModelCreating` on the same host context. Use
+`ModelBuilder.AddMcpTasksTable` in `OnModelCreating` when the context project
+already references this package. Pick one. Run `dotnet ef migrations add` with this
+project as the startup project so the table is included. A migration from a project that
+does not call this method will not see `McpTasks`.
+

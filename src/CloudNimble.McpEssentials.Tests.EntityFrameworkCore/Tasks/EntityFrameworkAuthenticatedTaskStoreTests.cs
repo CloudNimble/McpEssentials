@@ -622,25 +622,6 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Tasks
 
         #endregion
 
-        #region Nested Types
-
-        private class ClockEfStore : EntityFrameworkAuthenticatedTaskStore<McpTaskDbContext>
-        {
-
-            public DateTimeOffset Now { get; set; }
-
-            public ClockEfStore(IServiceScopeFactory scopes, string userId, DateTimeOffset now)
-                : base(scopes, userId)
-            {
-                Now = now;
-            }
-
-            protected override DateTimeOffset GetUtcNow() => Now;
-
-        }
-
-        #endregion
-
     }
 
 }

@@ -1393,22 +1393,6 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
 
         #endregion
 
-        #region Nested Types
-
-        private class AlwaysDiscardStore : InspectableStore
-        {
-
-            public AlwaysDiscardStore()
-                : base("alice")
-            {
-            }
-
-            protected override bool ShouldDiscard(StoredMcpTask task, DateTimeOffset now) => true;
-
-        }
-
-        #endregion
-
     }
 
 }

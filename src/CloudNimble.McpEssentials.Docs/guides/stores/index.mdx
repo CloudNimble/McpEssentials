@@ -90,4 +90,6 @@ builder.Services.AddMcpServer()
     .WithEntityFrameworkTasks<AppDbContext>(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
 ```
 
+Map `McpTasks` with `AddMcpTasksTable`. See [Entity Framework Core](/guides/stores/entity-framework-core) for which overload to call (`OnModelCreating` vs `AddDbContext`).
+
 Isolation helpers stay in Core. Provider packages depend on `McpEssentials.Core`, not on each other.

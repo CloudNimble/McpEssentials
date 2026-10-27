@@ -37,7 +37,10 @@ The SDK `WithTasks` API captures the store instance before `Build()`; use
 
 ## Type Parameters
 
-- `TContext` - The host [DbContext](https://learn.microsoft.com/dotnet/api/microsoft.entityframeworkcore.dbcontext). Apply [McpTaskEntityConfiguration](/api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/McpTaskEntityConfiguration) in `OnModelCreating`.
+- `TContext` - The host [DbContext](https://learn.microsoft.com/dotnet/api/microsoft.entityframeworkcore.dbcontext). Map [McpTaskEntity](/api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/McpTaskEntity) with
+`ModelBuilder.AddMcpTasksTable` in `OnModelCreating`, or with
+`DbContextOptionsBuilder.AddMcpTasksTable` from `AddDbContext` when the context
+project must not reference this package.
 
 ## Constructors
 

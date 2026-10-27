@@ -121,6 +121,8 @@
                 "icon": "folder-tree",
                 "pages": [
                   "api-reference/Microsoft/EntityFrameworkCore/index",
+                  "api-reference/Microsoft/EntityFrameworkCore/DbContextOptionsBuilder",
+                  "api-reference/Microsoft/EntityFrameworkCore/DbContextOptionsBuilder",
                   "api-reference/Microsoft/EntityFrameworkCore/ModelBuilder"
                 ]
               },

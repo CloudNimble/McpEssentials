@@ -19,6 +19,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="modelBuilder">The model builder for the host context.</param>
         /// <returns>The same <paramref name="modelBuilder"/>.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="modelBuilder"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// Use this when the project that owns the <see cref="DbContext"/> already references this
+        /// package. Mapping lives with the rest of the model. Use
+        /// <c>DbContextOptionsBuilder.AddMcpTasksTable</c> from <c>AddDbContext</c> when the context
+        /// type lives in a library that must not reference this package. Pick one.
+        /// </remarks>
         public static ModelBuilder AddMcpTasksTable(this ModelBuilder modelBuilder)
             => modelBuilder.AddMcpTasksTable("McpTasks");
 
@@ -34,6 +40,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentException">
         /// Thrown when <paramref name="tableName"/> is <see langword="null"/> or whitespace.
         /// </exception>
+        /// <remarks>
+        /// Use this when the project that owns the <see cref="DbContext"/> already references this
+        /// package. Mapping lives with the rest of the model. Use
+        /// <c>DbContextOptionsBuilder.AddMcpTasksTable</c> from <c>AddDbContext</c> when the context
+        /// type lives in a library that must not reference this package. Pick one.
+        /// </remarks>
         public static ModelBuilder AddMcpTasksTable(this ModelBuilder modelBuilder, string tableName, string? schema = null)
         {
             ArgumentNullException.ThrowIfNull(modelBuilder);
