@@ -1,1 +1,2 @@
 D:\GitHub\McpEssentials\src\CloudNimble.McpEssentials.Core\bin\Debug\net11.0\CloudNimble.McpEssentials.Core.dll
+D:\GitHub\McpEssentials\src\CloudNimble.McpEssentials.EntityFrameworkCore\bin\Debug\net11.0\CloudNimble.McpEssentials.EntityFrameworkCore.dll

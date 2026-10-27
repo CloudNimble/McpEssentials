@@ -177,12 +177,55 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         }
 
         [TestMethod]
-        public void WithAuthenticatedTasks_Configure_IsInvoked()
+        public async Task AddInMemoryAuthenticatedTaskStore_Configure_SetsDefaultTimeToLive()
+        {
+            TestHostBuilder.ConfigureServices(services =>
+            {
+                services.AddInMemoryAuthenticatedTaskStore("alice", o =>
+                {
+                    o.DefaultTimeToLive = TimeSpan.FromMinutes(5);
+                    o.DefaultPollIntervalMs = 2500;
+                });
+            });
+            TestSetup();
+
+            var store = GetService<InMemoryAuthenticatedMcpTaskStore>();
+            var created = await store!.CreateTaskAsync();
+
+            store.DefaultTimeToLive.Should().Be(TimeSpan.FromMinutes(5));
+            store.DefaultPollIntervalMs.Should().Be(2500);
+            created.TimeToLive.Should().Be(TimeSpan.FromMinutes(5));
+            created.PollIntervalMs.Should().Be(2500);
+        }
+
+        [TestMethod]
+        public async Task WithAuthenticatedTasks_Configure_SetsDefaultTimeToLive()
+        {
+            var builder = new TestMcpServerBuilder();
+
+            builder.WithAuthenticatedTasks("alice", o =>
+            {
+                o.DefaultTimeToLive = TimeSpan.FromMinutes(5);
+                o.DefaultPollIntervalMs = 2500;
+            });
+
+            using var provider = builder.Services.BuildServiceProvider();
+            var store = provider.GetRequiredService<InMemoryAuthenticatedMcpTaskStore>();
+            var created = await store.CreateTaskAsync();
+
+            store.DefaultTimeToLive.Should().Be(TimeSpan.FromMinutes(5));
+            store.DefaultPollIntervalMs.Should().Be(2500);
+            created.TimeToLive.Should().Be(TimeSpan.FromMinutes(5));
+            created.PollIntervalMs.Should().Be(2500);
+        }
+
+        [TestMethod]
+        public void WithAuthenticatedTasks_ConfigureTasks_IsInvoked()
         {
             var builder = new TestMcpServerBuilder();
             var called = false;
 
-            builder.WithAuthenticatedTasks("alice", _ => called = true);
+            builder.WithAuthenticatedTasks("alice", configureTasks: _ => called = true);
 
             called.Should().BeTrue();
         }
@@ -254,7 +297,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
             builder.Services.AddSingleton(TestUser.Authenticated("alice"));
             var configured = false;
 
-            builder.WithAuthenticatedTasks(sp => sp.GetRequiredService<ClaimsPrincipal>(), _ => configured = true);
+            builder.WithAuthenticatedTasks(sp => sp.GetRequiredService<ClaimsPrincipal>(), configureTasks: _ => configured = true);
 
             using var provider = builder.Services.BuildServiceProvider();
             foreach (var configure in provider.GetServices<IConfigureOptions<McpServerOptions>>())

@@ -8,12 +8,13 @@ The SDK `InMemoryMcpTaskStore` is process-wide. A multi-user remote MCP server n
 
 **McpEssentials.Core** ships `InMemoryAuthenticatedMcpTaskStore`. It records the logged-in user on create and treats everyone else's `tasks/get` / `tasks/update` / `tasks/cancel` as not found.
 
-Durable providers (Entity Framework Core, PostgreSQL, Redis, and others) are specified in [`specs/authenticated-task-stores.md`](specs/authenticated-task-stores.md).
+**McpEssentials.EntityFrameworkCore** persists the same contract on any EF Core database. Other durable providers (PostgreSQL, Redis, …) are specified in [`specs/authenticated-task-stores.md`](specs/authenticated-task-stores.md).
 
 ## Install
 
 ```bash
 dotnet add package McpEssentials.Core
+dotnet add package McpEssentials.EntityFrameworkCore
 ```
 
 ## Quick start
@@ -39,7 +40,9 @@ Matches other CloudNimble *Essentials products and the OData MCP repo:
 | `src/Directory.Build.props` | Pack, test, and TFM defaults |
 | `src/global.json` | .NET SDK (same pin as OData MCP) |
 | `src/CloudNimble.McpEssentials.Core` | Authenticated in-memory task store |
+| `src/CloudNimble.McpEssentials.EntityFrameworkCore` | EF Core authenticated task store |
 | `src/CloudNimble.McpEssentials.Tests.Core` | Breakdance + MSTest + FluentAssertions |
+| `src/CloudNimble.McpEssentials.Tests.EntityFrameworkCore` | SQLite in-memory coverage for the EF provider |
 | `src/CloudNimble.McpEssentials.Tests.AspNetCore` | Breakdance.AspNetCore host: concurrent users over Streamable HTTP |
 | `src/CloudNimble.McpEssentials.Docs` | DotNetDocs / Mintlify |
 | `samples/CloudNimble.McpEssentials.Samples.Web` | Streamable HTTP MCP host with fake auth and authenticated tasks |

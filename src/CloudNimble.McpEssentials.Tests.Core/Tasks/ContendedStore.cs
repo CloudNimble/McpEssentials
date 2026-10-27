@@ -26,7 +26,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
 
         #region Protected Methods
 
-        protected override bool TryCompareAndSwap(string taskId, StoredTask current, StoredTask next)
+        protected override bool TryCompareAndSwap(string taskId, StoredMcpTask current, StoredMcpTask next)
         {
             if (FailedSwaps == 0)
             {

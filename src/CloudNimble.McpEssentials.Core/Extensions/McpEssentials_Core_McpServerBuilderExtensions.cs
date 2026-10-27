@@ -23,14 +23,19 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="builder">The MCP server builder.</param>
         /// <param name="userId">The owner stamped on every task this process creates.</param>
-        /// <param name="configure">Optional Tasks options (execution-mode selector, and so on).</param>
+        /// <param name="configure">Optional store options (TTL, poll interval).</param>
+        /// <param name="configureTasks">Optional SDK Tasks options (execution-mode selector, and so on).</param>
         /// <returns>The server builder.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="builder"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException">Thrown when <paramref name="userId"/> is <see langword="null"/> or whitespace.</exception>
-        public static IMcpServerBuilder WithAuthenticatedTasks(this IMcpServerBuilder builder, string userId, Action<McpTasksOptions>? configure = null)
+        public static IMcpServerBuilder WithAuthenticatedTasks(
+            this IMcpServerBuilder builder,
+            string userId,
+            Action<AuthenticatedMcpTaskStoreOptions>? configure = null,
+            Action<McpTasksOptions>? configureTasks = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(userId);
-            return builder.WithAuthenticatedTasks(new InMemoryAuthenticatedMcpTaskStore(userId), configure);
+            return builder.WithAuthenticatedTasks(new InMemoryAuthenticatedMcpTaskStore(userId), configure, configureTasks);
         }
 
         /// <summary>
@@ -38,13 +43,18 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="builder">The MCP server builder.</param>
         /// <param name="getCurrentUserId">Returns the current user identifier, or <see langword="null"/> when unauthenticated.</param>
-        /// <param name="configure">Optional Tasks options (execution-mode selector, and so on).</param>
+        /// <param name="configure">Optional store options (TTL, poll interval).</param>
+        /// <param name="configureTasks">Optional SDK Tasks options (execution-mode selector, and so on).</param>
         /// <returns>The server builder.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="builder"/> or <paramref name="getCurrentUserId"/> is <see langword="null"/>.</exception>
-        public static IMcpServerBuilder WithAuthenticatedTasks(this IMcpServerBuilder builder, Func<string?> getCurrentUserId, Action<McpTasksOptions>? configure = null)
+        public static IMcpServerBuilder WithAuthenticatedTasks(
+            this IMcpServerBuilder builder,
+            Func<string?> getCurrentUserId,
+            Action<AuthenticatedMcpTaskStoreOptions>? configure = null,
+            Action<McpTasksOptions>? configureTasks = null)
         {
             ArgumentNullException.ThrowIfNull(getCurrentUserId);
-            return builder.WithAuthenticatedTasks(new InMemoryAuthenticatedMcpTaskStore(getCurrentUserId), configure);
+            return builder.WithAuthenticatedTasks(new InMemoryAuthenticatedMcpTaskStore(getCurrentUserId), configure, configureTasks);
         }
 
         /// <summary>
@@ -53,16 +63,21 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The MCP server builder.</param>
         /// <param name="getPrincipal">
         /// Returns the principal for the current request. Invoked on each client-facing task operation.
-        /// Use the <see cref="WithAuthenticatedTasks(IMcpServerBuilder, Func{IServiceProvider, ClaimsPrincipal?}, Action{McpTasksOptions}?)"/>
+        /// Use the <see cref="WithAuthenticatedTasks(IMcpServerBuilder, Func{IServiceProvider, ClaimsPrincipal?}, Action{AuthenticatedMcpTaskStoreOptions}?, Action{McpTasksOptions}?)"/>
         /// overload when the principal comes from DI.
         /// </param>
-        /// <param name="configure">Optional Tasks options (execution-mode selector, and so on).</param>
+        /// <param name="configure">Optional store options (TTL, poll interval).</param>
+        /// <param name="configureTasks">Optional SDK Tasks options (execution-mode selector, and so on).</param>
         /// <returns>The server builder.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="builder"/> or <paramref name="getPrincipal"/> is <see langword="null"/>.</exception>
-        public static IMcpServerBuilder WithAuthenticatedTasks(this IMcpServerBuilder builder, Func<ClaimsPrincipal?> getPrincipal, Action<McpTasksOptions>? configure = null)
+        public static IMcpServerBuilder WithAuthenticatedTasks(
+            this IMcpServerBuilder builder,
+            Func<ClaimsPrincipal?> getPrincipal,
+            Action<AuthenticatedMcpTaskStoreOptions>? configure = null,
+            Action<McpTasksOptions>? configureTasks = null)
         {
             ArgumentNullException.ThrowIfNull(getPrincipal);
-            return builder.WithAuthenticatedTasks(new InMemoryAuthenticatedMcpTaskStore(getPrincipal), configure);
+            return builder.WithAuthenticatedTasks(new InMemoryAuthenticatedMcpTaskStore(getPrincipal), configure, configureTasks);
         }
 
         /// <summary>
@@ -75,7 +90,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// ASP.NET Core hosts call <c>AddHttpContextAccessor()</c> and pass
         /// <c>sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User</c>.
         /// </param>
-        /// <param name="configure">Optional Tasks options (execution-mode selector, and so on).</param>
+        /// <param name="configure">Optional store options (TTL, poll interval).</param>
+        /// <param name="configureTasks">Optional SDK Tasks options (execution-mode selector, and so on).</param>
         /// <returns>The server builder.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="builder"/> or <paramref name="getPrincipal"/> is <see langword="null"/>.</exception>
         /// <example>
@@ -83,16 +99,23 @@ namespace Microsoft.Extensions.DependencyInjection
         /// builder.Services.AddHttpContextAccessor();
         /// builder.Services.AddMcpServer()
         ///     .WithHttpTransport()
-        ///     .WithAuthenticatedTasks(sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User);
+        ///     .WithAuthenticatedTasks(
+        ///         sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User,
+        ///         o =&gt; o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
         /// </code>
         /// </example>
-        public static IMcpServerBuilder WithAuthenticatedTasks(this IMcpServerBuilder builder, Func<IServiceProvider, ClaimsPrincipal?> getPrincipal, Action<McpTasksOptions>? configure = null)
+        public static IMcpServerBuilder WithAuthenticatedTasks(
+            this IMcpServerBuilder builder,
+            Func<IServiceProvider, ClaimsPrincipal?> getPrincipal,
+            Action<AuthenticatedMcpTaskStoreOptions>? configure = null,
+            Action<McpTasksOptions>? configureTasks = null)
         {
             ArgumentNullException.ThrowIfNull(builder);
             ArgumentNullException.ThrowIfNull(getPrincipal);
 
             var services = new StrongBox<IServiceProvider>();
             var store = new InMemoryAuthenticatedMcpTaskStore(() => getPrincipal(services.Value!));
+            AuthenticatedMcpTaskStoreOptions.Apply(configure, store);
 
             builder.Services.TryAddSingleton(sp =>
             {
@@ -110,9 +133,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 return new ConfigureOptions<McpServerOptions>(NoopMcpServerOptions);
             });
 
-            return configure is null
+            return configureTasks is null
                 ? builder.WithTasks(store)
-                : builder.WithTasks(store, configure);
+                : builder.WithTasks(store, configureTasks);
         }
 
         #endregion
@@ -123,17 +146,22 @@ namespace Microsoft.Extensions.DependencyInjection
         {
         }
 
-        private static IMcpServerBuilder WithAuthenticatedTasks(this IMcpServerBuilder builder, InMemoryAuthenticatedMcpTaskStore store, Action<McpTasksOptions>? configure)
+        private static IMcpServerBuilder WithAuthenticatedTasks(
+            this IMcpServerBuilder builder,
+            InMemoryAuthenticatedMcpTaskStore store,
+            Action<AuthenticatedMcpTaskStoreOptions>? configure,
+            Action<McpTasksOptions>? configureTasks)
         {
             ArgumentNullException.ThrowIfNull(builder);
+            AuthenticatedMcpTaskStoreOptions.Apply(configure, store);
 
             builder.Services.TryAddSingleton(store);
             builder.Services.TryAddSingleton<IPerUserMcpTaskStore>(store);
             builder.Services.TryAddSingleton<IMcpTaskStore>(store);
 
-            return configure is null
+            return configureTasks is null
                 ? builder.WithTasks(store)
-                : builder.WithTasks(store, configure);
+                : builder.WithTasks(store, configureTasks);
         }
 
         #endregion

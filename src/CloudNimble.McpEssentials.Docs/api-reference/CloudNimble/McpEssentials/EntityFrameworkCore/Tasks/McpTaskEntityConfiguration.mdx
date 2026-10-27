@@ -1,53 +1,66 @@
 ---
-title: StoredTask
-description: "An immutable in-memory snapshot of a task and its owner."
+title: McpTaskEntityConfiguration
+description: "Maps [McpTaskEntity](/api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/McpTaskEntity) to a table (default `McpTasks`) with owner, work-windo..."
 icon: file-brackets-curly
-keywords: ['StoredTask', 'CloudNimble.McpEssentials.Core.Tasks.StoredTask', 'CloudNimble.McpEssentials.Core.Tasks', 'class', 'System.Object']
+keywords: ['McpTaskEntityConfiguration', 'CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.McpTaskEntityConfiguration', 'CloudNimble.McpEssentials.EntityFrameworkCore.Tasks', 'class', 'System.Object', 'Microsoft.EntityFrameworkCore.IEntityTypeConfiguration<CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.McpTaskEntity>']
 ---
 
 ## Definition
 
-**Assembly:** CloudNimble.McpEssentials.Core.dll
+**Assembly:** CloudNimble.McpEssentials.EntityFrameworkCore.dll
 
-**Namespace:** CloudNimble.McpEssentials.Core.Tasks
+**Namespace:** CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
 
 **Inheritance:** System.Object
 
 ## Syntax
 
 ```csharp
-CloudNimble.McpEssentials.Core.Tasks.StoredTask
+CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.McpTaskEntityConfiguration
 ```
 
 ## Summary
 
-An immutable in-memory snapshot of a task and its owner.
+Maps [McpTaskEntity](/api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/McpTaskEntity) to a table (default `McpTasks`) with owner, work-window,
+and discard indexes and an application-managed concurrency token. Protocol enums and payloads
+convert to strings. [StoredMcpTask.DiscardAfter](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#discardafter) stores UTC ticks so every
+provider, including SQLite, can `ExecuteDelete` on the stamp.
 
 ## Constructors
 
 ### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
 
-Initializes a new instance of the [StoredTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredTask) class.
+Initializes a new instance that maps to table `McpTasks`.
 
 #### Syntax
 
 ```csharp
-public StoredTask(string ownerUserId, ModelContextProtocol.Extensions.Tasks.McpTaskInfo info)
+public McpTaskEntityConfiguration()
+```
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance that maps to *tableName* in
+*schema*.
+
+#### Syntax
+
+```csharp
+public McpTaskEntityConfiguration(string tableName, string schema = null)
 ```
 
 #### Parameters
 
 | Name | Type | Description |
 |------|------|-------------|
-| `ownerUserId` | `string` | The user recorded when the task was created. |
-| `info` | `ModelContextProtocol.Extensions.Tasks.McpTaskInfo` | The protocol-facing snapshot. Must not include the owner. |
+| `tableName` | `string` | The table name. |
+| `schema` | `string?` | The schema, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) for the database default. |
 
 #### Exceptions
 
 | Exception | Description |
 |-----------|-------------|
-| `ArgumentException` | Thrown when *ownerUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or whitespace. |
-| `ArgumentNullException` | Thrown when *info* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `ArgumentException` | Thrown when *tableName* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or whitespace. |
 
 ### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
 
@@ -61,28 +74,28 @@ public Object()
 
 ## Properties
 
-### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Info
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Schema
 
-Gets the protocol-facing snapshot.
+Gets the schema, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) to use the database default.
 
 #### Syntax
 
 ```csharp
-public ModelContextProtocol.Extensions.Tasks.McpTaskInfo Info { get; }
+public string Schema { get; }
 ```
 
 #### Property Value
 
-Type: `ModelContextProtocol.Extensions.Tasks.McpTaskInfo`
+Type: `string?`
 
-### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> OwnerUserId
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TableName
 
-Gets the user recorded when the task was created.
+Gets the table name. The default is `McpTasks`.
 
 #### Syntax
 
 ```csharp
-public string OwnerUserId { get; }
+public string TableName { get; }
 ```
 
 #### Property Value
@@ -90,6 +103,20 @@ public string OwnerUserId { get; }
 Type: `string`
 
 ## Methods
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Configure <Badge color="orange">Virtual</Badge>
+
+#### Syntax
+
+```csharp
+public virtual void Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.McpTaskEntity> builder)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `builder` | `Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.McpTaskEntity>` | - |
 
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
 
@@ -209,24 +236,7 @@ public virtual string ToString()
 
 Type: `string?`
 
-### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> With <Badge color="orange">Virtual</Badge>
+## Related APIs
 
-Returns a snapshot with the same owner and a new [StoredTask.Info](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredTask#info).
-
-#### Syntax
-
-```csharp
-public virtual CloudNimble.McpEssentials.Core.Tasks.StoredTask With(ModelContextProtocol.Extensions.Tasks.McpTaskInfo info)
-```
-
-#### Parameters
-
-| Name | Type | Description |
-|------|------|-------------|
-| `info` | `ModelContextProtocol.Extensions.Tasks.McpTaskInfo` | The protocol-facing snapshot to store. |
-
-#### Returns
-
-Type: `CloudNimble.McpEssentials.Core.Tasks.StoredTask`
-A new snapshot with the same [StoredTask.OwnerUserId](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredTask#owneruserid).
+- Microsoft.EntityFrameworkCore.IEntityTypeConfiguration&lt;CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.McpTaskEntity&gt;
 

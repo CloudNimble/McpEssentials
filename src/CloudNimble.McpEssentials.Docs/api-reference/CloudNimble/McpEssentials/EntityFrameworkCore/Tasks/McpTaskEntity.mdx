@@ -1,0 +1,150 @@
+---
+title: McpTaskEntity
+description: "Persisted MCP task row. Inherits protocol fields from [StoredMcpTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask) and adds an applicat..."
+icon: file-brackets-curly
+keywords: ['McpTaskEntity', 'CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.McpTaskEntity', 'CloudNimble.McpEssentials.EntityFrameworkCore.Tasks', 'class', 'CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.EntityFrameworkCore.dll
+
+**Namespace:** CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
+
+**Inheritance:** CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.McpTaskEntity
+```
+
+## Summary
+
+Persisted MCP task row. Inherits protocol fields from [StoredMcpTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask) and adds
+an application-managed concurrency token plus JSON columns for payloads. Map with
+`AddMcpTasksTable` (default table `McpTasks`). Do not store these rows
+on domain tables; tasks expire in minutes.
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes an empty row for EF Core materialization.
+
+#### Syntax
+
+```csharp
+public McpTaskEntity()
+```
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new row from a protocol snapshot.
+
+#### Syntax
+
+```csharp
+public McpTaskEntity(string ownerUserId, ModelContextProtocol.Extensions.Tasks.McpTaskInfo info)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `ownerUserId` | `string` | The user recorded when the task was created. |
+| `info` | `ModelContextProtocol.Extensions.Tasks.McpTaskInfo` | The protocol-facing snapshot. Must not include the owner. |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new working row owned by *ownerUserId*.
+
+#### Syntax
+
+```csharp
+public McpTaskEntity(string ownerUserId, string taskId, System.DateTimeOffset createdAt, System.Nullable<System.TimeSpan> timeToLive, long pollIntervalMs)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `ownerUserId` | `string` | - |
+| `taskId` | `string` | - |
+| `createdAt` | `System.DateTimeOffset` | - |
+| `timeToLive` | `System.Nullable<System.TimeSpan>` | - |
+| `pollIntervalMs` | `long` | - |
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ErrorJson
+
+Gets or sets the JSON-RPC error as JSON. Backs [StoredMcpTask.Error](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#error).
+
+#### Syntax
+
+```csharp
+public string ErrorJson { get; set; }
+```
+
+#### Property Value
+
+Type: `string?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> InputRequestsJson
+
+Gets or sets the outstanding input-request map as JSON. Backs [StoredMcpTask.InputRequests](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#inputrequests).
+
+#### Syntax
+
+```csharp
+public string InputRequestsJson { get; set; }
+```
+
+#### Property Value
+
+Type: `string?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ResultJson
+
+Gets or sets the terminal result as JSON. Backs [StoredMcpTask.Result](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#result).
+
+#### Syntax
+
+```csharp
+public string ResultJson { get; set; }
+```
+
+#### Property Value
+
+Type: `string?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> RowVersion
+
+Gets or sets the application-managed concurrency token. SQL Server hosts may remap this
+as `rowversion` in their own configuration.
+
+#### Syntax
+
+```csharp
+public byte[] RowVersion { get; set; }
+```
+
+#### Property Value
+
+Type: `byte[]`
+
+## Methods
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Clone <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask Clone()
+```
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask`
+

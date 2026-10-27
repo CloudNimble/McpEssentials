@@ -26,6 +26,11 @@ namespace CloudNimble.McpEssentials.Core.Tasks
     /// set input requests) stays on <see cref="IMcpTaskStore"/> and skips the live-user check because
     /// the SDK runs those from a background DI scope after the originating request is gone.
     /// </para>
+    /// <para>
+    /// Every store exposes <see cref="SweepExpiredAsync"/> so a host can flush expired rows on its
+    /// own schedule. The base class also pulses that flush after create and on get unless
+    /// <c>AutoSweep</c> is turned off.
+    /// </para>
     /// </remarks>
     public interface IPerUserMcpTaskStore : IMcpTaskStore
     {
@@ -86,6 +91,21 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         /// </exception>
         /// <exception cref="McpTaskUserRequiredException">Thrown when <paramref name="user"/> is unauthenticated.</exception>
         Task ResolveInputRequestsAsync(string taskId, IDictionary<string, InputResponse> inputResponses, ClaimsPrincipal user, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Removes snapshots the store's discard criteria say are gone.
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token for the operation.</param>
+        /// <remarks>
+        /// Always runs a full pass. Automatic create/get pulses are separate and throttled.
+        /// Set <c>AutoSweep</c> to <see langword="false"/> and call this method from your own job
+        /// when you want to own the schedule.
+        /// </remarks>
+        /// <returns>A task that completes when the pass finishes.</returns>
+        /// <exception cref="OperationCanceledException">
+        /// <paramref name="cancellationToken"/> was cancelled during the pass.
+        /// </exception>
+        Task SweepExpiredAsync(CancellationToken cancellationToken = default);
 
     }
 

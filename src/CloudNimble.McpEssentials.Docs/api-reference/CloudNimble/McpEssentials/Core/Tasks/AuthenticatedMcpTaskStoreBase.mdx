@@ -23,13 +23,16 @@ CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase
 ## Summary
 
 Base type for authenticated MCP task stores. Wires the current-user callback, fail-closed
-identity, [AuthenticatedMcpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase#inputresponsereceived), and the mapping from
+identity, [AuthenticatedMcpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase#inputresponsereceived), flush pulses, and the mapping from
 `IMcpTaskStore` / [IPerUserMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore) into per-user core methods.
 
 ## Remarks
 
-Subclass and implement the `Core` methods to persist snapshots. Do not wrap the SDK
-`InMemoryMcpTaskStore`; each provider owns its storage.
+Subclass and implement the `Core` methods plus `CancellationToken)` to
+persist snapshots. Create inserts then pulses a throttled flush; get pulses then reads.
+Set [AuthenticatedMcpTaskStoreBase.AutoSweep](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase#autosweep) to [`false`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) and call `CancellationToken)`
+from your own job to own the schedule. Override `DateTimeOffset)` to change keep
+rules. Do not wrap the SDK `InMemoryMcpTaskStore`; each provider owns its storage.
 
 ## Constructors
 
@@ -42,6 +45,95 @@ Subclass and implement the `Core` methods to persist snapshots. Do not wrap the 
 ```csharp
 public Object()
 ```
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AutoSweep <Badge color="orange">Virtual</Badge>
+
+Gets or sets whether the store pulses a throttled flush after create and on get.
+
+#### Syntax
+
+```csharp
+public virtual bool AutoSweep { get; set; }
+```
+
+#### Property Value
+
+Type: `bool`
+The default is [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool).
+
+#### Remarks
+
+Set to [`false`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) and call `CancellationToken)` from your own job
+when you want to own the schedule. The public flush handle always runs a full pass.
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DefaultPollIntervalMs <Badge color="orange">Virtual</Badge>
+
+Gets or sets the default poll interval in milliseconds for new tasks.
+
+#### Syntax
+
+```csharp
+public virtual long DefaultPollIntervalMs { get; set; }
+```
+
+#### Property Value
+
+Type: `long`
+The default is 1000 milliseconds.
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DefaultTimeToLive <Badge color="orange">Virtual</Badge>
+
+Gets or sets the default time-to-live for new tasks, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) for unlimited.
+
+#### Syntax
+
+```csharp
+public virtual System.Nullable<System.TimeSpan> DefaultTimeToLive { get; set; }
+```
+
+#### Property Value
+
+Type: `System.Nullable<System.TimeSpan>`
+
+#### Remarks
+
+When set to a positive value, the work window ends at `CreatedAt + TimeToLive` and
+the row is discarded at `CreatedAt + 2×TimeToLive` (stamped as
+[StoredMcpTask.DiscardAfter](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#discardafter)), or sooner when a terminal
+`GetTaskAsync` serves it. A [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or non-positive value keeps tasks
+until a terminal get or until the store discards them.
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ServeAndDrop <Badge color="orange">Virtual</Badge>
+
+Gets or sets whether an owner get of a terminal snapshot serves it and then drops the row.
+
+#### Syntax
+
+```csharp
+public virtual bool ServeAndDrop { get; set; }
+```
+
+#### Property Value
+
+Type: `bool`
+The default is [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool).
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SweepInterval <Badge color="orange">Virtual</Badge>
+
+Gets or sets the minimum interval between automatic flush pulses.
+
+#### Syntax
+
+```csharp
+public virtual System.TimeSpan SweepInterval { get; set; }
+```
+
+#### Property Value
+
+Type: `System.TimeSpan`
+The default is 30 seconds. [Zero](https://learn.microsoft.com/dotnet/api/system.timespan.zero) skips the throttle.
 
 ## Methods
 
@@ -388,6 +480,24 @@ public virtual System.Threading.Tasks.Task SetInputRequestsAsync(string taskId, 
 |------|------|-------------|
 | `taskId` | `string` | - |
 | `inputRequests` | `System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputRequest>` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SweepExpiredAsync <Badge color="orange">Virtual</Badge>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task SweepExpiredAsync(System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
 | `cancellationToken` | `System.Threading.CancellationToken` | - |
 
 #### Returns

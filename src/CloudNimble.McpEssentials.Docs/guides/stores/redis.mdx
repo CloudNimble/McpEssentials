@@ -1,0 +1,47 @@
+---
+title: "Redis"
+description: "StackExchange.Redis authenticated task store with native EXPIRE and pub/sub. Specified; not in this repository yet."
+keywords: ["Redis", "StackExchange.Redis"]
+---
+
+<Warning>
+`McpEssentials.Redis` is specified and is not in this repository yet.
+</Warning>
+
+Low-latency handles, native TTL, and pub/sub for elicitation. Prefer this over [`IDistributedCache`](/guides/stores/distributed-cache) when the cache is Redis and you need fan-out.
+
+## When to use it
+
+- The host already runs Redis.
+- Tasks should vanish with `EXPIRE` / `EXPIREAT` from `DiscardAfter`.
+- Several nodes wait on `ElicitAsync` and can subscribe to a Redis channel.
+
+## Intended how-to
+
+1. Add `McpEssentials.Redis` and a `ConnectionMultiplexer`.
+2. Keys:
+
+```
+mcp:task:{taskId}            HASH or JSON  (full record, including OwnerUserId)
+mcp:user:{ownerUserId}:tasks SET           (optional index for admin sweep)
+```
+
+3. Register the store as a singleton with the same current-user factory as [Authenticated tasks](/guides/authenticated-tasks).
+4. `CreateTaskAsync` uses `SET` with replica wait (`Wait` / `waitReplicas`) so a later get on any node can see the row. Eventually-consistent Redis without wait is not SEP-2663 compliant.
+5. Terminal transitions use a Lua script that checks status before writing.
+
+A missing key is not found. Get does not distinguish expiry from isolation.
+
+## Events
+
+```
+PUBLISH mcp:task:input {taskId}:{requestId}
+```
+
+Subscribers raise `InputResponseReceived`. Payload is task id plus request id.
+
+## TTL
+
+`EXPIREAT` on the task key from `DiscardAfter` (`CreatedAt + 2×TimeToLive`). No sweeper required. Core `SweepExpiredAsync` is a no-op; Redis owns expiry.
+
+See [Stores](/guides/stores).

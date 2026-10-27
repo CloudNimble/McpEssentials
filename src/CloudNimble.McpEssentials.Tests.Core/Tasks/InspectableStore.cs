@@ -6,6 +6,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CloudNimble.McpEssentials.Tests.Core.Tasks
 {
@@ -20,11 +22,23 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
 
         public DateTimeOffset Now { get; set; } = DateTimeOffset.UtcNow;
 
-        public TimeSpan Sweep { get; set; } = TimeSpan.Zero;
+        public TimeSpan Sweep
+        {
+            get => SweepInterval;
+            set => SweepInterval = value;
+        }
 
         public Queue<string> ForcedIds { get; } = new();
 
-        public ConcurrentDictionary<string, StoredTask> Entries => Tasks;
+        public ConcurrentDictionary<string, StoredMcpTask> Entries => Tasks;
+
+        public Action? OnSweep { get; set; }
+
+        public long SweepTicks
+        {
+            get => LastSweepTicks;
+            set => LastSweepTicks = value;
+        }
 
         #endregion
 
@@ -33,21 +47,27 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         public InspectableStore(string? userId)
             : base(userId)
         {
+            SweepInterval = TimeSpan.Zero;
         }
 
         public InspectableStore(Func<string?> getCurrentUserId)
             : base(getCurrentUserId)
         {
+            SweepInterval = TimeSpan.Zero;
         }
 
         #endregion
 
         #region Public Methods
 
-        public ApplyResult Apply(string taskId, Func<StoredTask, StoredTask?> updater, out StoredTask? applied)
-            => TryApply(taskId, updater, out applied);
+        public ApplyResult Apply(string taskId, Func<StoredMcpTask, StoredMcpTask?> updater, out StoredMcpTask? applied, CancellationToken cancellationToken = default)
+            => TryApply(taskId, updater, out applied, cancellationToken);
 
-        public void SweepNow() => SweepExpired(GetUtcNow());
+        public void SweepNow(CancellationToken cancellationToken = default)
+            => SweepExpiredAsync(cancellationToken).GetAwaiter().GetResult();
+
+        public void PulseNow(CancellationToken cancellationToken = default)
+            => PulseSweepAsync(GetUtcNow(), cancellationToken).GetAwaiter().GetResult();
 
         public McpTaskInfo ClonePublic(
             McpTaskInfo source,
@@ -57,11 +77,17 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
             JsonElement? result = null,
             JsonElement? error = null,
             IReadOnlyDictionary<string, InputRequest>? inputRequests = null)
-            => Clone(source, status, lastUpdatedAt, statusMessage, result, error, inputRequests);
+            => new StoredMcpTask("clone", source).ToMcpTaskInfo(status, lastUpdatedAt, statusMessage, result, error, inputRequests);
 
         public TimeSpan? Normalize(TimeSpan? ttl) => NormalizeTimeToLive(ttl);
 
-        public bool Expired(McpTaskInfo info, DateTimeOffset now) => IsExpired(info, now);
+        public bool Expired(StoredMcpTask task, DateTimeOffset now) => task.IsExpired(now);
+
+        public bool Active(StoredMcpTask task, DateTimeOffset now) => task.IsActive(now);
+
+        public bool HasExpired(StoredMcpTask task, DateTimeOffset now) => task.HasExpired(now);
+
+        public bool Discard(StoredMcpTask task, DateTimeOffset now) => ShouldDiscard(task, now);
 
         public bool OwnedBy(string? ownerUserId, string? currentUserId) => IsOwnedBy(ownerUserId, currentUserId);
 
@@ -75,7 +101,11 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
 
         protected override DateTimeOffset GetUtcNow() => Now;
 
-        protected override TimeSpan SweepInterval => Sweep;
+        protected override Task SweepExpiredCoreAsync(DateTimeOffset now, CancellationToken cancellationToken)
+        {
+            OnSweep?.Invoke();
+            return base.SweepExpiredCoreAsync(now, cancellationToken);
+        }
 
         protected override string NewTaskId()
             => ForcedIds.TryDequeue(out var id) ? id : base.NewTaskId();

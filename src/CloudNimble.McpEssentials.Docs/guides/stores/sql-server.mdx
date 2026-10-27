@@ -1,0 +1,31 @@
+---
+title: "SQL Server"
+description: "Native Microsoft.Data.SqlClient authenticated task store. Specified; not in this repository yet."
+keywords: ["SQL Server", "Azure SQL", "SqlClient"]
+---
+
+<Warning>
+`McpEssentials.SqlServer` is specified and is not in this repository yet. Use [Entity Framework Core](/guides/stores/entity-framework-core) with `UseSqlServer` until it ships.
+</Warning>
+
+This package exists for hosts that want Azure SQL or SQL Server **without** an EF model (ADO.NET, Dapper).
+
+## When to use it
+
+- The host already uses `Microsoft.Data.SqlClient` and does not want a `DbContext`.
+- You need `rowversion` CAS on `McpTasks` under your own migrations.
+
+Stay on EF Core + SQL Server when you already have a `DbContext`. Service Broker and Query Notifications are heavy; scale-out elicitation pairs Azure SQL with Service Bus as [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus).
+
+## Intended how-to
+
+1. Add `McpEssentials.SqlServer`.
+2. Create `McpTasks` with `rowversion` for compare-and-swap, indexes on `OwnerUserId` and `DiscardAfter`.
+3. Register the store as a singleton with the same current-user factory as [Authenticated tasks](/guides/authenticated-tasks).
+4. Optional: register a signal bus for multi-node `ElicitAsync`.
+
+## TTL
+
+Call `SweepExpiredAsync` from a hosted service, or `DELETE WHERE DiscardAfter <= SYSUTCDATETIME()`. `DiscardAfter` is `CreatedAt + 2×TimeToLive`, stamped at write.
+
+See [Stores](/guides/stores).

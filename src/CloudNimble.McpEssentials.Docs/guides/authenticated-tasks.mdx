@@ -24,7 +24,9 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddMcpServer()
     .WithHttpTransport(o => o.Stateless = true)
     .WithTools<MyTools>()
-    .WithAuthenticatedTasks(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User);
+    .WithAuthenticatedTasks(
+        sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
+        o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
 ```
 
 The SDK `WithTasks` API needs the store object at registration time, before `Build()`. The factory overload creates the store immediately and captures the provider when the container is built (and again when `McpServerOptions` is composed on the first request). Each client-facing task call then reads `HttpContext.User` from the accessor already in DI.
@@ -43,7 +45,8 @@ builder.Services.AddMcpServer()
 ```csharp
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddInMemoryAuthenticatedTaskStore(
-    sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User);
+    sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
+    o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
 ```
 
 **Tests** — a constant user, a callback, an explicit principal, or a service already in the test provider:
@@ -69,7 +72,7 @@ Claim lookup matches the SDK session identity order: `NameIdentifier`, `sub`, `U
 | `WithAuthenticatedTasks(() => principal)` | A principal you already hold |
 | `WithAuthenticatedTasks(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User)` | ASP.NET Core. Call `AddHttpContextAccessor()` first. |
 
-Each overload has a matching `AddInMemoryAuthenticatedTaskStore` on `IServiceCollection`.
+Each overload has a matching `AddInMemoryAuthenticatedTaskStore` on `IServiceCollection`. Pass `AuthenticatedMcpTaskStoreOptions` as the next argument to set `DefaultTimeToLive` and `DefaultPollIntervalMs` at registration. `null` TTL keeps tasks until the store discards them.
 
 ## Sample
 
@@ -97,4 +100,4 @@ Owner comparison is ordinal. Register the store as a **singleton**. Stateless HT
 
 ## Swap the backing store later
 
-`IPerUserMcpTaskStore` and `AuthenticatedMcpTaskStoreBase` are the contract durable providers implement. See [Provider stores](/guides/task-store-providers).
+`IPerUserMcpTaskStore` and `AuthenticatedMcpTaskStoreBase` are the contract durable providers implement. Pick a backing store in [Stores](/guides/stores). The first durable how-to is [Entity Framework Core](/guides/stores/entity-framework-core).

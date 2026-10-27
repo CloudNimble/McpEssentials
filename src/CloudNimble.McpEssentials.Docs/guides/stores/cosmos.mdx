@@ -1,0 +1,36 @@
+---
+title: "Cosmos DB"
+description: "Azure Cosmos DB for NoSQL authenticated task store, partitioned by owner. Specified; not in this repository yet."
+keywords: ["Cosmos DB", "Azure Cosmos"]
+---
+
+<Warning>
+`McpEssentials.Cosmos` is specified and is not in this repository yet. Use [Entity Framework Core](/guides/stores/entity-framework-core) with `UseCosmos` until it ships, or wait for the native package when you need partition-key point reads and change feed.
+</Warning>
+
+## When to use it
+
+- The host already runs Azure Cosmos DB for NoSQL.
+- You want `/ownerUserId` as the partition key and native document TTL.
+
+EF Core's Cosmos provider works through `AddMcpTasksTable` today. The native package earns its keep with in-partition point reads and change feed fan-out.
+
+## Intended how-to
+
+1. Add `McpEssentials.Cosmos`.
+2. Create a tasks container partitioned by `/ownerUserId`. Point reads are `taskId` + partition `ownerUserId`.
+3. Client-facing get/cancel/resolve always have the user, so they stay in-partition.
+4. Server-facing complete has `taskId` only. Keep a second index container `McpTaskIndex` with `taskId` as partition key mapping to `ownerUserId`. `CreateTaskAsync` awaits both writes.
+5. Register the store as a singleton with the same current-user factory as [Authenticated tasks](/guides/authenticated-tasks).
+
+Do not encode the user id in the task id.
+
+## Events
+
+Change feed on `input_required` transitions and input-request map changes, or Azure Service Bus as [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus).
+
+## TTL
+
+Cosmos native TTL on the document from `DiscardAfter` (Unix seconds), or a container default.
+
+See [Stores](/guides/stores).

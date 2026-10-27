@@ -1,6 +1,6 @@
 # Authenticated MCP Task Stores
 
-**Status:** Core in-memory store is implemented. Provider packages are specified here and are not in this repository yet.
+**Status:** Core in-memory store and the Entity Framework Core provider are implemented. Other provider packages are specified here and are not in this repository yet.
 
 **Audience:** Anyone adding `CloudNimble.McpEssentials.*` packages that persist MCP Tasks (SEP-2663) per logged-in user.
 
@@ -36,23 +36,27 @@ Claim order for `AuthenticatedMcpTaskStoreBase.GetUserId` (same as the SDK sessi
 
 ## Canonical record
 
+`StoredMcpTask` in Core is the persistence foundation. Construct it from `McpTaskInfo`, call `ToMcpTaskInfo()` to emit the SDK record, and run cancel/complete/fail/input on the object (`TryCancel`, `TryComplete`, `TryFail`, `TrySetInputRequests`, `TryResolveInputRequests`). Durable entities subclass it and add only engine columns (EF: `McpTaskEntity.RowVersion`). `Status` is `McpTaskStatus`; durable stores persist the enum name (EF: `HasConversion<string>()`). Protocol snake_case is the SDK JSON layer.
+
 Providers persist this shape. Names can match the host's conventions; the meaning cannot.
 
 | Field | Type | Notes |
 |---|---|---|
 | `TaskId` | string, PK | Opaque id from the store. Do not embed the user id in the task id. |
 | `OwnerUserId` | string, required | Isolation key. Indexed. Cosmos partition key. |
-| `Status` | string | `working`, `input_required`, `completed`, `cancelled`, `failed` |
+| `Status` | `McpTaskStatus` | Enum name (`Working`, `InputRequired`, `Completed`, `Cancelled`, `Failed`) |
 | `CreatedAt` | DateTimeOffset UTC | |
 | `LastUpdatedAt` | DateTimeOffset UTC | |
-| `TimeToLive` | TimeSpan? | Duration from create, or store `ExpiresAt` instead |
+| `TimeToLive` | TimeSpan? | Duration from create |
+| `ExpiresAt` | DateTimeOffset? | Work-window end (`CreatedAt + TimeToLive`) |
+| `DiscardAfter` | DateTimeOffset? | Visibility ceiling (`CreatedAt + 2×TimeToLive`), stamped at write |
 | `PollIntervalMs` | long? | Default 1000 |
 | `StatusMessage` | string? | |
 | `ResultJson` | JSON | Terminal `CallToolResult` |
 | `ErrorJson` | JSON | JSON-RPC error only |
 | `InputRequestsJson` | JSON object | Map of request id → `InputRequest` |
 
-Suggested secondary index: `(OwnerUserId, TaskId)`. Suggested TTL index: `ExpiresAt`.
+Suggested secondary index: `(OwnerUserId, TaskId)`. Suggested discard index: `DiscardAfter`. Work-window index: `ExpiresAt`.
 
 Do **not** store MCP task rows on domain tables (connections, orders, users). Tasks expire in minutes; domain rows do not.
 
@@ -64,28 +68,31 @@ NuGet package ids drop the `CloudNimble.` prefix (same as EasyAF / ClaudeEssenti
 
 - `IPerUserMcpTaskStore` extends `IMcpTaskStore` with `ClaimsPrincipal` overloads for create/get/cancel/resolve.
 - `AuthenticatedMcpTaskStoreBase` takes a current-user callback, fail-closed identity, and `InputResponseReceived`.
-- `InMemoryAuthenticatedMcpTaskStore` owns immutable snapshots in a `ConcurrentDictionary`, compare-and-swap updates, and TTL sweep. It does not wrap the SDK `InMemoryMcpTaskStore`. Unsealed; methods are virtual.
-- `WithAuthenticatedTasks("userId")` (stdio). HTTP: `AddHttpContextAccessor()` then `WithAuthenticatedTasks(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User)`. The same `Func<IServiceProvider, ClaimsPrincipal?>` factory exists on `AddInMemoryAuthenticatedTaskStore`.
+- `StoredMcpTask` is the persistence foundation: settable protocol fields, `McpTaskStatus`, ctor from `McpTaskInfo`, `ToMcpTaskInfo()`, `IsFinished` / `IsActive` / `HasExpired` / `IsExpired` / `IsOwnedBy`, and `Try*` transitions. `DiscardAfter` is stamped at write as `CreatedAt + 2×TimeToLive`. Cached `Info` avoids an allocation on unchanged gets.
+- `InMemoryAuthenticatedMcpTaskStore` owns `StoredMcpTask` snapshots in a `ConcurrentDictionary`, clones then `Try*` for compare-and-swap, and TTL sweep. It does not wrap the SDK `InMemoryMcpTaskStore`. Unsealed; methods are virtual.
+- `WithAuthenticatedTasks("userId")` (stdio). HTTP: `AddHttpContextAccessor()` then `WithAuthenticatedTasks(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User)`. The same `Func<IServiceProvider, ClaimsPrincipal?>` factory exists on `AddInMemoryAuthenticatedTaskStore`. Both take `Action<AuthenticatedMcpTaskStoreOptions>` to set `DefaultTimeToLive` and `DefaultPollIntervalMs` at registration.
 - Target frameworks: `net11.0;net10.0;net9.0;net8.0` (same as OData MCP). AOT compatible.
 
 Use for tests, local MCP, and single-instance remote MCP.
 
-### 2. `McpEssentials.EntityFrameworkCore` — first durable package
+### 2. `McpEssentials.EntityFrameworkCore` — implemented
 
 **Engine:** any EF Core database (SQL Server, SQLite, PostgreSQL, Cosmos via EF).
 
 **Types:**
 
-- `McpTaskEntity` mapped to table `McpTasks` (configurable).
+- `McpTaskEntity : StoredMcpTask` mapped to table `McpTasks` (configurable). Adds `RowVersion` only. Status and payloads convert to strings.
 - `IEntityTypeConfiguration<McpTaskEntity>` so hosts can call `modelBuilder.ApplyConfiguration`.
 - `EntityFrameworkAuthenticatedTaskStore<TContext>` where `TContext : DbContext`.
-- Extension `AddMcpEssentialsEntityFrameworkTasks<TContext>()`.
+- Extension `AddMcpEssentialsEntityFrameworkTasks<TContext>()` / `WithEntityFrameworkTasks<TContext>()`, same `AuthenticatedMcpTaskStoreOptions` as Core.
 
 **Concurrency:** rowversion / `xmin` / ETag on the entity; `SaveChanges` retry on unique-key races for create.
 
 **Events:** in-process `InputResponseReceived` is enough for a single instance. For scale-out, take an optional `IMcpTaskInputSignalBus` (see Cross-node signals). Do not take a dependency on Redis from this package.
 
-**Migrations:** ship no database. Host owns migrations. Document the recommended `ToTable("McpTasks")` plus indexes.
+**TTL:** `DiscardAfter` is stored as UTC ticks so SQLite and SQL Server can both `ExecuteDelete` (`WHERE DiscardAfter <= now`). Sweep does not load the table. Hosts that override `ShouldDiscard` without changing the stamp should also override `SweepExpiredCoreAsync`.
+
+**Migrations:** ship no database. Host owns migrations. Document the recommended `ToTable("McpTasks")` plus indexes on `OwnerUserId` and `DiscardAfter`.
 
 **Why this package first:** one implementation covers most CloudNimble hosts already on EF Core. Native PostgreSQL / SQL Server packages are only for hosts that do not want EF.
 
@@ -99,7 +106,7 @@ Use for tests, local MCP, and single-instance remote MCP.
 
 **Durability:** `INSERT ... RETURNING` inside a transaction; `CreateTaskAsync` awaits commit.
 
-**TTL:** `ExpiresAt timestamptz` plus `pg_cron` or a hosted service `DELETE WHERE "ExpiresAt" < now()`.
+**TTL:** `DiscardAfter timestamptz` plus `pg_cron` or a hosted service `DELETE WHERE "DiscardAfter" < now()`.
 
 ### 4. `McpEssentials.SqlServer`
 
@@ -122,7 +129,7 @@ mcp:task:{taskId}            HASH or JSON  (full record, including OwnerUserId)
 mcp:user:{ownerUserId}:tasks SET           (optional index for admin sweep)
 ```
 
-**TTL:** `EXPIRE` / `EXPIREAT` on the task key. Native, no sweeper required. `GetTaskAsync` treats a missing key as not found and does not distinguish expiry from isolation.
+**TTL:** `EXPIRE` / `EXPIREAT` on the task key from `DiscardAfter`. Native, no sweeper required. `GetTaskAsync` treats a missing key as not found and does not distinguish expiry from isolation.
 
 **Events:** `PUBLISH mcp:task:input {taskId}:{requestId}` after a successful `ResolveInputRequests`. Subscribers raise `InputResponseReceived`.
 
@@ -148,7 +155,7 @@ mcp:user:{ownerUserId}:tasks SET           (optional index for admin sweep)
 
 **Events:** change feed processor on `status == input_required` transitions and on input-request map changes. Or Azure Service Bus.
 
-**TTL:** Cosmos native TTL on the document (`ExpiresAt` as Unix seconds, or container default).
+**TTL:** Cosmos native TTL on the document (`DiscardAfter` as Unix seconds, or container default).
 
 ### 8. `McpEssentials.MongoDB`
 
@@ -216,7 +223,7 @@ Do not mix session id and user id in the owner key unless a host explicitly impl
 ## Implementation order
 
 1. Core in-memory store (this repo, done).
-2. Entity Framework Core package + SQL Server / SQLite tests.
+2. Entity Framework Core package + SQLite tests (this repo, done).
 3. Redis package (TTL + pub/sub).
 4. PostgreSQL native package if EF + Npgsql is not enough for NOTIFY.
 5. Cosmos, MongoDB, DistributedCache, Azure Tables, NATS as demand appears.

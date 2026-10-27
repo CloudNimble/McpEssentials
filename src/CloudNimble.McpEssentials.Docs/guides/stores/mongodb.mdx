@@ -1,0 +1,30 @@
+---
+title: "MongoDB"
+description: "MongoDB authenticated task store with change streams. Specified; not in this repository yet."
+keywords: ["MongoDB"]
+---
+
+<Warning>
+`McpEssentials.MongoDB` is specified and is not in this repository yet. Use [Entity Framework Core](/guides/stores/entity-framework-core) if you already map Mongo through EF, or wait for this package for a native collection and change streams.
+</Warning>
+
+## When to use it
+
+Document hosts that already run MongoDB and want a `mcpTasks` collection with change streams for elicitation.
+
+## Intended how-to
+
+1. Add `McpEssentials.MongoDB`.
+2. Collection `mcpTasks`, unique index on `taskId`, compound index `{ ownerUserId: 1, taskId: 1 }`.
+3. Compare-and-swap with `findOneAndUpdate` filtered on current status.
+4. Register the store as a singleton with the same current-user factory as [Authenticated tasks](/guides/authenticated-tasks).
+
+## Events
+
+Change streams on the collection, filtered to input-request updates. Subscribers raise `InputResponseReceived`.
+
+## TTL
+
+TTL index on the discard stamp (`DiscardAfter` / `CreatedAt + 2×TimeToLive`).
+
+See [Stores](/guides/stores).

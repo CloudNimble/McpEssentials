@@ -51,7 +51,7 @@ Create a repository environment named **`production`**. The deploy and “publis
 
 ## NuGet.org Trusted Publishing
 
-On [nuget.org](https://www.nuget.org) → your account → **Trusted Publishing**, add GitHub Actions for this repository. First package id: `McpEssentials.Core`. Add each later package id (`McpEssentials.EntityFrameworkCore`, …) the same way before that package’s first push.
+On [nuget.org](https://www.nuget.org) → your account → **Trusted Publishing**, add GitHub Actions for this repository. Package ids to register before their first push: `McpEssentials.Core`, `McpEssentials.EntityFrameworkCore`. Add each later package id the same way.
 
 Workflow: `.github/workflows/build-and-deploy.yml`  
 Repository: `CloudNimble/McpEssentials`

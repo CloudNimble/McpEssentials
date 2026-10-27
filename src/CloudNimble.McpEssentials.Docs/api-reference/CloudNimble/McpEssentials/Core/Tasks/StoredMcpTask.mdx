@@ -1,0 +1,868 @@
+---
+title: StoredMcpTask
+description: "Persistence foundation for an MCP task. Protocol fields plus owner and expiry. Construct from `McpTaskInfo`, mutate with `Try*`, and emit the SDK record with..."
+icon: file-brackets-curly
+keywords: ['StoredMcpTask', 'CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask', 'CloudNimble.McpEssentials.Core.Tasks', 'class', 'System.Object']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Core.dll
+
+**Namespace:** CloudNimble.McpEssentials.Core.Tasks
+
+**Inheritance:** System.Object
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask
+```
+
+## Summary
+
+Persistence foundation for an MCP task. Protocol fields plus owner and expiry.
+Construct from `McpTaskInfo`, mutate with `Try*`, and emit the SDK record
+with `InputRequest})`. Durable providers subclass this type (for example
+`McpTaskEntity`) and add only engine-specific columns.
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes an empty instance. Used by materializers (EF Core). Prefer
+`McpTaskInfo)` when the owner and snapshot are known.
+
+#### Syntax
+
+```csharp
+public StoredMcpTask()
+```
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance of the [StoredMcpTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask) class from a protocol snapshot.
+
+#### Syntax
+
+```csharp
+public StoredMcpTask(string ownerUserId, ModelContextProtocol.Extensions.Tasks.McpTaskInfo info)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `ownerUserId` | `string` | The user recorded when the task was created. |
+| `info` | `ModelContextProtocol.Extensions.Tasks.McpTaskInfo` | The protocol-facing snapshot. Must not include the owner. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentException` | Thrown when *ownerUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or whitespace. |
+| `ArgumentNullException` | Thrown when *info* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new working task owned by *ownerUserId*.
+
+#### Syntax
+
+```csharp
+public StoredMcpTask(string ownerUserId, string taskId, System.DateTimeOffset createdAt, System.Nullable<System.TimeSpan> timeToLive, long pollIntervalMs)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `ownerUserId` | `string` | The user recorded when the task was created. |
+| `taskId` | `string` | The opaque task identifier. |
+| `createdAt` | `System.DateTimeOffset` | Creation timestamp, UTC. |
+| `timeToLive` | `System.Nullable<System.TimeSpan>` | Duration from create, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) for unlimited. |
+| `pollIntervalMs` | `long` | Client poll interval in milliseconds. |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public Object()
+```
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> CreatedAt
+
+Gets or sets when the task was created, UTC.
+
+#### Syntax
+
+```csharp
+public System.DateTimeOffset CreatedAt { get; set; }
+```
+
+#### Property Value
+
+Type: `System.DateTimeOffset`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DiscardAfter
+
+Gets or sets when the row should be discarded. Stamped at write time as
+`CreatedAt + 2×TimeToLive`. [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unlimited.
+
+#### Syntax
+
+```csharp
+public System.Nullable<System.DateTimeOffset> DiscardAfter { get; set; }
+```
+
+#### Property Value
+
+Type: `System.Nullable<System.DateTimeOffset>`
+
+#### Remarks
+
+Two windows is the visibility ceiling, including late complete, fail, or cancel.
+The stamp does not move when the task finishes. `DateTimeOffset)` compares
+the current time to this value.
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Error
+
+Gets or sets the JSON-RPC error, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null).
+
+#### Syntax
+
+```csharp
+public System.Nullable<System.Text.Json.JsonElement> Error { get; set; }
+```
+
+#### Property Value
+
+Type: `System.Nullable<System.Text.Json.JsonElement>`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ExpiresAt
+
+Gets or sets the work-window end (`CreatedAt + TimeToLive`).
+[`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unlimited. Discard uses [StoredMcpTask.DiscardAfter](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#discardafter).
+
+#### Syntax
+
+```csharp
+public System.Nullable<System.DateTimeOffset> ExpiresAt { get; set; }
+```
+
+#### Property Value
+
+Type: `System.Nullable<System.DateTimeOffset>`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Info
+
+Gets the cached protocol snapshot. Allocates once per mutation.
+
+#### Syntax
+
+```csharp
+public ModelContextProtocol.Extensions.Tasks.McpTaskInfo Info { get; }
+```
+
+#### Property Value
+
+Type: `ModelContextProtocol.Extensions.Tasks.McpTaskInfo`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> InputRequests
+
+Gets or sets the outstanding input-request map. Empty when none are pending.
+
+#### Syntax
+
+```csharp
+public System.Collections.Generic.IReadOnlyDictionary<string, ModelContextProtocol.Protocol.InputRequest> InputRequests { get; set; }
+```
+
+#### Property Value
+
+Type: `System.Collections.Generic.IReadOnlyDictionary<string, ModelContextProtocol.Protocol.InputRequest>`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> IsFinished <Badge color="orange">Virtual</Badge>
+
+Gets whether [StoredMcpTask.Status](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#status) is completed, cancelled, or failed.
+
+#### Syntax
+
+```csharp
+public virtual bool IsFinished { get; }
+```
+
+#### Property Value
+
+Type: `bool`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> LastUpdatedAt
+
+Gets or sets when the task last changed, UTC.
+
+#### Syntax
+
+```csharp
+public System.DateTimeOffset LastUpdatedAt { get; set; }
+```
+
+#### Property Value
+
+Type: `System.DateTimeOffset`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> OwnerUserId
+
+Gets or sets the user recorded when the task was created. Isolation key.
+
+#### Syntax
+
+```csharp
+public string OwnerUserId { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> PollIntervalMs
+
+Gets or sets the client poll interval in milliseconds.
+
+#### Syntax
+
+```csharp
+public System.Nullable<long> PollIntervalMs { get; set; }
+```
+
+#### Property Value
+
+Type: `System.Nullable<long>`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Result
+
+Gets or sets the terminal `CallToolResult`, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null).
+
+#### Syntax
+
+```csharp
+public System.Nullable<System.Text.Json.JsonElement> Result { get; set; }
+```
+
+#### Property Value
+
+Type: `System.Nullable<System.Text.Json.JsonElement>`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Status
+
+Gets or sets the protocol status.
+
+#### Syntax
+
+```csharp
+public ModelContextProtocol.Extensions.Tasks.McpTaskStatus Status { get; set; }
+```
+
+#### Property Value
+
+Type: `ModelContextProtocol.Extensions.Tasks.McpTaskStatus`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> StatusMessage
+
+Gets or sets an optional status message.
+
+#### Syntax
+
+```csharp
+public string StatusMessage { get; set; }
+```
+
+#### Property Value
+
+Type: `string?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TaskId
+
+Gets or sets the opaque task identifier. Primary key. Do not embed the user id.
+
+#### Syntax
+
+```csharp
+public string TaskId { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TimeToLive
+
+Gets or sets the time-to-live from [StoredMcpTask.CreatedAt](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#createdat), or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) for unlimited.
+
+#### Syntax
+
+```csharp
+public System.Nullable<System.TimeSpan> TimeToLive { get; set; }
+```
+
+#### Property Value
+
+Type: `System.Nullable<System.TimeSpan>`
+
+## Methods
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Apply <Badge color="orange">Virtual</Badge>
+
+Copies protocol fields from *info*, recomputes
+[StoredMcpTask.ExpiresAt](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#expiresat) and [StoredMcpTask.DiscardAfter](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#discardafter), and caches the snapshot.
+Leaves [StoredMcpTask.OwnerUserId](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#owneruserid) alone.
+
+#### Syntax
+
+```csharp
+public virtual void Apply(ModelContextProtocol.Extensions.Tasks.McpTaskInfo info)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `info` | `ModelContextProtocol.Extensions.Tasks.McpTaskInfo` | The protocol-facing snapshot to store. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *info* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Clone <Badge color="orange">Virtual</Badge>
+
+Returns a shallow copy for compare-and-swap updates. Mutate the copy with `Try*`;
+the original stays unchanged. Subclasses with extra mutable reference fields should override.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask Clone()
+```
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ComputeDiscardAfter
+
+Returns when the row should be discarded, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unlimited.
+
+#### Syntax
+
+```csharp
+public static System.Nullable<System.DateTimeOffset> ComputeDiscardAfter(System.DateTimeOffset createdAt, System.Nullable<System.TimeSpan> timeToLive)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `createdAt` | `System.DateTimeOffset` | Creation timestamp, UTC. |
+| `timeToLive` | `System.Nullable<System.TimeSpan>` | Duration from create, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) for unlimited. |
+
+#### Returns
+
+Type: `System.Nullable<System.DateTimeOffset>`
+`createdAt + 2×timeToLive`, the visibility ceiling.
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ComputeExpiresAt
+
+Returns *createdAt* plus *timeToLive*, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unlimited.
+
+#### Syntax
+
+```csharp
+public static System.Nullable<System.DateTimeOffset> ComputeExpiresAt(System.DateTimeOffset createdAt, System.Nullable<System.TimeSpan> timeToLive)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `createdAt` | `System.DateTimeOffset` | - |
+| `timeToLive` | `System.Nullable<System.TimeSpan>` | - |
+
+#### Returns
+
+Type: `System.Nullable<System.DateTimeOffset>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual bool Equals(object obj)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `obj` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool Equals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetHashCode <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual int GetHashCode()
+```
+
+#### Returns
+
+Type: `int`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetType <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public System.Type GetType()
+```
+
+#### Returns
+
+Type: `System.Type`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> HasExpired <Badge color="orange">Virtual</Badge>
+
+Returns whether the snapshot has no remaining reads and should be discarded.
+
+#### Syntax
+
+```csharp
+public virtual bool HasExpired(System.DateTimeOffset now)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `now` | `System.DateTimeOffset` | The current UTC time. |
+
+#### Returns
+
+Type: `bool`
+[`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when [StoredMcpTask.DiscardAfter](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#discardafter) is set and
+*now* is at or past it.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> IsActive <Badge color="orange">Virtual</Badge>
+
+Returns whether the task is still in its work window and may accept input or progress.
+
+#### Syntax
+
+```csharp
+public virtual bool IsActive(System.DateTimeOffset now)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `now` | `System.DateTimeOffset` | The current UTC time. |
+
+#### Returns
+
+Type: `bool`
+[`false`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when the task is finished. Otherwise [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when
+the task has no positive time-to-live, or when *now* is still earlier
+than `CreatedAt + TimeToLive`.
+
+#### Remarks
+
+Uses [StoredMcpTask.TimeToLive](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#timetolive), not [StoredMcpTask.ExpiresAt](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#expiresat). Settle (complete, fail,
+cancel) is still allowed after this returns [`false`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) until
+`DateTimeOffset)` is [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool).
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> IsExpired <Badge color="orange">Virtual</Badge>
+
+Returns whether this task has reached [StoredMcpTask.ExpiresAt](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#expiresat) (or
+`CreatedAt + TimeToLive` when [StoredMcpTask.ExpiresAt](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#expiresat) is unset).
+
+#### Syntax
+
+```csharp
+public virtual bool IsExpired(System.DateTimeOffset now)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `now` | `System.DateTimeOffset` | The current UTC time. |
+
+#### Returns
+
+Type: `bool`
+[`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when *now* is at or past the work-window end.
+Work-window helper. Discard uses `DateTimeOffset)` / [StoredMcpTask.DiscardAfter](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#discardafter).
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> IsOwnedBy <Badge color="orange">Virtual</Badge>
+
+Returns whether *userId* is the recorded owner.
+
+#### Syntax
+
+```csharp
+public virtual bool IsOwnedBy(string userId)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `userId` | `string?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MemberwiseClone <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+protected internal object MemberwiseClone()
+```
+
+#### Returns
+
+Type: `object`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> NormalizeTimeToLive
+
+Returns a positive TTL, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when the task should be retained until deleted.
+
+#### Syntax
+
+```csharp
+public static System.Nullable<System.TimeSpan> NormalizeTimeToLive(System.Nullable<System.TimeSpan> timeToLive)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `timeToLive` | `System.Nullable<System.TimeSpan>` | - |
+
+#### Returns
+
+Type: `System.Nullable<System.TimeSpan>`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ParseElement
+
+Parses JSON text into a detached [JsonElement](https://learn.microsoft.com/dotnet/api/system.text.json.jsonelement), or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when empty.
+
+#### Syntax
+
+```csharp
+public static System.Nullable<System.Text.Json.JsonElement> ParseElement(string json)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `json` | `string?` | - |
+
+#### Returns
+
+Type: `System.Nullable<System.Text.Json.JsonElement?>?`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ParseInputRequests
+
+Parses an input-request map. Empty or missing JSON returns [StoredMcpTask.EmptyInputRequests](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#emptyinputrequests).
+
+#### Syntax
+
+```csharp
+public static System.Collections.Generic.IReadOnlyDictionary<string, ModelContextProtocol.Protocol.InputRequest> ParseInputRequests(string json)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `json` | `string?` | - |
+
+#### Returns
+
+Type: `System.Collections.Generic.IReadOnlyDictionary<string, ModelContextProtocol.Protocol.InputRequest>`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ReferenceEquals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool ReferenceEquals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToInputRequestsJson
+
+Serializes an input-request map, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when empty.
+
+#### Syntax
+
+```csharp
+public static string ToInputRequestsJson(System.Collections.Generic.IReadOnlyDictionary<string, ModelContextProtocol.Protocol.InputRequest> requests)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `requests` | `System.Collections.Generic.IReadOnlyDictionary<string, ModelContextProtocol.Protocol.InputRequest>?` | - |
+
+#### Returns
+
+Type: `string?`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToJson
+
+Serializes *element* to JSON text, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when absent.
+
+#### Syntax
+
+```csharp
+public static string ToJson(System.Nullable<System.Text.Json.JsonElement> element)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `element` | `System.Nullable<System.Text.Json.JsonElement?>?` | - |
+
+#### Returns
+
+Type: `string?`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToMcpTaskInfo <Badge color="orange">Virtual</Badge>
+
+Returns the protocol snapshot. Optional overrides allocate a new record and leave the cache alone.
+
+#### Syntax
+
+```csharp
+public virtual ModelContextProtocol.Extensions.Tasks.McpTaskInfo ToMcpTaskInfo(System.Nullable<ModelContextProtocol.Extensions.Tasks.McpTaskStatus> status = null, System.Nullable<System.DateTimeOffset> lastUpdatedAt = null, string statusMessage = null, System.Nullable<System.Text.Json.JsonElement> result = null, System.Nullable<System.Text.Json.JsonElement> error = null, System.Collections.Generic.IReadOnlyDictionary<string, ModelContextProtocol.Protocol.InputRequest> inputRequests = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `status` | `System.Nullable<ModelContextProtocol.Extensions.Tasks.McpTaskStatus>` | - |
+| `lastUpdatedAt` | `System.Nullable<System.DateTimeOffset>` | - |
+| `statusMessage` | `string?` | - |
+| `result` | `System.Nullable<System.Text.Json.JsonElement>` | - |
+| `error` | `System.Nullable<System.Text.Json.JsonElement>` | - |
+| `inputRequests` | `System.Collections.Generic.IReadOnlyDictionary<string, ModelContextProtocol.Protocol.InputRequest>?` | - |
+
+#### Returns
+
+Type: `ModelContextProtocol.Extensions.Tasks.McpTaskInfo`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToString <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual string ToString()
+```
+
+#### Returns
+
+Type: `string?`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TryCancel <Badge color="orange">Virtual</Badge>
+
+Transitions to `Cancelled` when the task is not finished.
+
+#### Syntax
+
+```csharp
+public virtual bool TryCancel(System.DateTimeOffset now)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `now` | `System.DateTimeOffset` | - |
+
+#### Returns
+
+Type: `bool`
+[`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when the status changed.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TryComplete <Badge color="orange">Virtual</Badge>
+
+Transitions to `Completed` when the task is not finished.
+
+#### Syntax
+
+```csharp
+public virtual bool TryComplete(System.Text.Json.JsonElement result, System.DateTimeOffset now)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `result` | `System.Text.Json.JsonElement` | - |
+| `now` | `System.DateTimeOffset` | - |
+
+#### Returns
+
+Type: `bool`
+[`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when the status changed.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TryFail <Badge color="orange">Virtual</Badge>
+
+Transitions to `Failed` when the task is not finished.
+
+#### Syntax
+
+```csharp
+public virtual bool TryFail(System.Text.Json.JsonElement error, System.DateTimeOffset now)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `error` | `System.Text.Json.JsonElement` | - |
+| `now` | `System.DateTimeOffset` | - |
+
+#### Returns
+
+Type: `bool`
+[`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when the status changed.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TryResolveInputRequests <Badge color="orange">Virtual</Badge>
+
+Removes resolved ids from the outstanding map. Remaining requests stay
+`InputRequired`; an empty map returns to `Working`.
+
+#### Syntax
+
+```csharp
+public virtual bool TryResolveInputRequests(System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse> inputResponses, System.DateTimeOffset now)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `inputResponses` | `System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse>` | - |
+| `now` | `System.DateTimeOffset` | - |
+
+#### Returns
+
+Type: `bool`
+[`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when the snapshot changed.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TrySetInputRequests <Badge color="orange">Virtual</Badge>
+
+Merges *inputRequests* and moves to `InputRequired`
+when the task is not finished.
+
+#### Syntax
+
+```csharp
+public virtual bool TrySetInputRequests(System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputRequest> inputRequests, System.DateTimeOffset now)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `inputRequests` | `System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputRequest>` | - |
+| `now` | `System.DateTimeOffset` | - |
+
+#### Returns
+
+Type: `bool`
+[`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when the snapshot changed.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> With <Badge color="orange">Virtual</Badge>
+
+Returns a snapshot with the same owner and a new [StoredMcpTask.Info](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#info).
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask With(ModelContextProtocol.Extensions.Tasks.McpTaskInfo info)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `info` | `ModelContextProtocol.Extensions.Tasks.McpTaskInfo` | The protocol-facing snapshot to store. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask`
+A new snapshot with the same [StoredMcpTask.OwnerUserId](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#owneruserid).
+

@@ -26,9 +26,38 @@
                         <Group Name="Guides" Icon="dog-leashed" Root="guides/index">
                             <Pages>
                                 guides/index;
-                                guides/authenticated-tasks;
-                                guides/task-store-providers
+                                guides/authenticated-tasks
                             </Pages>
+                            <Groups>
+                                <Group Name="Stores" Icon="database" Root="guides/stores/index">
+                                    <Pages>
+                                        guides/stores/index
+                                    </Pages>
+                                    <Groups>
+                                        <Group Name="Database" Icon="hard-drive">
+                                            <Pages>
+                                                guides/stores/entity-framework-core;
+                                                guides/stores/postgresql;
+                                                guides/stores/sql-server;
+                                                guides/stores/cosmos;
+                                                guides/stores/mongodb;
+                                                guides/stores/azure-tables
+                                            </Pages>
+                                        </Group>
+                                        <Group Name="Distributed cache" Icon="server">
+                                            <Pages>
+                                                guides/stores/redis;
+                                                guides/stores/distributed-cache
+                                            </Pages>
+                                        </Group>
+                                        <Group Name="Eventing" Icon="tower-broadcast">
+                                            <Pages>
+                                                guides/stores/nats
+                                            </Pages>
+                                        </Group>
+                                    </Groups>
+                                </Group>
+                            </Groups>
                         </Group>
                     </Groups>
                 </Pages>
@@ -38,6 +67,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\CloudNimble.McpEssentials.Core\CloudNimble.McpEssentials.Core.csproj" />
+        <ProjectReference Include="..\CloudNimble.McpEssentials.EntityFrameworkCore\CloudNimble.McpEssentials.EntityFrameworkCore.csproj" />
     </ItemGroup>
 
 </Project>

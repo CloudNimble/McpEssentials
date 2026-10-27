@@ -6,7 +6,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
     /// </summary>
     public enum ApplyResult
     {
-        /// <summary>No snapshot was present, or it had expired.</summary>
+        /// <summary>No snapshot was present, or <see cref="StoredMcpTask.HasExpired"/> was <see langword="true"/>.</summary>
         Missing = 0,
 
         /// <summary>The snapshot was present and left unchanged.</summary>

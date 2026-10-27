@@ -1,0 +1,76 @@
+---
+title: IMcpTaskInputSignalBus
+description: "Fan-out for `InputResponseReceived` across processes. Stores with no native pub/sub (Entity Framework Core, distributed cache, Azure Tables) take this as an ..."
+icon: plug
+keywords: ['IMcpTaskInputSignalBus', 'CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus', 'CloudNimble.McpEssentials.Core.Tasks', 'interface']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Core.dll
+
+**Namespace:** CloudNimble.McpEssentials.Core.Tasks
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus
+```
+
+## Summary
+
+Fan-out for `InputResponseReceived`
+across processes. Stores with no native pub/sub (Entity Framework Core, distributed cache,
+Azure Tables) take this as an optional constructor argument.
+
+## Remarks
+
+Payload is task id plus request id only. Do not put tokens, vault ids, or elicitation
+secrets on the bus; the store already has the response body. Missing bus plus multiple
+nodes means elicitation waits until timeout.
+
+## Methods
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> PublishAsync <Badge color="orange">Abstract</Badge>
+
+Publishes that *requestId* on *taskId* was resolved.
+
+#### Syntax
+
+```csharp
+System.Threading.Tasks.Task PublishAsync(string taskId, string requestId, System.Threading.CancellationToken cancellationToken)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | The task whose input was resolved. |
+| `requestId` | `string` | The input request identifier. |
+| `cancellationToken` | `System.Threading.CancellationToken` | Cancellation token for the publish. |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Subscribe <Badge color="orange">Abstract</Badge>
+
+Subscribes to resolved-input signals. The handler receives task id then request id.
+
+#### Syntax
+
+```csharp
+System.IDisposable Subscribe(System.Action<string, string> handler)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `handler` | `System.Action<string, string>` | Invoked when another node publishes a resolved input. |
+
+#### Returns
+
+Type: `System.IDisposable`
+A subscription that stops delivery when disposed.
+

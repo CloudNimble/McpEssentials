@@ -1,0 +1,93 @@
+---
+title: "Stores"
+description: "Pick an authenticated MCP task store by the engine you already run: database, distributed cache, or eventing."
+keywords: ["IMcpTaskStore", "IPerUserMcpTaskStore", "EntityFrameworkCore", "Redis", "PostgreSQL"]
+---
+
+Every durable store implements the same contract as the in-memory store in [Authenticated tasks](/guides/authenticated-tasks): stamp the owner on create, isolate client-facing get/cancel/resolve to that user, let the SDK complete work after the HTTP request is gone.
+
+Pick the package that matches the engine already in your host. The identity factory stays the same when you swap.
+
+The design lives in [`specs/authenticated-task-stores.md`](https://github.com/CloudNimble/McpEssentials/blob/main/specs/authenticated-task-stores.md).
+
+## In-process
+
+| Package | How-to | When |
+|---|---|---|
+| `McpEssentials.Core` | [Authenticated tasks](/guides/authenticated-tasks) | Tests, local MCP, a single process |
+
+`InMemoryAuthenticatedMcpTaskStore` keeps snapshots in a `ConcurrentDictionary`. Fan-out is an in-process event. Tasks die with the process.
+
+## Database
+
+Relational and document engines. Entity Framework Core is the default durable package: **one implementation, any EF Core provider**.
+
+| Package | How-to | Engine | Status |
+|---|---|---|---|
+| `McpEssentials.EntityFrameworkCore` | [Entity Framework Core](/guides/stores/entity-framework-core) | SQL Server, SQLite, PostgreSQL, MySQL, Cosmos via EF, and any other EF Core provider | Shipped |
+| `McpEssentials.PostgreSQL` | [PostgreSQL](/guides/stores/postgresql) | Npgsql, no EF | Specified |
+| `McpEssentials.SqlServer` | [SQL Server](/guides/stores/sql-server) | `Microsoft.Data.SqlClient`, no EF | Specified |
+| `McpEssentials.Cosmos` | [Cosmos DB](/guides/stores/cosmos) | Azure Cosmos DB for NoSQL | Specified |
+| `McpEssentials.MongoDB` | [MongoDB](/guides/stores/mongodb) | MongoDB | Specified |
+| `McpEssentials.AzureTables` | [Azure Tables](/guides/stores/azure-tables) | Azure Table Storage | Specified |
+
+Use EF Core when the host already has a `DbContext`. Native PostgreSQL and SQL Server packages exist for hosts that want ADO.NET (and, for Postgres, `LISTEN` / `NOTIFY`) without an EF model.
+
+## Distributed cache
+
+Low-latency handles with native or host-owned expiry.
+
+| Package | How-to | Engine | Status |
+|---|---|---|---|
+| `McpEssentials.Redis` | [Redis](/guides/stores/redis) | StackExchange.Redis, `EXPIRE` plus pub/sub | Specified |
+| `McpEssentials.DistributedCache` | [IDistributedCache](/guides/stores/distributed-cache) | Whatever you already registered as `IDistributedCache` | Specified |
+
+Prefer Redis when you need pub/sub for elicitation across nodes. Use `IDistributedCache` when that abstraction is already in DI and a host-supplied bus covers fan-out.
+
+## Eventing
+
+Stores whose native bus is the reason the package exists.
+
+| Package | How-to | Engine | Status |
+|---|---|---|---|
+| `McpEssentials.Nats` | [NATS](/guides/stores/nats) | JetStream KV for the row, Core NATS for signals | Specified |
+
+Providers without a native bus (EF Core, `IDistributedCache`, Azure Tables) take an optional [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus). Missing bus plus multiple nodes means `ElicitAsync` waits until timeout.
+
+## Shared row
+
+`StoredMcpTask` is the persistence foundation. Durable entities subclass it (EF adds `RowVersion`). Keep these rows on their own table; tasks expire in minutes.
+
+| Field | Role |
+|---|---|
+| `TaskId` | Primary key |
+| `OwnerUserId` | Isolation key |
+| `Status` | `Working` / `InputRequired` / `Completed` / `Cancelled` / `Failed` |
+| `CreatedAt` / `LastUpdatedAt` | UTC |
+| `TimeToLive` / `ExpiresAt` | Work window (`CreatedAt + TimeToLive`) |
+| `DiscardAfter` | Visibility ceiling (`CreatedAt + 2×TimeToLive`), stamped at write |
+| `ResultJson` / `ErrorJson` / `InputRequestsJson` | Payloads |
+
+## Swap in production
+
+HTTP identity stays on the platform accessor. Development uses Core. Production registers a durable store with the same factory.
+
+```csharp
+builder.Services.AddHttpContextAccessor();
+
+Func<IServiceProvider, ClaimsPrincipal?> currentUser =
+    sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User;
+
+// Development
+builder.Services.AddMcpServer()
+    .WithHttpTransport(o => o.Stateless = true)
+    .WithAuthenticatedTasks(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+
+// Production (any EF Core provider on AppDbContext)
+builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(connectionString));
+builder.Services.AddMcpServer()
+    .WithHttpTransport(o => o.Stateless = true)
+    .WithEntityFrameworkTasks<AppDbContext>(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+```
+
+Isolation helpers stay in Core. Provider packages depend on `McpEssentials.Core`, not on each other.

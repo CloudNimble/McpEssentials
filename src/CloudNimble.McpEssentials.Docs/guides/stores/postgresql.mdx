@@ -1,0 +1,40 @@
+---
+title: "PostgreSQL"
+description: "Native Npgsql authenticated task store with LISTEN/NOTIFY fan-out. Specified; not in this repository yet."
+keywords: ["PostgreSQL", "Npgsql", "LISTEN", "NOTIFY"]
+---
+
+<Warning>
+`McpEssentials.PostgreSQL` is specified and is not in this repository yet. Use [Entity Framework Core](/guides/stores/entity-framework-core) with `UseNpgsql` until it ships.
+</Warning>
+
+This package exists for hosts that want PostgreSQL **without** an EF model, and for multi-node elicitation that uses `LISTEN` / `NOTIFY` instead of a separate bus.
+
+## When to use it
+
+- The host already talks to Postgres with Npgsql or Dapper.
+- Several MCP nodes wait on `ElicitAsync` and you want Postgres itself to wake the originating process.
+
+Stay on EF Core + Npgsql when you already have a `DbContext`. `LISTEN` / `NOTIFY` is the reason a native package sits beside EF.
+
+## Intended how-to
+
+1. Add `McpEssentials.PostgreSQL` and an Npgsql data source.
+2. Run the embedded table script (`EnsureCreatedAsync` or a host migration). One `McpTasks` table, same canonical row as Core, `DiscardAfter timestamptz`.
+3. Register the store as a singleton with the same current-user factory as [Authenticated tasks](/guides/authenticated-tasks).
+4. `CreateTaskAsync` awaits `INSERT ... RETURNING` inside a transaction so a later get on any node can see the row.
+
+## Events
+
+```
+LISTEN mcp_essentials_tasks
+NOTIFY mcp_essentials_tasks, '{ "taskId", "requestId" }'
+```
+
+Each process that holds a waiting `ElicitAsync` subscribes and raises `InputResponseReceived` locally. Payload is task id plus request id.
+
+## TTL
+
+`DELETE WHERE "DiscardAfter" < now()`, from `pg_cron` or a hosted service that calls `SweepExpiredAsync`. `DiscardAfter` is `CreatedAt + 2×TimeToLive`, stamped at write.
+
+See [Stores](/guides/stores).

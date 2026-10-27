@@ -17,14 +17,26 @@ namespace CloudNimble.McpEssentials.Core.Tasks
     /// </summary>
     /// <remarks>
     /// <para>
-    /// Storage is owned by this type: immutable snapshots in a <see cref="ConcurrentDictionary{TKey, TValue}"/>,
-    /// compare-and-swap updates, TTL expiry on access plus a throttled sweep. It does not wrap the SDK
+    /// Storage is owned by this type: <see cref="StoredMcpTask"/> snapshots in a
+    /// <see cref="ConcurrentDictionary{TKey, TValue}"/>, compare-and-swap updates, two-window TTL,
+    /// serve-and-drop on a terminal get, plus a throttled sweep. It does not wrap the SDK
     /// <c>InMemoryMcpTaskStore</c>.
     /// </para>
     /// <para>
+    /// Tasks created with a <see cref="AuthenticatedMcpTaskStoreBase.DefaultTimeToLive"/> use two
+    /// clocks (as permitted by SEP-2663): a work window of <c>CreatedAt + TimeToLive</c> during which
+    /// input and progress are accepted, and a tracking window that keeps the snapshot visible until
+    /// <c>CreatedAt + 2×TimeToLive</c> so a late complete, fail, or cancel can still be recorded and
+    /// polled. That ceiling is stamped as <see cref="StoredMcpTask.DiscardAfter"/> at write time.
+    /// An owner <c>GetTaskAsync</c> of a terminal snapshot serves it and then drops the row. An
+    /// opportunistic throttled sweep reclaims snapshots nobody collected. Tasks created without a
+    /// time-to-live are retained until a terminal get by the owner or until the process exits.
+    /// </para>
+    /// <para>
     /// Client-facing operations require a current user and treat another user's task as missing.
-    /// Server-side completion skips the live-user check because the SDK runs those from a background
-    /// DI scope after the originating HTTP request is gone.
+    /// Another user's get does not serve-and-drop the owner's row. Server-side completion skips the
+    /// live-user check because the SDK runs those from a background DI scope after the originating
+    /// HTTP request is gone.
     /// </para>
     /// <para>
     /// Single-process only. Register as a singleton. Subclass to change isolation, storage, or TTL.
@@ -34,41 +46,12 @@ namespace CloudNimble.McpEssentials.Core.Tasks
     public class InMemoryAuthenticatedMcpTaskStore : AuthenticatedMcpTaskStoreBase
     {
 
-        #region Fields
-
-        private static readonly IReadOnlyDictionary<string, InputRequest> EmptyInputRequests =
-            new Dictionary<string, InputRequest>(0, StringComparer.Ordinal);
-
-        private long _lastSweepTicks;
-
-        #endregion
-
         #region Properties
 
         /// <summary>
         /// Gets the map of task id to stored snapshot, including owner.
         /// </summary>
-        protected ConcurrentDictionary<string, StoredTask> Tasks { get; } = new(StringComparer.Ordinal);
-
-        /// <summary>
-        /// Gets or sets the default poll interval in milliseconds for new tasks.
-        /// </summary>
-        /// <value>The default is 1000 milliseconds.</value>
-        public virtual long DefaultPollIntervalMs { get; set; } = 1000;
-
-        /// <summary>
-        /// Gets or sets the default time-to-live for new tasks, or <see langword="null"/> for unlimited.
-        /// </summary>
-        /// <remarks>
-        /// When set to a positive value, tasks are discarded once this duration elapses from their
-        /// creation. A <see langword="null"/> or non-positive value keeps tasks until the process exits.
-        /// </remarks>
-        public virtual TimeSpan? DefaultTimeToLive { get; set; }
-
-        /// <summary>
-        /// Gets the minimum interval between opportunistic expired-task sweeps.
-        /// </summary>
-        protected virtual TimeSpan SweepInterval { get; } = TimeSpan.FromSeconds(30);
+        protected ConcurrentDictionary<string, StoredMcpTask> Tasks { get; } = new(StringComparer.Ordinal);
 
         #endregion
 
@@ -114,26 +97,14 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         {
             cancellationToken.ThrowIfCancellationRequested();
             var now = GetUtcNow();
-            SweepExpired(now);
 
             var ttl = NormalizeTimeToLive(DefaultTimeToLive);
-            StoredTask stored;
+            StoredMcpTask stored;
             string taskId;
             do
             {
                 taskId = NewTaskId();
-                var info = new McpTaskInfo(
-                    taskId,
-                    McpTaskStatus.Working,
-                    now,
-                    now,
-                    ttl,
-                    DefaultPollIntervalMs,
-                    null,
-                    null,
-                    null,
-                    EmptyInputRequests);
-                stored = new StoredTask(userId, info);
+                stored = new StoredMcpTask(userId, taskId, now, ttl, DefaultPollIntervalMs);
             }
             while (!Tasks.TryAdd(taskId, stored));
 
@@ -145,14 +116,13 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         {
             cancellationToken.ThrowIfCancellationRequested();
             var now = GetUtcNow();
-            SweepExpired(now);
 
             if (!Tasks.TryGetValue(taskId, out var stored))
             {
                 return NullTask;
             }
 
-            if (IsExpired(stored.Info, now))
+            if (ShouldDiscard(stored, now))
             {
                 Tasks.TryRemove(taskId, out _);
                 return NullTask;
@@ -163,22 +133,33 @@ namespace CloudNimble.McpEssentials.Core.Tasks
                 return NullTask;
             }
 
-            return Task.FromResult<McpTaskInfo?>(stored.Info);
+            var info = stored.Info;
+            if (stored.IsFinished && ServeAndDrop)
+            {
+                // The C# client polls tasks/get until it sees a terminal snapshot, then stops.
+                // Serving that snapshot and dropping the row is the primary prune. Another user's
+                // get must not drop the owner's row; that path returned above.
+                Tasks.TryRemove(taskId, out _);
+            }
+
+            return Task.FromResult<McpTaskInfo?>(info);
         }
 
         /// <inheritdoc />
         protected override Task<bool> SetCancelledCoreAsync(string taskId, string userId, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            var now = GetUtcNow();
             var result = TryApply(taskId, current =>
             {
-                if (!IsOwnedBy(current.OwnerUserId, userId) || IsTerminal(current.Info.Status))
+                if (!IsOwnedBy(current.OwnerUserId, userId))
                 {
                     return current;
                 }
 
-                return current.With(Clone(current.Info, status: McpTaskStatus.Cancelled, lastUpdatedAt: GetUtcNow()));
-            }, out _);
+                var next = current.Clone();
+                return next.TryCancel(now) ? next : current;
+            }, out _, cancellationToken);
 
             return result == ApplyResult.Updated ? TrueTask : FalseTask;
         }
@@ -187,32 +168,17 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         protected override Task ResolveInputRequestsCoreAsync(string taskId, IDictionary<string, InputResponse> inputResponses, string userId, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            var now = GetUtcNow();
             var result = TryApply(taskId, current =>
             {
-                if (!IsOwnedBy(current.OwnerUserId, userId) || IsTerminal(current.Info.Status))
+                if (!IsOwnedBy(current.OwnerUserId, userId) || !current.IsActive(now))
                 {
                     return current;
                 }
 
-                Dictionary<string, InputRequest>? remaining = null;
-                if (current.Info.InputRequests is { Count: > 0 })
-                {
-                    remaining = new Dictionary<string, InputRequest>(current.Info.InputRequests, StringComparer.Ordinal);
-                    foreach (var key in inputResponses.Keys)
-                    {
-                        remaining.Remove(key);
-                    }
-                }
-
-                var nextStatus = remaining is { Count: > 0 }
-                    ? McpTaskStatus.InputRequired
-                    : McpTaskStatus.Working;
-                var nextRequests = remaining is { Count: > 0 }
-                    ? remaining
-                    : EmptyInputRequests;
-
-                return current.With(Clone(current.Info, status: nextStatus, lastUpdatedAt: GetUtcNow(), inputRequests: nextRequests));
-            }, out var applied);
+                var next = current.Clone();
+                return next.TryResolveInputRequests(inputResponses, now) ? next : current;
+            }, out var applied, cancellationToken);
 
             if (result != ApplyResult.Updated || applied is null)
             {
@@ -231,15 +197,12 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         protected override Task SetCompletedCoreAsync(string taskId, JsonElement result, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            var now = GetUtcNow();
             TryApply(taskId, current =>
             {
-                if (IsTerminal(current.Info.Status))
-                {
-                    return current;
-                }
-
-                return current.With(Clone(current.Info, status: McpTaskStatus.Completed, lastUpdatedAt: GetUtcNow(), result: result));
-            }, out _);
+                var next = current.Clone();
+                return next.TryComplete(result, now) ? next : current;
+            }, out _, cancellationToken);
 
             return Task.CompletedTask;
         }
@@ -248,15 +211,12 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         protected override Task SetFailedCoreAsync(string taskId, JsonElement error, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            var now = GetUtcNow();
             TryApply(taskId, current =>
             {
-                if (IsTerminal(current.Info.Status))
-                {
-                    return current;
-                }
-
-                return current.With(Clone(current.Info, status: McpTaskStatus.Failed, lastUpdatedAt: GetUtcNow(), error: error));
-            }, out _);
+                var next = current.Clone();
+                return next.TryFail(error, now) ? next : current;
+            }, out _, cancellationToken);
 
             return Task.CompletedTask;
         }
@@ -265,28 +225,17 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         protected override Task SetInputRequestsCoreAsync(string taskId, IDictionary<string, InputRequest> inputRequests, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            var now = GetUtcNow();
             TryApply(taskId, current =>
             {
-                if (IsTerminal(current.Info.Status))
+                if (!current.IsActive(now))
                 {
                     return current;
                 }
 
-                var merged = current.Info.InputRequests is { Count: > 0 }
-                    ? new Dictionary<string, InputRequest>(current.Info.InputRequests, StringComparer.Ordinal)
-                    : new Dictionary<string, InputRequest>(inputRequests.Count, StringComparer.Ordinal);
-
-                foreach (var pair in inputRequests)
-                {
-                    merged[pair.Key] = pair.Value;
-                }
-
-                IReadOnlyDictionary<string, InputRequest> nextRequests = merged.Count == 0
-                    ? EmptyInputRequests
-                    : merged;
-
-                return current.With(Clone(current.Info, status: McpTaskStatus.InputRequired, lastUpdatedAt: GetUtcNow(), inputRequests: nextRequests));
-            }, out _);
+                var next = current.Clone();
+                return next.TrySetInputRequests(inputRequests, now) ? next : current;
+            }, out _, cancellationToken);
 
             return Task.CompletedTask;
         }
@@ -296,53 +245,23 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         #region Protected Methods
 
         /// <summary>
-        /// Returns the current UTC timestamp used for create, update, expiry, and sweep.
-        /// </summary>
-        protected virtual DateTimeOffset GetUtcNow() => DateTimeOffset.UtcNow;
-
-        /// <summary>
         /// Generates a unique task identifier.
         /// </summary>
         protected virtual string NewTaskId() => Guid.NewGuid().ToString("N");
 
-        /// <summary>
-        /// Returns whether <paramref name="info"/> has exceeded its time-to-live.
-        /// </summary>
-        protected virtual bool IsExpired(McpTaskInfo info, DateTimeOffset now)
+        /// <inheritdoc />
+        protected override Task SweepExpiredCoreAsync(DateTimeOffset now, CancellationToken cancellationToken)
         {
-            var ttl = info.TimeToLive;
-            if (ttl is not { } duration || duration <= TimeSpan.Zero)
-            {
-                return false;
-            }
-
-            return now >= info.CreatedAt + duration;
-        }
-
-        /// <summary>
-        /// Removes expired tasks when the sweep interval has elapsed.
-        /// </summary>
-        protected virtual void SweepExpired(DateTimeOffset now)
-        {
-            var intervalTicks = SweepInterval.Ticks;
-            if (intervalTicks > 0)
-            {
-                var last = Interlocked.Read(ref _lastSweepTicks);
-                if (now.UtcTicks - last < intervalTicks)
-                {
-                    return;
-                }
-
-                Interlocked.Exchange(ref _lastSweepTicks, now.UtcTicks);
-            }
-
             foreach (var pair in Tasks)
             {
-                if (IsExpired(pair.Value.Info, now))
+                cancellationToken.ThrowIfCancellationRequested();
+                if (ShouldDiscard(pair.Value, now))
                 {
                     Tasks.TryRemove(pair.Key, out _);
                 }
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -352,23 +271,30 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         /// <param name="updater">
         /// Returns a new snapshot to store, or <paramref name="updater"/>'s input to leave the
         /// snapshot unchanged. Returning <see langword="null"/> is treated as unchanged.
+        /// Mutate a <see cref="StoredMcpTask.Clone"/>; do not mutate <c>current</c> in place.
         /// </param>
         /// <param name="applied">The snapshot that won the compare-and-swap, when any.</param>
+        /// <param name="cancellationToken">
+        /// Observed before each read so a cancelled caller does not commit.
+        /// </param>
         /// <returns>Whether the snapshot was missing, left unchanged, or replaced.</returns>
-        protected virtual ApplyResult TryApply(string taskId, Func<StoredTask, StoredTask?> updater, out StoredTask? applied)
+        /// <exception cref="OperationCanceledException">
+        /// <paramref name="cancellationToken"/> was cancelled before a commit.
+        /// </exception>
+        protected virtual ApplyResult TryApply(string taskId, Func<StoredMcpTask, StoredMcpTask?> updater, out StoredMcpTask? applied, CancellationToken cancellationToken = default)
         {
             var now = GetUtcNow();
-            SweepExpired(now);
 
             while (true)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 if (!Tasks.TryGetValue(taskId, out var current))
                 {
                     applied = null;
                     return ApplyResult.Missing;
                 }
 
-                if (IsExpired(current.Info, now))
+                if (ShouldDiscard(current, now))
                 {
                     Tasks.TryRemove(taskId, out _);
                     applied = null;
@@ -393,39 +319,8 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         /// <summary>
         /// Attempts to replace <paramref name="current"/> with <paramref name="next"/> for <paramref name="taskId"/>.
         /// </summary>
-        protected virtual bool TryCompareAndSwap(string taskId, StoredTask current, StoredTask next)
+        protected virtual bool TryCompareAndSwap(string taskId, StoredMcpTask current, StoredMcpTask next)
             => Tasks.TryUpdate(taskId, next, current);
-
-        /// <summary>
-        /// Returns a positive TTL, or <see langword="null"/> when tasks should be retained until process exit.
-        /// </summary>
-        protected virtual TimeSpan? NormalizeTimeToLive(TimeSpan? timeToLive)
-            => timeToLive is { } duration && duration > TimeSpan.Zero ? duration : null;
-
-        /// <summary>
-        /// Creates a new <see cref="McpTaskInfo"/> snapshot from <paramref name="source"/>.
-        /// </summary>
-        protected virtual McpTaskInfo Clone(
-            McpTaskInfo source,
-            McpTaskStatus? status = null,
-            DateTimeOffset? lastUpdatedAt = null,
-            string? statusMessage = null,
-            JsonElement? result = null,
-            JsonElement? error = null,
-            IReadOnlyDictionary<string, InputRequest>? inputRequests = null)
-        {
-            return new McpTaskInfo(
-                source.TaskId,
-                status ?? source.Status,
-                source.CreatedAt,
-                lastUpdatedAt ?? source.LastUpdatedAt,
-                source.TimeToLive,
-                source.PollIntervalMs,
-                statusMessage ?? source.StatusMessage,
-                result ?? source.Result,
-                error ?? source.Error,
-                inputRequests ?? source.InputRequests);
-        }
 
         #endregion
 

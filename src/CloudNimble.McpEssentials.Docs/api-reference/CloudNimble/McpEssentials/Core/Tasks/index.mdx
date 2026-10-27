@@ -3,7 +3,7 @@ title: Overview
 description: "Summary of the CloudNimble.McpEssentials.Core.Tasks Namespace"
 icon: folder-tree
 mode: wide
-keywords: ['CloudNimble.McpEssentials.Core.Tasks', 'namespace', 'ApplyResult', 'AuthenticatedMcpTaskStoreBase', 'InMemoryAuthenticatedMcpTaskStore', 'IPerUserMcpTaskStore', 'McpTaskUserRequiredException', 'StoredTask']
+keywords: ['CloudNimble.McpEssentials.Core.Tasks', 'namespace', 'ApplyResult', 'AuthenticatedMcpTaskStoreBase', 'AuthenticatedMcpTaskStoreOptions', 'IMcpTaskInputSignalBus', 'InMemoryAuthenticatedMcpTaskStore', 'IPerUserMcpTaskStore', 'McpTasksJsonContext', 'McpTaskUserRequiredException', 'StoredMcpTask']
 ---
 
 ## Types
@@ -12,21 +12,24 @@ keywords: ['CloudNimble.McpEssentials.Core.Tasks', 'namespace', 'ApplyResult', '
 
 | Name | Summary |
 | ---- | ------- |
-| [ApplyResult](/api-reference/CloudNimble/McpEssentials/Core/Tasks/ApplyResult) | Result of `StoredTask@)`. |
-| [AuthenticatedMcpTaskStoreBase](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase) | Base type for authenticated MCP task stores. Wires the current-user callback, fail-closed  identity, [AuthenticatedMcpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase#inputresponsereceived), and the mapping from  `IMcpTaskStore` / [IPerUserMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore) into per-user core methods. |
+| [ApplyResult](/api-reference/CloudNimble/McpEssentials/Core/Tasks/ApplyResult) | Result of `CancellationToken)`. |
+| [AuthenticatedMcpTaskStoreBase](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase) | Base type for authenticated MCP task stores. Wires the current-user callback, fail-closed  identity, [AuthenticatedMcpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase#inputresponsereceived), flush pulses, and the mapping from  `IMcpTaskStore` / [IPerUserMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore) into per-user core methods. |
+| [AuthenticatedMcpTaskStoreOptions](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreOptions) | Registration knobs for authenticated MCP task stores. Passed to  `AddInMemoryAuthenticatedTaskStore`, `WithAuthenticatedTasks`,  and the Entity Framework equivalents. |
 | [InMemoryAuthenticatedMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryAuthenticatedMcpTaskStore) | An in-memory [IPerUserMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore) that records the user who created each task  and isolates later client-facing operations to that user. |
+| [McpTasksJsonContext](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTasksJsonContext) | Source-generated JSON for persisting [McpTasksJsonContext.InputRequest](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTasksJsonContext#inputrequest) maps on [StoredMcpTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask). |
 | [McpTaskUserRequiredException](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskUserRequiredException) | The exception that is thrown when an authenticated task store is used without a current user. |
-| [StoredTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredTask) | An immutable in-memory snapshot of a task and its owner. |
+| [StoredMcpTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask) | Persistence foundation for an MCP task. Protocol fields plus owner and expiry.  Construct from `McpTaskInfo`, mutate with `Try*`, and emit the SDK record  with `InputRequest})`. Durable providers subclass this type (for example  `McpTaskEntity`) and add only engine-specific columns. |
 
 ### <Icon icon="plug" iconType="duotone" color="#419AC5" size={24} style={{ paddingRight: '8px' }} /> Interfaces
 
 | Name | Summary |
 | ---- | ------- |
+| [IMcpTaskInputSignalBus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus) | Fan-out for `InputResponseReceived`  across processes. Stores with no native pub/sub (Entity Framework Core, distributed cache,  Azure Tables) take this as an optional constructor argument. |
 | [IPerUserMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore) | An `IMcpTaskStore` that isolates tasks per authenticated user and exposes  [ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.claimsprincipal) overloads for every client-facing operation. |
 
 ### <Icon icon="list-ol" iconType="duotone" color="#419AC5" size={24} style={{ paddingRight: '8px' }} /> Enums
 
 | Name | Summary |
 | ---- | ------- |
-| [ApplyResult](/api-reference/CloudNimble/McpEssentials/Core/Tasks/ApplyResult) | Result of `StoredTask@)`. |
+| [ApplyResult](/api-reference/CloudNimble/McpEssentials/Core/Tasks/ApplyResult) | Result of `CancellationToken)`. |
 

@@ -1,6 +1,6 @@
 ---
 title: ApplyResult
-description: "Result of `StoredTask@)`."
+description: "Result of `CancellationToken)`."
 icon: list-ol
 tag: "ENUM"
 keywords: ['ApplyResult', 'CloudNimble.McpEssentials.Core.Tasks.ApplyResult', 'CloudNimble.McpEssentials.Core.Tasks', 'class', 'System.Enum']
@@ -22,13 +22,13 @@ CloudNimble.McpEssentials.Core.Tasks.ApplyResult
 
 ## Summary
 
-Result of `StoredTask@)`.
+Result of `CancellationToken)`.
 
 ## Values
 
 | Name | Value | Description |
 |------|-------|-------------|
-| `Missing` | 0 | No snapshot was present, or it had expired. |
+| `Missing` | 0 | No snapshot was present, or <see cref="M:CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask.HasExpired(System.DateTimeOffset)" /> was <see langword="true" />. |
 | `Unchanged` | 1 | The snapshot was present and left unchanged. |
 | `Updated` | 2 | The snapshot was replaced. |
 

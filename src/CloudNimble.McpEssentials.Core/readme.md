@@ -18,7 +18,9 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddMcpServer()
     .WithHttpTransport()
     .WithTools<MyTools>()
-    .WithAuthenticatedTasks(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User);
+    .WithAuthenticatedTasks(
+        sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
+        o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
 ```
 
 Local / stdio: `.WithAuthenticatedTasks("local-user")`. Tests: `new InMemoryAuthenticatedMcpTaskStore("user-1")` or `store.CreateTaskAsync(principal)`.
@@ -29,7 +31,7 @@ HTTP hosts call `AddHttpContextAccessor()` and pass a factory that resolves `IHt
 
 ## Durable stores
 
-Core is the in-memory, single-process store. Provider packages (Entity Framework Core, PostgreSQL, Redis, …) subclass `AuthenticatedMcpTaskStoreBase` and implement the same `IPerUserMcpTaskStore` contract. See [Authenticated Task Stores](../../specs/authenticated-task-stores.md).
+Core is the in-memory, single-process store. `McpEssentials.EntityFrameworkCore` is the first durable provider. Other packages (PostgreSQL, Redis, …) subclass `AuthenticatedMcpTaskStoreBase` the same way. See [Authenticated Task Stores](../../specs/authenticated-task-stores.md).
 
 ## Documentation
 

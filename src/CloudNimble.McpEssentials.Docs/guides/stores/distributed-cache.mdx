@@ -1,0 +1,24 @@
+---
+title: "IDistributedCache"
+description: "Authenticated task store over whatever IDistributedCache you already registered. Specified; not in this repository yet."
+keywords: ["IDistributedCache", "NCache", "FusionCache"]
+---
+
+<Warning>
+`McpEssentials.DistributedCache` is specified and is not in this repository yet.
+</Warning>
+
+Use this when the host already registered `IDistributedCache` (Redis, NCache, SQL Server cache, FusionCache, …) and you want tasks on that abstraction. Prefer [Redis](/guides/stores/redis) when the cache is Redis and you need pub/sub.
+
+## Intended how-to
+
+1. Add `McpEssentials.DistributedCache`.
+2. Serialize the canonical `StoredMcpTask` record with source-generated JSON. Key `mcp:task:{taskId}`.
+3. Register the store as a singleton with the same current-user factory as [Authenticated tasks](/guides/authenticated-tasks).
+4. `IDistributedCache` has no pub/sub. For multi-node `ElicitAsync`, register [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus). Single-node hosts can skip the bus.
+
+## TTL
+
+Set cache entry expiry from `DiscardAfter` (`CreatedAt + 2×TimeToLive`). A missing key is not found.
+
+See [Stores](/guides/stores).

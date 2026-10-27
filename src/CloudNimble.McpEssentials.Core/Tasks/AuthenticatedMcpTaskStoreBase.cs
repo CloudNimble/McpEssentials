@@ -14,12 +14,15 @@ namespace CloudNimble.McpEssentials.Core.Tasks
 
     /// <summary>
     /// Base type for authenticated MCP task stores. Wires the current-user callback, fail-closed
-    /// identity, <see cref="InputResponseReceived"/>, and the mapping from
+    /// identity, <see cref="InputResponseReceived"/>, flush pulses, and the mapping from
     /// <see cref="IMcpTaskStore"/> / <see cref="IPerUserMcpTaskStore"/> into per-user core methods.
     /// </summary>
     /// <remarks>
-    /// Subclass and implement the <c>Core</c> methods to persist snapshots. Do not wrap the SDK
-    /// <c>InMemoryMcpTaskStore</c>; each provider owns its storage.
+    /// Subclass and implement the <c>Core</c> methods plus <see cref="SweepExpiredCoreAsync"/> to
+    /// persist snapshots. Create inserts then pulses a throttled flush; get pulses then reads.
+    /// Set <see cref="AutoSweep"/> to <see langword="false"/> and call <see cref="SweepExpiredAsync"/>
+    /// from your own job to own the schedule. Override <see cref="ShouldDiscard"/> to change keep
+    /// rules. Do not wrap the SDK <c>InMemoryMcpTaskStore</c>; each provider owns its storage.
     /// </remarks>
     public abstract class AuthenticatedMcpTaskStoreBase : IPerUserMcpTaskStore
     {
@@ -41,6 +44,8 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         /// </summary>
         protected static readonly Task<bool> TrueTask = Task.FromResult(true);
 
+        private long _lastSweepTicks;
+
         #endregion
 
         #region Properties
@@ -49,6 +54,56 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         /// Gets the callback used by the <see cref="IMcpTaskStore"/> methods to resolve the current user.
         /// </summary>
         protected Func<string?> GetCurrentUserId { get; }
+
+        /// <summary>
+        /// Gets or sets the default poll interval in milliseconds for new tasks.
+        /// </summary>
+        /// <value>The default is 1000 milliseconds.</value>
+        public virtual long DefaultPollIntervalMs { get; set; } = 1000;
+
+        /// <summary>
+        /// Gets or sets the default time-to-live for new tasks, or <see langword="null"/> for unlimited.
+        /// </summary>
+        /// <remarks>
+        /// When set to a positive value, the work window ends at <c>CreatedAt + TimeToLive</c> and
+        /// the row is discarded at <c>CreatedAt + 2×TimeToLive</c> (stamped as
+        /// <see cref="StoredMcpTask.DiscardAfter"/>), or sooner when a terminal
+        /// <c>GetTaskAsync</c> serves it. A <see langword="null"/> or non-positive value keeps tasks
+        /// until a terminal get or until the store discards them.
+        /// </remarks>
+        public virtual TimeSpan? DefaultTimeToLive { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether the store pulses a throttled flush after create and on get.
+        /// </summary>
+        /// <value>The default is <see langword="true"/>.</value>
+        /// <remarks>
+        /// Set to <see langword="false"/> and call <see cref="SweepExpiredAsync"/> from your own job
+        /// when you want to own the schedule. The public flush handle always runs a full pass.
+        /// </remarks>
+        public virtual bool AutoSweep { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets the minimum interval between automatic flush pulses.
+        /// </summary>
+        /// <value>The default is 30 seconds. <see cref="TimeSpan.Zero"/> skips the throttle.</value>
+        public virtual TimeSpan SweepInterval { get; set; } = TimeSpan.FromSeconds(30);
+
+        /// <summary>
+        /// Gets or sets whether an owner get of a terminal snapshot serves it and then drops the row.
+        /// </summary>
+        /// <value>The default is <see langword="true"/>.</value>
+        public virtual bool ServeAndDrop { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets the UTC ticks of the last automatic flush pulse.
+        /// Tests reset this to race the throttle.
+        /// </summary>
+        protected long LastSweepTicks
+        {
+            get => Interlocked.Read(ref _lastSweepTicks);
+            set => Interlocked.Exchange(ref _lastSweepTicks, value);
+        }
 
         #endregion
 
@@ -99,18 +154,21 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         #region IMcpTaskStore
 
         /// <inheritdoc />
-        public virtual Task<McpTaskInfo> CreateTaskAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<McpTaskInfo> CreateTaskAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            return CreateTaskCoreAsync(RequireUserId(), cancellationToken);
+            var created = await CreateTaskCoreAsync(RequireUserId(), cancellationToken).ConfigureAwait(false);
+            await PulseSweepAsync(GetUtcNow(), cancellationToken).ConfigureAwait(false);
+            return created;
         }
 
         /// <inheritdoc />
-        public virtual Task<McpTaskInfo?> GetTaskAsync(string taskId, CancellationToken cancellationToken = default)
+        public virtual async Task<McpTaskInfo?> GetTaskAsync(string taskId, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ArgumentException.ThrowIfNullOrWhiteSpace(taskId);
-            return GetTaskCoreAsync(taskId, RequireUserId(), cancellationToken);
+            await PulseSweepAsync(GetUtcNow(), cancellationToken).ConfigureAwait(false);
+            return await GetTaskCoreAsync(taskId, RequireUserId(), cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -160,18 +218,28 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         #region IPerUserMcpTaskStore
 
         /// <inheritdoc />
-        public virtual Task<McpTaskInfo> CreateTaskAsync(ClaimsPrincipal user, CancellationToken cancellationToken = default)
+        public virtual async Task<McpTaskInfo> CreateTaskAsync(ClaimsPrincipal user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            return CreateTaskCoreAsync(RequireUserId(user), cancellationToken);
+            var created = await CreateTaskCoreAsync(RequireUserId(user), cancellationToken).ConfigureAwait(false);
+            await PulseSweepAsync(GetUtcNow(), cancellationToken).ConfigureAwait(false);
+            return created;
         }
 
         /// <inheritdoc />
-        public virtual Task<McpTaskInfo?> GetTaskAsync(string taskId, ClaimsPrincipal user, CancellationToken cancellationToken = default)
+        public virtual async Task<McpTaskInfo?> GetTaskAsync(string taskId, ClaimsPrincipal user, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ArgumentException.ThrowIfNullOrWhiteSpace(taskId);
-            return GetTaskCoreAsync(taskId, RequireUserId(user), cancellationToken);
+            await PulseSweepAsync(GetUtcNow(), cancellationToken).ConfigureAwait(false);
+            return await GetTaskCoreAsync(taskId, RequireUserId(user), cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <inheritdoc />
+        public virtual Task SweepExpiredAsync(CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return SweepExpiredCoreAsync(GetUtcNow(), cancellationToken);
         }
 
         /// <inheritdoc />
@@ -229,6 +297,85 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         /// Merges input requests onto the task. Skips the live-user check.
         /// </summary>
         protected abstract Task SetInputRequestsCoreAsync(string taskId, IDictionary<string, InputRequest> inputRequests, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Deletes rows that have passed their discard time.
+        /// </summary>
+        /// <param name="now">The current UTC time used for discard checks.</param>
+        /// <param name="cancellationToken">
+        /// Observed during the pass so a cancelled caller does not finish the walk.
+        /// </param>
+        /// <returns>A task that completes when the pass finishes.</returns>
+        /// <exception cref="OperationCanceledException">
+        /// <paramref name="cancellationToken"/> was cancelled during the pass.
+        /// </exception>
+        protected abstract Task SweepExpiredCoreAsync(DateTimeOffset now, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Returns the current UTC timestamp used for create, update, expiry, and sweep.
+        /// </summary>
+        protected virtual DateTimeOffset GetUtcNow() => DateTimeOffset.UtcNow;
+
+        /// <summary>
+        /// Returns a positive TTL, or <see langword="null"/> when tasks should be retained until discarded.
+        /// </summary>
+        protected virtual TimeSpan? NormalizeTimeToLive(TimeSpan? timeToLive)
+            => StoredMcpTask.NormalizeTimeToLive(timeToLive);
+
+        /// <summary>
+        /// Returns whether <paramref name="task"/> should be discarded at <paramref name="now"/>.
+        /// </summary>
+        /// <param name="task">The snapshot under consideration.</param>
+        /// <param name="now">The current UTC time.</param>
+        /// <returns>
+        /// The default is <see cref="StoredMcpTask.HasExpired"/> (compares
+        /// <see cref="StoredMcpTask.DiscardAfter"/>). Override for per-row Get and mutate.
+        /// Set-based drains (EF <c>ExecuteDelete</c>) use the stamp; override
+        /// <see cref="SweepExpiredCoreAsync"/> when bulk criteria must differ.
+        /// </returns>
+        protected virtual bool ShouldDiscard(StoredMcpTask task, DateTimeOffset now)
+            => task.HasExpired(now);
+
+        /// <summary>
+        /// Pulses a throttled flush when <see cref="AutoSweep"/> is on.
+        /// </summary>
+        /// <param name="now">The current UTC time used for discard and throttle checks.</param>
+        /// <param name="cancellationToken">Observed during the pass.</param>
+        /// <returns>A completed task when auto-sweep is off or the interval has not elapsed.</returns>
+        protected virtual Task PulseSweepAsync(DateTimeOffset now, CancellationToken cancellationToken)
+        {
+            if (!AutoSweep || !TryClaimSweep(now))
+            {
+                return Task.CompletedTask;
+            }
+
+            return SweepExpiredCoreAsync(now, cancellationToken);
+        }
+
+        /// <summary>
+        /// Claims the automatic-flush interval so only one pulse walks at a time.
+        /// </summary>
+        /// <param name="now">The current UTC time.</param>
+        /// <returns>
+        /// <see langword="true"/> when this caller should run the pass.
+        /// A <see cref="SweepInterval"/> of <see cref="TimeSpan.Zero"/> always claims.
+        /// </returns>
+        protected virtual bool TryClaimSweep(DateTimeOffset now)
+        {
+            var intervalTicks = SweepInterval.Ticks;
+            if (intervalTicks <= 0)
+            {
+                return true;
+            }
+
+            var last = Interlocked.Read(ref _lastSweepTicks);
+            if (now.UtcTicks - last < intervalTicks)
+            {
+                return false;
+            }
+
+            return Interlocked.CompareExchange(ref _lastSweepTicks, now.UtcTicks, last) == last;
+        }
 
         /// <summary>
         /// Returns the current user identifier, throwing when none is authenticated.
@@ -328,12 +475,6 @@ namespace CloudNimble.McpEssentials.Core.Tasks
                 && !string.IsNullOrWhiteSpace(currentUserId)
                 && ownerUserId == currentUserId;
         }
-
-        /// <summary>
-        /// Returns whether <paramref name="status"/> is a terminal task status.
-        /// </summary>
-        protected virtual bool IsTerminal(McpTaskStatus status)
-            => status is McpTaskStatus.Completed or McpTaskStatus.Cancelled or McpTaskStatus.Failed;
 
         /// <summary>
         /// Raises <see cref="InputResponseReceived"/> for a resolved input.
