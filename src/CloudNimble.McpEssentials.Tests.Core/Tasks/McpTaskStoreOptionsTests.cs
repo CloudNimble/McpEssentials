@@ -11,7 +11,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
     /// Coverage for registration options applied onto authenticated stores.
     /// </summary>
     [TestClass]
-    public class AuthenticatedMcpTaskStoreOptionsTests : BreakdanceMSTestBase
+    public class McpTaskStoreOptionsTests : BreakdanceMSTestBase
     {
 
         #region Public Methods
@@ -19,8 +19,8 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public void ApplyTo_CopiesTtlAndPollInterval()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
-            var options = new AuthenticatedMcpTaskStoreOptions
+            var store = new InMemoryMcpTaskStorePlus("alice");
+            var options = new McpTaskStoreOptions
             {
                 DefaultTimeToLive = TimeSpan.FromMinutes(5),
                 DefaultPollIntervalMs = 2500
@@ -35,8 +35,8 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public void ApplyTo_CopiesFlushKnobs()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
-            var options = new AuthenticatedMcpTaskStoreOptions
+            var store = new InMemoryMcpTaskStorePlus("alice");
+            var options = new McpTaskStoreOptions
             {
                 AutoSweep = false,
                 SweepInterval = TimeSpan.FromMinutes(2),
@@ -53,7 +53,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public void ApplyTo_WhenStoreIsNull_Throws()
         {
-            var options = new AuthenticatedMcpTaskStoreOptions();
+            var options = new McpTaskStoreOptions();
 
             Action act = () => options.ApplyTo(null!);
 
@@ -63,9 +63,9 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public void Apply_WhenConfigureIsNull_LeavesDefaults()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
 
-            AuthenticatedMcpTaskStoreOptions.Apply(null, store);
+            McpTaskStoreOptions.Apply(null, store);
 
             store.DefaultTimeToLive.Should().BeNull();
             store.DefaultPollIntervalMs.Should().Be(1000);
@@ -77,7 +77,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public void Apply_WhenStoreIsNull_Throws()
         {
-            Action act = () => AuthenticatedMcpTaskStoreOptions.Apply(_ => { }, null!);
+            Action act = () => McpTaskStoreOptions.Apply(_ => { }, null!);
 
             act.Should().Throw<ArgumentNullException>().WithParameterName("store");
         }
@@ -85,9 +85,9 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public void Apply_InvokesConfigureAndCopies()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
 
-            AuthenticatedMcpTaskStoreOptions.Apply(o =>
+            McpTaskStoreOptions.Apply(o =>
             {
                 o.DefaultTimeToLive = TimeSpan.FromSeconds(30);
                 o.DefaultPollIntervalMs = 500;

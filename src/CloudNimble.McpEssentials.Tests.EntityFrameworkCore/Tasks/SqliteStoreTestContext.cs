@@ -45,12 +45,12 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Tasks
 
         #region Public Methods
 
-        public EntityFrameworkAuthenticatedTaskStore<McpTaskDbContext> CreateStore(
+        public EFCoreMcpTaskStore<McpTaskDbContext> CreateStore(
             Func<string?> getCurrentUserId,
             IMcpTaskInputSignalBus? signalBus = null)
             => new(Scopes, getCurrentUserId, signalBus);
 
-        public EntityFrameworkAuthenticatedTaskStore<McpTaskDbContext> CreateStore(
+        public EFCoreMcpTaskStore<McpTaskDbContext> CreateStore(
             string? userId,
             IMcpTaskInputSignalBus? signalBus = null)
             => new(Scopes, userId, signalBus);

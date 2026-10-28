@@ -31,9 +31,6 @@ See [Microsoft documentation](https://learn.microsoft.com/dotnet/api/microsoft.e
 
 <Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Core_ServiceCollectionExtensions`</Note>
 
-Registers [InMemoryAuthenticatedMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryAuthenticatedMcpTaskStore) as the singleton
-`IMcpTaskStore` and [IPerUserMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore) for a single user.
-
 #### Syntax
 
 ```csharp
@@ -44,28 +41,17 @@ public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddInM
 
 | Name | Type | Description |
 |------|------|-------------|
-| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
-| `userId` | `string` | The owner stamped on every task this process creates. |
-| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions>?` | Optional store options (TTL, poll interval). |
+| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | - |
+| `userId` | `string` | - |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions>?` | - |
 
 #### Returns
 
 Type: `Microsoft.Extensions.DependencyInjection.IServiceCollection`
-The service collection.
-
-#### Exceptions
-
-| Exception | Description |
-|-----------|-------------|
-| `ArgumentNullException` | Thrown when *services* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
-| `ArgumentException` | Thrown when *userId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or whitespace. |
 
 ### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddInMemoryAuthenticatedTaskStore <Badge color="green">Extension</Badge>
 
 <Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Core_ServiceCollectionExtensions`</Note>
-
-Registers [InMemoryAuthenticatedMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryAuthenticatedMcpTaskStore) as the singleton
-`IMcpTaskStore` and [IPerUserMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore).
 
 #### Syntax
 
@@ -77,26 +63,17 @@ public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddInM
 
 | Name | Type | Description |
 |------|------|-------------|
-| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
-| `getCurrentUserId` | `System.Func<string?>` | Returns the current user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unauthenticated. |
-| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions>?` | Optional store options (TTL, poll interval). |
+| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | - |
+| `getCurrentUserId` | `System.Func<string?>` | - |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions>?` | - |
 
 #### Returns
 
 Type: `Microsoft.Extensions.DependencyInjection.IServiceCollection`
-The service collection.
-
-#### Exceptions
-
-| Exception | Description |
-|-----------|-------------|
-| `ArgumentNullException` | Thrown when *services* or *getCurrentUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
 
 ### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddInMemoryAuthenticatedTaskStore <Badge color="green">Extension</Badge>
 
 <Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Core_ServiceCollectionExtensions`</Note>
-
-Registers [InMemoryAuthenticatedMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryAuthenticatedMcpTaskStore) using a [ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.claimsprincipal) factory.
 
 #### Syntax
 
@@ -108,21 +85,13 @@ public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddInM
 
 | Name | Type | Description |
 |------|------|-------------|
-| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
-| `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. Hosts typically pass
-`sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`. |
-| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions>?` | Optional store options (TTL, poll interval). |
+| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | - |
+| `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | - |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions>?` | - |
 
 #### Returns
 
 Type: `Microsoft.Extensions.DependencyInjection.IServiceCollection`
-The service collection.
-
-#### Exceptions
-
-| Exception | Description |
-|-----------|-------------|
-| `ArgumentNullException` | Thrown when *services* or *getPrincipal* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
 
 ### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddMcpEssentialsEntityFrameworkTasks <Badge color="green">Extension</Badge>
 

@@ -22,7 +22,7 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Tasks
     /// SQLite-backed coverage for the EF Core authenticated task store.
     /// </summary>
     [TestClass]
-    public class EntityFrameworkAuthenticatedTaskStoreTests : BreakdanceMSTestBase
+    public class EFCoreMcpTaskStoreTests : BreakdanceMSTestBase
     {
 
         #region Public Methods
@@ -64,7 +64,7 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Tasks
         {
             using var db = new SqliteStoreTestContext();
             ClaimsPrincipal? current = TestUser.Authenticated("alice");
-            var store = new EntityFrameworkAuthenticatedTaskStore<McpTaskDbContext>(db.Scopes, () => current);
+            var store = new EFCoreMcpTaskStore<McpTaskDbContext>(db.Scopes, () => current);
 
             var created = await store.CreateTaskAsync();
             current = TestUser.Authenticated("bob");
@@ -472,7 +472,7 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Tasks
         [TestMethod]
         public void Constructor_WhenScopeFactoryIsNull_Throws()
         {
-            Action act = () => _ = new EntityFrameworkAuthenticatedTaskStore<McpTaskDbContext>(
+            Action act = () => _ = new EFCoreMcpTaskStore<McpTaskDbContext>(
                 (IServiceScopeFactory)null!,
                 "alice");
 
@@ -484,7 +484,7 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Tasks
         {
             using var db = new SqliteStoreTestContext();
 
-            Action act = () => _ = new EntityFrameworkAuthenticatedTaskStore<McpTaskDbContext>(
+            Action act = () => _ = new EFCoreMcpTaskStore<McpTaskDbContext>(
                 db.Scopes,
                 (Func<string?>)null!);
 

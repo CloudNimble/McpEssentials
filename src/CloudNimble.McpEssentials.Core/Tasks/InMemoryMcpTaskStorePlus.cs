@@ -12,7 +12,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
 {
 
     /// <summary>
-    /// An in-memory <see cref="IPerUserMcpTaskStore"/> that records the user who created each task
+    /// An in-memory <see cref="IMcpTaskStorePlus"/> that records the user who created each task
     /// and isolates later client-facing operations to that user.
     /// </summary>
     /// <remarks>
@@ -23,7 +23,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
     /// <c>InMemoryMcpTaskStore</c>.
     /// </para>
     /// <para>
-    /// Tasks created with a <see cref="AuthenticatedMcpTaskStoreBase.DefaultTimeToLive"/> use two
+    /// Tasks created with a <see cref="McpTaskStoreBase.DefaultTimeToLive"/> use two
     /// clocks (as permitted by SEP-2663): a work window of <c>CreatedAt + TimeToLive</c> during which
     /// input and progress are accepted, and a tracking window that keeps the snapshot visible until
     /// <c>CreatedAt + 2×TimeToLive</c> so a late complete, fail, or cancel can still be recorded and
@@ -43,7 +43,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
     /// For multi-instance hosts, use a durable provider described in the authenticated task store spec.
     /// </para>
     /// </remarks>
-    public class InMemoryAuthenticatedMcpTaskStore : AuthenticatedMcpTaskStoreBase
+    public class InMemoryMcpTaskStorePlus : McpTaskStoreBase
     {
 
         #region Properties
@@ -58,32 +58,32 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="InMemoryAuthenticatedMcpTaskStore"/> class.
+        /// Initializes a new instance of the <see cref="InMemoryMcpTaskStorePlus"/> class.
         /// </summary>
         /// <param name="getCurrentUserId">Returns the current user identifier, or <see langword="null"/> when unauthenticated.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="getCurrentUserId"/> is <see langword="null"/>.</exception>
-        public InMemoryAuthenticatedMcpTaskStore(Func<string?> getCurrentUserId)
+        public InMemoryMcpTaskStorePlus(Func<string?> getCurrentUserId)
             : base(getCurrentUserId)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="InMemoryAuthenticatedMcpTaskStore"/> class
+        /// Initializes a new instance of the <see cref="InMemoryMcpTaskStorePlus"/> class
         /// that always uses <paramref name="userId"/>.
         /// </summary>
         /// <param name="userId">The user identifier, or <see langword="null"/> to treat the process as unauthenticated.</param>
-        public InMemoryAuthenticatedMcpTaskStore(string? userId)
+        public InMemoryMcpTaskStorePlus(string? userId)
             : base(userId)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="InMemoryAuthenticatedMcpTaskStore"/> class
+        /// Initializes a new instance of the <see cref="InMemoryMcpTaskStorePlus"/> class
         /// that resolves the user from a <see cref="ClaimsPrincipal"/>.
         /// </summary>
         /// <param name="getPrincipal">Returns the principal for the current request.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="getPrincipal"/> is <see langword="null"/>.</exception>
-        public InMemoryAuthenticatedMcpTaskStore(Func<ClaimsPrincipal?> getPrincipal)
+        public InMemoryMcpTaskStorePlus(Func<ClaimsPrincipal?> getPrincipal)
             : base(getPrincipal)
         {
         }

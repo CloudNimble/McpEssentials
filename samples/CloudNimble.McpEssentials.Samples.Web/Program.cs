@@ -7,7 +7,7 @@ namespace CloudNimble.McpEssentials.Samples.Web
 
     /// <summary>
     /// Hosts a Streamable HTTP MCP server with fake header authentication and
-    /// <c>InMemoryAuthenticatedMcpTaskStore</c>.
+    /// <c>InMemoryMcpTaskStorePlus</c>.
     /// </summary>
     public class Program
     {
@@ -27,7 +27,7 @@ namespace CloudNimble.McpEssentials.Samples.Web
             builder.Services.AddMcpServer()
                 .WithHttpTransport(options => options.Stateless = true)
                 .WithTools<HelloWorldTools>()
-                .WithAuthenticatedTasks(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User);
+                .WithTasksPlus(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User);
 
             var app = builder.Build();
             app.UseMiddleware<FakeAuthenticationMiddleware>();

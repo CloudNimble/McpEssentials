@@ -35,33 +35,33 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         #region Public Methods
 
         [TestMethod]
-        public async Task AddInMemoryAuthenticatedTaskStore_ConstantUser_ResolvesSingletonStore()
+        public async Task AddInMemoryMcpTaskStorePlus_ConstantUser_ResolvesSingletonStore()
         {
             TestHostBuilder.ConfigureServices(services =>
             {
-                services.AddInMemoryAuthenticatedTaskStore("alice");
+                services.AddInMemoryMcpTaskStorePlus("alice");
             });
             TestSetup();
 
             var store1 = GetService<IMcpTaskStore>();
-            var store2 = GetService<IPerUserMcpTaskStore>();
-            var concrete = GetService<InMemoryAuthenticatedMcpTaskStore>();
+            var store2 = GetService<IMcpTaskStorePlus>();
+            var concrete = GetService<InMemoryMcpTaskStorePlus>();
 
             store1.Should().BeSameAs(store2);
             store1.Should().BeSameAs(concrete);
-            store1.Should().BeOfType<InMemoryAuthenticatedMcpTaskStore>();
+            store1.Should().BeOfType<InMemoryMcpTaskStorePlus>();
 
             var created = await store1!.CreateTaskAsync();
             created.TaskId.Should().NotBeNullOrWhiteSpace();
         }
 
         [TestMethod]
-        public async Task AddInMemoryAuthenticatedTaskStore_FromUserIdFactory_UsesCallback()
+        public async Task AddInMemoryMcpTaskStorePlus_FromUserIdFactory_UsesCallback()
         {
             var userId = "alice";
             TestHostBuilder.ConfigureServices(services =>
             {
-                services.AddInMemoryAuthenticatedTaskStore(() => userId);
+                services.AddInMemoryMcpTaskStorePlus(() => userId);
             });
             TestSetup();
 
@@ -73,16 +73,16 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         }
 
         [TestMethod]
-        public async Task AddInMemoryAuthenticatedTaskStore_FromPrincipalFactory_UsesClaims()
+        public async Task AddInMemoryMcpTaskStorePlus_FromPrincipalFactory_UsesClaims()
         {
             TestHostBuilder.ConfigureServices(services =>
             {
-                services.AddInMemoryAuthenticatedTaskStore(_ => TestUser.Authenticated("principal-1"));
+                services.AddInMemoryMcpTaskStorePlus(_ => TestUser.Authenticated("principal-1"));
             });
             TestSetup();
 
             var store = GetService<IMcpTaskStore>();
-            var perUser = GetService<IPerUserMcpTaskStore>();
+            var perUser = GetService<IMcpTaskStorePlus>();
             store.Should().BeSameAs(perUser);
 
             var created = await store!.CreateTaskAsync();
@@ -90,69 +90,90 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         }
 
         [TestMethod]
-        public void AddInMemoryAuthenticatedTaskStore_WhenServicesIsNull_Throws()
+        public void AddInMemoryMcpTaskStorePlus_WhenServicesIsNull_Throws()
         {
             IServiceCollection services = null!;
 
-            Action act = () => services.AddInMemoryAuthenticatedTaskStore("alice");
+            Action act = () => services.AddInMemoryMcpTaskStorePlus("alice");
 
             act.Should().Throw<ArgumentNullException>().WithParameterName("services");
         }
 
         [TestMethod]
-        public void AddInMemoryAuthenticatedTaskStore_WhenUserIdIsWhitespace_Throws()
+        public void AddInMemoryMcpTaskStorePlus_WhenUserIdIsWhitespace_Throws()
         {
             var services = new ServiceCollection();
 
-            Action act = () => services.AddInMemoryAuthenticatedTaskStore("  ");
+            Action act = () => services.AddInMemoryMcpTaskStorePlus("  ");
 
             act.Should().Throw<ArgumentException>().WithParameterName("userId");
         }
 
         [TestMethod]
-        public void AddInMemoryAuthenticatedTaskStore_WhenGetCurrentUserIdIsNull_Throws()
+        public void AddInMemoryMcpTaskStorePlus_WhenGetCurrentUserIdIsNull_Throws()
         {
             var services = new ServiceCollection();
 
-            Action act = () => services.AddInMemoryAuthenticatedTaskStore((Func<string?>)null!);
+            Action act = () => services.AddInMemoryMcpTaskStorePlus((Func<string?>)null!);
 
             act.Should().Throw<ArgumentNullException>().WithParameterName("getCurrentUserId");
         }
 
         [TestMethod]
-        public void AddInMemoryAuthenticatedTaskStore_WhenPrincipalFactoryIsNull_Throws()
+        public void AddInMemoryMcpTaskStorePlus_WhenPrincipalFactoryIsNull_Throws()
         {
             var services = new ServiceCollection();
 
-            Action act = () => services.AddInMemoryAuthenticatedTaskStore((Func<IServiceProvider, ClaimsPrincipal?>)null!);
+            Action act = () => services.AddInMemoryMcpTaskStorePlus((Func<IServiceProvider, ClaimsPrincipal?>)null!);
 
             act.Should().Throw<ArgumentNullException>().WithParameterName("getPrincipal");
         }
 
+        /// <summary>
+        /// <c>WithTasksPlus</c> provider picker uses <c>UseInMemory</c>.
+        /// </summary>
         [TestMethod]
-        public async Task WithAuthenticatedTasks_ConstantUser_CreatesIsolatedStore()
+        public async Task WithTasksPlus_UseInMemory_CreatesIsolatedStore()
         {
             var builder = new TestMcpServerBuilder();
 
-            builder.WithAuthenticatedTasks("alice");
+            builder.WithTasksPlus(tasks => tasks.UseInMemory("alice"));
 
             using var provider = builder.Services.BuildServiceProvider();
             var store = provider.GetRequiredService<IMcpTaskStore>();
-            var perUser = provider.GetRequiredService<IPerUserMcpTaskStore>();
             var created = await store.CreateTaskAsync();
 
             created.TaskId.Should().NotBeNullOrWhiteSpace();
-            store.Should().BeOfType<InMemoryAuthenticatedMcpTaskStore>();
+            store.Should().BeOfType<InMemoryMcpTaskStorePlus>();
+        }
+
+        /// <summary>
+        /// Constant user id creates an isolated in-memory store.
+        /// </summary>
+        [TestMethod]
+        public async Task WithTasksPlus_ConstantUser_CreatesIsolatedStore()
+        {
+            var builder = new TestMcpServerBuilder();
+
+            builder.WithTasksPlus("alice");
+
+            using var provider = builder.Services.BuildServiceProvider();
+            var store = provider.GetRequiredService<IMcpTaskStore>();
+            var perUser = provider.GetRequiredService<IMcpTaskStorePlus>();
+            var created = await store.CreateTaskAsync();
+
+            created.TaskId.Should().NotBeNullOrWhiteSpace();
+            store.Should().BeOfType<InMemoryMcpTaskStorePlus>();
             store.Should().BeSameAs(perUser);
         }
 
         [TestMethod]
-        public async Task WithAuthenticatedTasks_FromUserIdFactory_UsesCallback()
+        public async Task WithTasksPlus_FromUserIdFactory_UsesCallback()
         {
             var builder = new TestMcpServerBuilder();
             var userId = "alice";
 
-            builder.WithAuthenticatedTasks(() => userId);
+            builder.WithTasksPlus(() => userId);
 
             using var provider = builder.Services.BuildServiceProvider();
             var store = provider.GetRequiredService<IMcpTaskStore>();
@@ -163,11 +184,11 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         }
 
         [TestMethod]
-        public async Task WithAuthenticatedTasks_FromPrincipal_UsesClaims()
+        public async Task WithTasksPlus_FromPrincipal_UsesClaims()
         {
             var builder = new TestMcpServerBuilder();
 
-            builder.WithAuthenticatedTasks(() => TestUser.Authenticated("principal-1"));
+            builder.WithTasksPlus(() => TestUser.Authenticated("principal-1"));
 
             using var provider = builder.Services.BuildServiceProvider();
             var store = provider.GetRequiredService<IMcpTaskStore>();
@@ -177,11 +198,11 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         }
 
         [TestMethod]
-        public async Task AddInMemoryAuthenticatedTaskStore_Configure_SetsDefaultTimeToLive()
+        public async Task AddInMemoryMcpTaskStorePlus_Configure_SetsDefaultTimeToLive()
         {
             TestHostBuilder.ConfigureServices(services =>
             {
-                services.AddInMemoryAuthenticatedTaskStore("alice", o =>
+                services.AddInMemoryMcpTaskStorePlus("alice", o =>
                 {
                     o.DefaultTimeToLive = TimeSpan.FromMinutes(5);
                     o.DefaultPollIntervalMs = 2500;
@@ -189,7 +210,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
             });
             TestSetup();
 
-            var store = GetService<InMemoryAuthenticatedMcpTaskStore>();
+            var store = GetService<InMemoryMcpTaskStorePlus>();
             var created = await store!.CreateTaskAsync();
 
             store.DefaultTimeToLive.Should().Be(TimeSpan.FromMinutes(5));
@@ -199,18 +220,18 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         }
 
         [TestMethod]
-        public async Task WithAuthenticatedTasks_Configure_SetsDefaultTimeToLive()
+        public async Task WithTasksPlus_Configure_SetsDefaultTimeToLive()
         {
             var builder = new TestMcpServerBuilder();
 
-            builder.WithAuthenticatedTasks("alice", o =>
+            builder.WithTasksPlus("alice", o =>
             {
                 o.DefaultTimeToLive = TimeSpan.FromMinutes(5);
                 o.DefaultPollIntervalMs = 2500;
             });
 
             using var provider = builder.Services.BuildServiceProvider();
-            var store = provider.GetRequiredService<InMemoryAuthenticatedMcpTaskStore>();
+            var store = provider.GetRequiredService<InMemoryMcpTaskStorePlus>();
             var created = await store.CreateTaskAsync();
 
             store.DefaultTimeToLive.Should().Be(TimeSpan.FromMinutes(5));
@@ -220,68 +241,68 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         }
 
         [TestMethod]
-        public void WithAuthenticatedTasks_ConfigureTasks_IsInvoked()
+        public void WithTasksPlus_ConfigureTasks_IsInvoked()
         {
             var builder = new TestMcpServerBuilder();
             var called = false;
 
-            builder.WithAuthenticatedTasks("alice", configureTasks: _ => called = true);
+            builder.WithTasksPlus("alice", configureTasks: _ => called = true);
 
             called.Should().BeTrue();
         }
 
         [TestMethod]
-        public void WithAuthenticatedTasks_WhenBuilderIsNull_Throws()
+        public void WithTasksPlus_WhenBuilderIsNull_Throws()
         {
             IMcpServerBuilder builder = null!;
 
-            Action act = () => builder.WithAuthenticatedTasks("alice");
+            Action act = () => builder.WithTasksPlus("alice");
 
             act.Should().Throw<ArgumentNullException>().WithParameterName("builder");
         }
 
         [TestMethod]
-        public void WithAuthenticatedTasks_WhenUserIdIsWhitespace_Throws()
+        public void WithTasksPlus_WhenUserIdIsWhitespace_Throws()
         {
             var builder = new TestMcpServerBuilder();
 
-            Action act = () => builder.WithAuthenticatedTasks("  ");
+            Action act = () => builder.WithTasksPlus("  ");
 
             act.Should().Throw<ArgumentException>().WithParameterName("userId");
         }
 
         [TestMethod]
-        public void WithAuthenticatedTasks_WhenGetCurrentUserIdIsNull_Throws()
+        public void WithTasksPlus_WhenGetCurrentUserIdIsNull_Throws()
         {
             var builder = new TestMcpServerBuilder();
 
-            Action act = () => builder.WithAuthenticatedTasks((Func<string?>)null!);
+            Action act = () => builder.WithTasksPlus((Func<string?>)null!);
 
             act.Should().Throw<ArgumentNullException>().WithParameterName("getCurrentUserId");
         }
 
         [TestMethod]
-        public void WithAuthenticatedTasks_WhenPrincipalFactoryIsNull_Throws()
+        public void WithTasksPlus_WhenPrincipalFactoryIsNull_Throws()
         {
             var builder = new TestMcpServerBuilder();
 
-            Action act = () => builder.WithAuthenticatedTasks((Func<ClaimsPrincipal?>)null!);
+            Action act = () => builder.WithTasksPlus((Func<ClaimsPrincipal?>)null!);
 
             act.Should().Throw<ArgumentNullException>().WithParameterName("getPrincipal");
         }
 
         [TestMethod]
-        public async Task WithAuthenticatedTasks_FromServiceProvider_ResolvesRegisteredPrincipal()
+        public async Task WithTasksPlus_FromServiceProvider_ResolvesRegisteredPrincipal()
         {
             var builder = new TestMcpServerBuilder();
             builder.Services.AddSingleton(TestUser.Authenticated("alice"));
 
-            builder.WithAuthenticatedTasks(sp => sp.GetRequiredService<ClaimsPrincipal>());
+            builder.WithTasksPlus(sp => sp.GetRequiredService<ClaimsPrincipal>());
 
             using var provider = builder.Services.BuildServiceProvider();
             var store = provider.GetRequiredService<IMcpTaskStore>();
-            var perUser = provider.GetRequiredService<IPerUserMcpTaskStore>();
-            var concrete = provider.GetRequiredService<InMemoryAuthenticatedMcpTaskStore>();
+            var perUser = provider.GetRequiredService<IMcpTaskStorePlus>();
+            var concrete = provider.GetRequiredService<InMemoryMcpTaskStorePlus>();
             var created = await store.CreateTaskAsync();
 
             created.TaskId.Should().NotBeNullOrWhiteSpace();
@@ -291,13 +312,13 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         }
 
         [TestMethod]
-        public void WithAuthenticatedTasks_FromServiceProvider_CapturesProviderWhenOptionsAreConfigured()
+        public void WithTasksPlus_FromServiceProvider_CapturesProviderWhenOptionsAreConfigured()
         {
             var builder = new TestMcpServerBuilder();
             builder.Services.AddSingleton(TestUser.Authenticated("alice"));
             var configured = false;
 
-            builder.WithAuthenticatedTasks(sp => sp.GetRequiredService<ClaimsPrincipal>(), configureTasks: _ => configured = true);
+            builder.WithTasksPlus(sp => sp.GetRequiredService<ClaimsPrincipal>(), configureTasks: _ => configured = true);
 
             using var provider = builder.Services.BuildServiceProvider();
             foreach (var configure in provider.GetServices<IConfigureOptions<McpServerOptions>>())
@@ -312,13 +333,13 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         }
 
         [TestMethod]
-        public async Task WithAuthenticatedTasks_FromServiceProvider_IsolatesWhenResolvedUserChanges()
+        public async Task WithTasksPlus_FromServiceProvider_IsolatesWhenResolvedUserChanges()
         {
             var builder = new TestMcpServerBuilder();
             var current = new TestUser("alice");
             builder.Services.AddSingleton(current);
 
-            builder.WithAuthenticatedTasks(sp => TestUser.Authenticated(sp.GetRequiredService<TestUser>().UserId!));
+            builder.WithTasksPlus(sp => TestUser.Authenticated(sp.GetRequiredService<TestUser>().UserId!));
 
             using var provider = builder.Services.BuildServiceProvider();
             var store = provider.GetRequiredService<IMcpTaskStore>();
@@ -329,21 +350,21 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         }
 
         [TestMethod]
-        public void WithAuthenticatedTasks_WhenServiceProviderFactoryIsNull_Throws()
+        public void WithTasksPlus_WhenServiceProviderFactoryIsNull_Throws()
         {
             var builder = new TestMcpServerBuilder();
 
-            Action act = () => builder.WithAuthenticatedTasks((Func<IServiceProvider, ClaimsPrincipal?>)null!);
+            Action act = () => builder.WithTasksPlus((Func<IServiceProvider, ClaimsPrincipal?>)null!);
 
             act.Should().Throw<ArgumentNullException>().WithParameterName("getPrincipal");
         }
 
         [TestMethod]
-        public void WithAuthenticatedTasks_WhenBuilderIsNull_ServiceProviderFactory_Throws()
+        public void WithTasksPlus_WhenBuilderIsNull_ServiceProviderFactory_Throws()
         {
             IMcpServerBuilder builder = null!;
 
-            Action act = () => builder.WithAuthenticatedTasks((Func<IServiceProvider, ClaimsPrincipal?>)(_ => null));
+            Action act = () => builder.WithTasksPlus((Func<IServiceProvider, ClaimsPrincipal?>)(_ => null));
 
             act.Should().Throw<ArgumentNullException>().WithParameterName("builder");
         }

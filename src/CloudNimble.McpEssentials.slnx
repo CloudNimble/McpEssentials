@@ -7,7 +7,6 @@
   </Configurations>
   <Folder Name="/Core/">
     <Project Path="CloudNimble.McpEssentials.Core/CloudNimble.McpEssentials.Core.csproj" />
-    <Project Path="CloudNimble.McpEssentials.EntityFrameworkCore/CloudNimble.McpEssentials.EntityFrameworkCore.csproj" />
   </Folder>
   <Folder Name="/Docs/">
     <Project Path="CloudNimble.McpEssentials.Docs/CloudNimble.McpEssentials.Docs.docsproj" Type="C#" />
@@ -24,6 +23,9 @@
   </Folder>
   <Folder Name="/Solution Items/Specs/">
     <File Path="../specs/authenticated-task-stores.md" />
+  </Folder>
+  <Folder Name="/Stores/">
+    <Project Path="CloudNimble.McpEssentials.EntityFrameworkCore/CloudNimble.McpEssentials.EntityFrameworkCore.csproj" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="CloudNimble.McpEssentials.Tests.AspNetCore/CloudNimble.McpEssentials.Tests.AspNetCore.csproj" />

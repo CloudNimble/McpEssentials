@@ -1,6 +1,5 @@
 ---
 title: InMemoryAuthenticatedMcpTaskStore
-description: "An in-memory [IPerUserMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore) that records the user who created each task and..."
 icon: file-brackets-curly
 sidebarTitle: InMemoryAuthenticatedMcpTaskStore
 keywords: ['InMemoryAuthenticatedMcpTaskStore', 'CloudNimble.McpEssentials.Core.Tasks.InMemoryAuthenticatedMcpTaskStore', 'CloudNimble.McpEssentials.Core.Tasks', 'class', 'CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase', 'CloudNimble.McpEssentials.Core.Tasks.IPerUserMcpTaskStore', 'ModelContextProtocol.Extensions.Tasks.IMcpTaskStore']
@@ -20,40 +19,9 @@ keywords: ['InMemoryAuthenticatedMcpTaskStore', 'CloudNimble.McpEssentials.Core.
 CloudNimble.McpEssentials.Core.Tasks.InMemoryAuthenticatedMcpTaskStore
 ```
 
-## Summary
-
-An in-memory [IPerUserMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore) that records the user who created each task
-and isolates later client-facing operations to that user.
-
-## Remarks
-
-Storage is owned by this type: [StoredMcpTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask) snapshots in a
-[ConcurrentDictionary`2](https://learn.microsoft.com/dotnet/api/system.collections.concurrent.concurrentdictionary-2), compare-and-swap updates, two-window TTL,
-serve-and-drop on a terminal get, plus a throttled sweep. It does not wrap the SDK
-`InMemoryMcpTaskStore`.
-
-Tasks created with a [AuthenticatedMcpTaskStoreBase.DefaultTimeToLive](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase#defaulttimetolive) use two
-clocks (as permitted by SEP-2663): a work window of `CreatedAt + TimeToLive` during which
-input and progress are accepted, and a tracking window that keeps the snapshot visible until
-`CreatedAt + 2×TimeToLive` so a late complete, fail, or cancel can still be recorded and
-polled. That ceiling is stamped as [StoredMcpTask.DiscardAfter](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#discardafter) at write time.
-An owner `GetTaskAsync` of a terminal snapshot serves it and then drops the row. An
-opportunistic throttled sweep reclaims snapshots nobody collected. Tasks created without a
-time-to-live are retained until a terminal get by the owner or until the process exits.
-
-Client-facing operations require a current user and treat another user's task as missing.
-Another user's get does not serve-and-drop the owner's row. Server-side completion skips the
-live-user check because the SDK runs those from a background DI scope after the originating
-HTTP request is gone.
-
-Single-process only. Register as a singleton. Subclass to change isolation, storage, or TTL.
-For multi-instance hosts, use a durable provider described in the authenticated task store spec.
-
 ## Constructors
 
 ### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
-
-Initializes a new instance of the [InMemoryAuthenticatedMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryAuthenticatedMcpTaskStore) class.
 
 #### Syntax
 
@@ -65,18 +33,9 @@ public InMemoryAuthenticatedMcpTaskStore(System.Func<string> getCurrentUserId)
 
 | Name | Type | Description |
 |------|------|-------------|
-| `getCurrentUserId` | `System.Func<string?>` | Returns the current user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unauthenticated. |
-
-#### Exceptions
-
-| Exception | Description |
-|-----------|-------------|
-| `ArgumentNullException` | Thrown when *getCurrentUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `getCurrentUserId` | `System.Func<string?>` | - |
 
 ### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
-
-Initializes a new instance of the [InMemoryAuthenticatedMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryAuthenticatedMcpTaskStore) class
-that always uses *userId*.
 
 #### Syntax
 
@@ -88,12 +47,9 @@ public InMemoryAuthenticatedMcpTaskStore(string userId)
 
 | Name | Type | Description |
 |------|------|-------------|
-| `userId` | `string?` | The user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) to treat the process as unauthenticated. |
+| `userId` | `string?` | - |
 
 ### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
-
-Initializes a new instance of the [InMemoryAuthenticatedMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryAuthenticatedMcpTaskStore) class
-that resolves the user from a [ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.claimsprincipal).
 
 #### Syntax
 
@@ -105,19 +61,11 @@ public InMemoryAuthenticatedMcpTaskStore(System.Func<System.Security.Claims.Clai
 
 | Name | Type | Description |
 |------|------|-------------|
-| `getPrincipal` | `System.Func<System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. |
-
-#### Exceptions
-
-| Exception | Description |
-|-----------|-------------|
-| `ArgumentNullException` | Thrown when *getPrincipal* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `getPrincipal` | `System.Func<System.Security.Claims.ClaimsPrincipal?>` | - |
 
 ### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
-
-Initializes a new instance of the [AuthenticatedMcpTaskStoreBase](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase) class.
 
 #### Syntax
 
@@ -129,20 +77,11 @@ protected AuthenticatedMcpTaskStoreBase(System.Func<string> getCurrentUserId)
 
 | Name | Type | Description |
 |------|------|-------------|
-| `getCurrentUserId` | `System.Func<string?>` | Returns the current user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unauthenticated. |
-
-#### Exceptions
-
-| Exception | Description |
-|-----------|-------------|
-| `ArgumentNullException` | Thrown when *getCurrentUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `getCurrentUserId` | `System.Func<string?>` | - |
 
 ### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
-
-Initializes a new instance of the [AuthenticatedMcpTaskStoreBase](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase) class
-that always uses *userId*.
 
 #### Syntax
 
@@ -154,14 +93,11 @@ protected AuthenticatedMcpTaskStoreBase(string userId)
 
 | Name | Type | Description |
 |------|------|-------------|
-| `userId` | `string?` | The user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) to treat the process as unauthenticated. |
+| `userId` | `string?` | - |
 
 ### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
-
-Initializes a new instance of the [AuthenticatedMcpTaskStoreBase](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase) class
-that resolves the user from a [ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.claimsprincipal).
 
 #### Syntax
 
@@ -173,13 +109,7 @@ protected AuthenticatedMcpTaskStoreBase(System.Func<System.Security.Claims.Claim
 
 | Name | Type | Description |
 |------|------|-------------|
-| `getPrincipal` | `System.Func<System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. |
-
-#### Exceptions
-
-| Exception | Description |
-|-----------|-------------|
-| `ArgumentNullException` | Thrown when *getPrincipal* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `getPrincipal` | `System.Func<System.Security.Claims.ClaimsPrincipal?>` | - |
 
 ### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
 
@@ -197,8 +127,6 @@ public Object()
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
 
-Gets or sets whether the store pulses a throttled flush after create and on get.
-
 #### Syntax
 
 ```csharp
@@ -208,18 +136,10 @@ public virtual bool AutoSweep { get; set; }
 #### Property Value
 
 Type: `bool`
-The default is [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool).
-
-#### Remarks
-
-Set to [`false`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) and call `CancellationToken)` from your own job
-when you want to own the schedule. The public flush handle always runs a full pass.
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DefaultPollIntervalMs <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
-
-Gets or sets the default poll interval in milliseconds for new tasks.
 
 #### Syntax
 
@@ -230,13 +150,10 @@ public virtual long DefaultPollIntervalMs { get; set; }
 #### Property Value
 
 Type: `long`
-The default is 1000 milliseconds.
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DefaultTimeToLive <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
-
-Gets or sets the default time-to-live for new tasks, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) for unlimited.
 
 #### Syntax
 
@@ -248,19 +165,9 @@ public virtual System.Nullable<System.TimeSpan> DefaultTimeToLive { get; set; }
 
 Type: `System.Nullable<System.TimeSpan>`
 
-#### Remarks
-
-When set to a positive value, the work window ends at `CreatedAt + TimeToLive` and
-the row is discarded at `CreatedAt + 2×TimeToLive` (stamped as
-[StoredMcpTask.DiscardAfter](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#discardafter)), or sooner when a terminal
-`GetTaskAsync` serves it. A [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or non-positive value keeps tasks
-until a terminal get or until the store discards them.
-
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetCurrentUserId <Badge color="gray">Inherited</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
-
-Gets the callback used by the `IMcpTaskStore` methods to resolve the current user.
 
 #### Syntax
 
@@ -276,9 +183,6 @@ Type: `System.Func<string?>`
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
 
-Gets or sets the UTC ticks of the last automatic flush pulse.
-Tests reset this to race the throttle.
-
 #### Syntax
 
 ```csharp
@@ -293,8 +197,6 @@ Type: `long`
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
 
-Gets or sets whether an owner get of a terminal snapshot serves it and then drops the row.
-
 #### Syntax
 
 ```csharp
@@ -304,13 +206,10 @@ public virtual bool ServeAndDrop { get; set; }
 #### Property Value
 
 Type: `bool`
-The default is [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool).
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SweepInterval <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
-
-Gets or sets the minimum interval between automatic flush pulses.
 
 #### Syntax
 
@@ -321,7 +220,6 @@ public virtual System.TimeSpan SweepInterval { get; set; }
 #### Property Value
 
 Type: `System.TimeSpan`
-The default is 30 seconds. [Zero](https://learn.microsoft.com/dotnet/api/system.timespan.zero) skips the throttle.
 
 ## Methods
 
@@ -369,8 +267,6 @@ Type: `System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTask
 ### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> CreateTaskCoreAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Abstract</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
-
-Creates a task owned by *userId*.
 
 #### Syntax
 
@@ -491,8 +387,6 @@ Type: `System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTask
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
 
-Returns the task when *userId* owns it; otherwise [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null).
-
 #### Syntax
 
 ```csharp
@@ -529,8 +423,6 @@ Type: `System.Type`
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
 
-Resolves a stable user identifier from *principal*.
-
 #### Syntax
 
 ```csharp
@@ -541,26 +433,15 @@ public static string GetUserId(System.Security.Claims.ClaimsPrincipal principal)
 
 | Name | Type | Description |
 |------|------|-------------|
-| `principal` | `System.Security.Claims.ClaimsPrincipal?` | The principal for the current request. |
+| `principal` | `System.Security.Claims.ClaimsPrincipal?` | - |
 
 #### Returns
 
 Type: `string?`
-The first non-whitespace claim in SDK session-identity order, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null)
-when the principal is missing or unauthenticated.
-
-#### Remarks
-
-Claim lookup matches the MCP C# SDK session identity order:
-[NameIdentifier](https://learn.microsoft.com/dotnet/api/system.security.claims.claimtypes.nameidentifier), `sub`, [Upn](https://learn.microsoft.com/dotnet/api/system.security.claims.claimtypes.upn),
-[Name](https://learn.microsoft.com/dotnet/api/system.security.claims.claimtypes.name), then [Name](https://learn.microsoft.com/dotnet/api/system.security.principal.iidentity.name).
-The principal must be authenticated.
 
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetUtcNow <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
-
-Returns the current UTC timestamp used for create, update, expiry, and sweep.
 
 #### Syntax
 
@@ -575,8 +456,6 @@ Type: `System.DateTimeOffset`
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> IsOwnedBy <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
-
-Returns whether *ownerUserId* is the same user as *currentUserId*.
 
 #### Syntax
 
@@ -613,8 +492,6 @@ Type: `object`
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
 
-Returns a positive TTL, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when tasks should be retained until discarded.
-
 #### Syntax
 
 ```csharp
@@ -635,8 +512,6 @@ Type: `System.Nullable<System.TimeSpan>`
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
 
-Raises [AuthenticatedMcpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase#inputresponsereceived) for a resolved input.
-
 #### Syntax
 
 ```csharp
@@ -655,8 +530,6 @@ protected virtual void OnInputResponseReceived(string taskId, string requestId, 
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
 
-Pulses a throttled flush when [AuthenticatedMcpTaskStoreBase.AutoSweep](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase#autosweep) is on.
-
 #### Syntax
 
 ```csharp
@@ -667,13 +540,12 @@ protected virtual System.Threading.Tasks.Task PulseSweepAsync(System.DateTimeOff
 
 | Name | Type | Description |
 |------|------|-------------|
-| `now` | `System.DateTimeOffset` | The current UTC time used for discard and throttle checks. |
-| `cancellationToken` | `System.Threading.CancellationToken` | Observed during the pass. |
+| `now` | `System.DateTimeOffset` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
 
 #### Returns
 
 Type: `System.Threading.Tasks.Task`
-A completed task when auto-sweep is off or the interval has not elapsed.
 
 ### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ReferenceEquals <Badge color="gray">Inherited</Badge>
 
@@ -700,8 +572,6 @@ Type: `bool`
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
 
-Returns the current user identifier, throwing when none is authenticated.
-
 #### Syntax
 
 ```csharp
@@ -712,17 +582,9 @@ protected virtual string RequireUserId()
 
 Type: `string`
 
-#### Exceptions
-
-| Exception | Description |
-|-----------|-------------|
-| `McpTaskUserRequiredException` | Thrown when the callback returns [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or whitespace. |
-
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> RequireUserId <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
-
-Returns the user identifier from *user*, throwing when the principal is missing or unauthenticated.
 
 #### Syntax
 
@@ -734,18 +596,11 @@ protected virtual string RequireUserId(System.Security.Claims.ClaimsPrincipal us
 
 | Name | Type | Description |
 |------|------|-------------|
-| `user` | `System.Security.Claims.ClaimsPrincipal` | The principal for the current operation. |
+| `user` | `System.Security.Claims.ClaimsPrincipal` | - |
 
 #### Returns
 
 Type: `string`
-
-#### Exceptions
-
-| Exception | Description |
-|-----------|-------------|
-| `ArgumentNullException` | Thrown when *user* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
-| `McpTaskUserRequiredException` | Thrown when *user* is unauthenticated. |
 
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ResolveInputRequestsAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
 
@@ -795,8 +650,6 @@ Type: `System.Threading.Tasks.Task`
 ### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ResolveInputRequestsCoreAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Abstract</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
-
-Resolves input requests when *userId* owns the task.
 
 #### Syntax
 
@@ -864,8 +717,6 @@ Type: `System.Threading.Tasks.Task<bool>`
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
 
-Cancels the task when *userId* owns it and it is not terminal.
-
 #### Syntax
 
 ```csharp
@@ -909,8 +760,6 @@ Type: `System.Threading.Tasks.Task`
 ### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetCompletedCoreAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Abstract</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
-
-Completes the task. Skips the live-user check.
 
 #### Syntax
 
@@ -956,8 +805,6 @@ Type: `System.Threading.Tasks.Task`
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
 
-Fails the task. Skips the live-user check.
-
 #### Syntax
 
 ```csharp
@@ -1002,8 +849,6 @@ Type: `System.Threading.Tasks.Task`
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
 
-Merges input requests onto the task. Skips the live-user check.
-
 #### Syntax
 
 ```csharp
@@ -1026,8 +871,6 @@ Type: `System.Threading.Tasks.Task`
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
 
-Returns whether *task* should be discarded at *now*.
-
 #### Syntax
 
 ```csharp
@@ -1038,16 +881,12 @@ protected virtual bool ShouldDiscard(CloudNimble.McpEssentials.Core.Tasks.Stored
 
 | Name | Type | Description |
 |------|------|-------------|
-| `task` | `CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask` | The snapshot under consideration. |
-| `now` | `System.DateTimeOffset` | The current UTC time. |
+| `task` | `CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask` | - |
+| `now` | `System.DateTimeOffset` | - |
 
 #### Returns
 
 Type: `bool`
-The default is `DateTimeOffset)` (compares
-[StoredMcpTask.DiscardAfter](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#discardafter)). Override for per-row Get and mutate.
-Set-based drains (EF `ExecuteDelete`) use the stamp; override
-`CancellationToken)` when bulk criteria must differ.
 
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SweepExpiredAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
 
@@ -1073,8 +912,6 @@ Type: `System.Threading.Tasks.Task`
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
 
-Deletes rows that have passed their discard time.
-
 #### Syntax
 
 ```csharp
@@ -1085,19 +922,12 @@ protected abstract System.Threading.Tasks.Task SweepExpiredCoreAsync(System.Date
 
 | Name | Type | Description |
 |------|------|-------------|
-| `now` | `System.DateTimeOffset` | The current UTC time used for discard checks. |
-| `cancellationToken` | `System.Threading.CancellationToken` | Observed during the pass so a cancelled caller does not finish the walk. |
+| `now` | `System.DateTimeOffset` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
 
 #### Returns
 
 Type: `System.Threading.Tasks.Task`
-A task that completes when the pass finishes.
-
-#### Exceptions
-
-| Exception | Description |
-|-----------|-------------|
-| `OperationCanceledException` | *cancellationToken* was cancelled during the pass. |
 
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToString <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
 
@@ -1117,8 +947,6 @@ Type: `string?`
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase`</Note>
 
-Claims the automatic-flush interval so only one pulse walks at a time.
-
 #### Syntax
 
 ```csharp
@@ -1129,13 +957,11 @@ protected virtual bool TryClaimSweep(System.DateTimeOffset now)
 
 | Name | Type | Description |
 |------|------|-------------|
-| `now` | `System.DateTimeOffset` | The current UTC time. |
+| `now` | `System.DateTimeOffset` | - |
 
 #### Returns
 
 Type: `bool`
-[`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when this caller should run the pass.
-A [AuthenticatedMcpTaskStoreBase.SweepInterval](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase#sweepinterval) of [Zero](https://learn.microsoft.com/dotnet/api/system.timespan.zero) always claims.
 
 ## Events
 

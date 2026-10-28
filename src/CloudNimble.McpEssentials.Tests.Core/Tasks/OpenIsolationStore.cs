@@ -6,7 +6,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
     /// <summary>
     /// Treats every caller as the owner so isolation overrides can be tested.
     /// </summary>
-    internal class OpenIsolationStore : InMemoryAuthenticatedMcpTaskStore
+    internal class OpenIsolationStore : InMemoryMcpTaskStorePlus
     {
 
         #region Constructors

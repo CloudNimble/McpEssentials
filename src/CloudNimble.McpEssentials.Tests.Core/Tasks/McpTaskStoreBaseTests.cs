@@ -13,7 +13,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
     /// Coverage for claim lookup, fail-closed identity, and owner comparison on the store base.
     /// </summary>
     [TestClass]
-    public class AuthenticatedMcpTaskStoreBaseTests : BreakdanceMSTestBase
+    public class McpTaskStoreBaseTests : BreakdanceMSTestBase
     {
 
         #region Public Methods
@@ -90,13 +90,13 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public void GetUserId_WhenPrincipalIsNull_ReturnsNull()
         {
-            AuthenticatedMcpTaskStoreBase.GetUserId(null).Should().BeNull();
+            McpTaskStoreBase.GetUserId(null).Should().BeNull();
         }
 
         [TestMethod]
         public void GetUserId_WhenUnauthenticated_ReturnsNull()
         {
-            AuthenticatedMcpTaskStoreBase.GetUserId(TestUser.Unauthenticated()).Should().BeNull();
+            McpTaskStoreBase.GetUserId(TestUser.Unauthenticated()).Should().BeNull();
         }
 
         [TestMethod]
@@ -104,7 +104,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         {
             var identity = new ClaimsIdentity(authenticationType: "Test");
 
-            AuthenticatedMcpTaskStoreBase.GetUserId(new ClaimsPrincipal(identity)).Should().BeNull();
+            McpTaskStoreBase.GetUserId(new ClaimsPrincipal(identity)).Should().BeNull();
         }
 
         [TestMethod]
@@ -119,25 +119,25 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
                 ],
                 authenticationType: "Test");
 
-            AuthenticatedMcpTaskStoreBase.GetUserId(new ClaimsPrincipal(identity)).Should().Be("id-1");
+            McpTaskStoreBase.GetUserId(new ClaimsPrincipal(identity)).Should().Be("id-1");
         }
 
         [TestMethod]
         public void GetUserId_FallsBackToSub()
         {
-            AuthenticatedMcpTaskStoreBase.GetUserId(TestUser.Authenticated("oid-sub", "sub")).Should().Be("oid-sub");
+            McpTaskStoreBase.GetUserId(TestUser.Authenticated("oid-sub", "sub")).Should().Be("oid-sub");
         }
 
         [TestMethod]
         public void GetUserId_FallsBackToUpn()
         {
-            AuthenticatedMcpTaskStoreBase.GetUserId(TestUser.Authenticated("user@tenant.com", ClaimTypes.Upn)).Should().Be("user@tenant.com");
+            McpTaskStoreBase.GetUserId(TestUser.Authenticated("user@tenant.com", ClaimTypes.Upn)).Should().Be("user@tenant.com");
         }
 
         [TestMethod]
         public void GetUserId_FallsBackToName()
         {
-            AuthenticatedMcpTaskStoreBase.GetUserId(TestUser.Authenticated("display", ClaimTypes.Name)).Should().Be("display");
+            McpTaskStoreBase.GetUserId(TestUser.Authenticated("display", ClaimTypes.Name)).Should().Be("display");
         }
 
         [TestMethod]
@@ -146,7 +146,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
             var identity = new GenericIdentity("legacy-name");
             var principal = new ClaimsPrincipal(identity);
 
-            AuthenticatedMcpTaskStoreBase.GetUserId(principal).Should().Be("legacy-name");
+            McpTaskStoreBase.GetUserId(principal).Should().Be("legacy-name");
         }
 
         [TestMethod]
@@ -163,7 +163,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
                 ],
                 authenticationType: "Test");
 
-            AuthenticatedMcpTaskStoreBase.GetUserId(new ClaimsPrincipal(identity)).Should().Be("first-sub");
+            McpTaskStoreBase.GetUserId(new ClaimsPrincipal(identity)).Should().Be("first-sub");
         }
 
         [TestMethod]
@@ -176,7 +176,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
                 ],
                 authenticationType: "Test");
 
-            AuthenticatedMcpTaskStoreBase.GetUserId(new ClaimsPrincipal(identity)).Should().Be("sub-1");
+            McpTaskStoreBase.GetUserId(new ClaimsPrincipal(identity)).Should().Be("sub-1");
         }
 
         [TestMethod]
@@ -190,7 +190,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
                 ],
                 authenticationType: "Test");
 
-            AuthenticatedMcpTaskStoreBase.GetUserId(new ClaimsPrincipal(identity)).Should().Be("display");
+            McpTaskStoreBase.GetUserId(new ClaimsPrincipal(identity)).Should().Be("display");
         }
 
         #endregion

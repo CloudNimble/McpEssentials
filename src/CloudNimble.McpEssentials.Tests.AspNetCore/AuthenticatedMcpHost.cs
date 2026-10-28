@@ -14,7 +14,7 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
     /// <summary>
     /// Breakdance TestServer that hosts the sample Streamable HTTP MCP pipeline:
     /// fake <c>X-User-Id</c> auth, <c>AddHttpContextAccessor</c>, and
-    /// <c>InMemoryAuthenticatedMcpTaskStore</c>.
+    /// <c>InMemoryMcpTaskStorePlus</c>.
     /// </summary>
     public abstract class AuthenticatedMcpHost : AspNetCoreBreakdanceTestBase
     {
@@ -30,7 +30,7 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
                 services.AddMcpServer()
                     .WithHttpTransport(options => options.Stateless = true)
                     .WithTools<HelloWorldTools>()
-                    .WithAuthenticatedTasks(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User);
+                    .WithTasksPlus(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User);
             });
 
             AddMinimalMvc();

@@ -1,7 +1,7 @@
 ---
 title: "Stores"
 description: "Pick an authenticated MCP task store by the engine you already run: database, distributed cache, or eventing."
-keywords: ["IMcpTaskStore", "IPerUserMcpTaskStore", "EntityFrameworkCore", "Redis", "PostgreSQL"]
+keywords: ["IMcpTaskStore", "IMcpTaskStorePlus", "EntityFrameworkCore", "Redis", "PostgreSQL"]
 ---
 
 Every durable store implements the same contract as the in-memory store in [Authenticated tasks](/guides/authenticated-tasks): stamp the owner on create, isolate client-facing get/cancel/resolve to that user, let the SDK complete work after the HTTP request is gone.
@@ -16,7 +16,7 @@ The design lives in [`specs/authenticated-task-stores.md`](https://github.com/Cl
 |---|---|---|
 | `McpEssentials.Core` | [Authenticated tasks](/guides/authenticated-tasks) | Tests, local MCP, a single process |
 
-`InMemoryAuthenticatedMcpTaskStore` keeps snapshots in a `ConcurrentDictionary`. Fan-out is an in-process event. Tasks die with the process.
+`InMemoryMcpTaskStorePlus` keeps snapshots in a `ConcurrentDictionary`. Fan-out is an in-process event. Tasks die with the process.
 
 ## Database
 
@@ -81,13 +81,13 @@ Func<IServiceProvider, ClaimsPrincipal?> currentUser =
 // Development
 builder.Services.AddMcpServer()
     .WithHttpTransport(o => o.Stateless = true)
-    .WithAuthenticatedTasks(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+    .WithTasksPlus(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
 
 // Production (any EF Core provider on AppDbContext)
 builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(connectionString));
 builder.Services.AddMcpServer()
     .WithHttpTransport(o => o.Stateless = true)
-    .WithEntityFrameworkTasks<AppDbContext>(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+    .WithTasksPlus<AppDbContext>(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
 ```
 
 Map `McpTasks` with `AddMcpTasksTable`. See [Entity Framework Core](/guides/stores/entity-framework-core) for which overload to call (`OnModelCreating` vs `AddDbContext`).

@@ -10,30 +10,28 @@ namespace CloudNimble.McpEssentials.Core.Tasks
 {
 
     /// <summary>
-    /// An <see cref="IMcpTaskStore"/> that isolates tasks per authenticated user and exposes
-    /// <see cref="ClaimsPrincipal"/> overloads for every client-facing operation.
+    /// The McpEssentials task store: SDK <see cref="IMcpTaskStore"/> plus owner binding, TTL, and sweep.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// The MCP C# SDK calls the <see cref="IMcpTaskStore"/> methods, which have no user parameter.
-    /// Authenticated stores resolve the caller from the current-user callback captured at construction.
-    /// Hosts, tests, and durable providers that already have a <see cref="ClaimsPrincipal"/>
-    /// call the overloads on this interface instead.
+    /// SEP-2663 binds each task to an authorization context. This interface is that store.
+    /// The SDK calls the <see cref="IMcpTaskStore"/> methods, which have no user parameter;
+    /// implementations resolve the owner from the callback captured at construction.
+    /// Hosts that already have a <see cref="ClaimsPrincipal"/> call the overloads directly.
     /// </para>
     /// <para>
-    /// Client-facing operations (create, get, cancel, resolve) require an authenticated principal
-    /// and treat another user's task as missing. Server-side completion (set completed, set failed,
-    /// set input requests) stays on <see cref="IMcpTaskStore"/> and skips the live-user check because
-    /// the SDK runs those from a background DI scope after the originating request is gone.
-    /// </para>
-    /// <para>
-    /// Every store exposes <see cref="SweepExpiredAsync"/> so a host can flush expired rows on its
-    /// own schedule. The base class also pulses that flush after create and on get unless
-    /// <c>AutoSweep</c> is turned off.
+    /// Client-facing operations (create, get, cancel, resolve) require an owner and treat
+    /// another caller's task as missing. Server-side completion skips the live-owner check
+    /// because the SDK runs those from a background DI scope after the originating request is gone.
     /// </para>
     /// </remarks>
-    public interface IPerUserMcpTaskStore : IMcpTaskStore
+    public interface IMcpTaskStorePlus : IMcpTaskStore
     {
+
+        /// <summary>
+        /// Gets or sets the default time-to-live for new tasks, or <see langword="null"/> for unlimited.
+        /// </summary>
+        TimeSpan? DefaultTimeToLive { get; set; }
 
         /// <summary>
         /// Creates a new task owned by <paramref name="user"/>.

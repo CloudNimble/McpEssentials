@@ -18,8 +18,8 @@ namespace Microsoft.Extensions.DependencyInjection
         #region Public Methods
 
         /// <summary>
-        /// Registers <see cref="EntityFrameworkAuthenticatedTaskStore{TContext}"/> as the singleton
-        /// <see cref="IMcpTaskStore"/> and <see cref="IPerUserMcpTaskStore"/> for a single user.
+        /// Registers <see cref="EFCoreMcpTaskStore{TContext}"/> as the singleton
+        /// <see cref="IMcpTaskStore"/> and <see cref="IMcpTaskStorePlus"/> for a single user.
         /// </summary>
         /// <typeparam name="TContext">The host <see cref="DbContext"/> that maps <see cref="McpTaskEntity"/>.</typeparam>
         /// <param name="services">The service collection.</param>
@@ -31,7 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddMcpEssentialsEntityFrameworkTasks<TContext>(
             this IServiceCollection services,
             string userId,
-            Action<AuthenticatedMcpTaskStoreOptions>? configure = null)
+            Action<McpTaskStoreOptions>? configure = null)
             where TContext : DbContext
         {
             ArgumentNullException.ThrowIfNull(services);
@@ -39,18 +39,18 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return RegisterStore<TContext>(services, sp =>
             {
-                var store = new EntityFrameworkAuthenticatedTaskStore<TContext>(
+                var store = new EFCoreMcpTaskStore<TContext>(
                     sp.GetRequiredService<IServiceScopeFactory>(),
                     userId,
                     sp.GetService<IMcpTaskInputSignalBus>());
-                AuthenticatedMcpTaskStoreOptions.Apply(configure, store);
+                McpTaskStoreOptions.Apply(configure, store);
                 return store;
             });
         }
 
         /// <summary>
-        /// Registers <see cref="EntityFrameworkAuthenticatedTaskStore{TContext}"/> as the singleton
-        /// <see cref="IMcpTaskStore"/> and <see cref="IPerUserMcpTaskStore"/>.
+        /// Registers <see cref="EFCoreMcpTaskStore{TContext}"/> as the singleton
+        /// <see cref="IMcpTaskStore"/> and <see cref="IMcpTaskStorePlus"/>.
         /// </summary>
         /// <typeparam name="TContext">The host <see cref="DbContext"/> that maps <see cref="McpTaskEntity"/>.</typeparam>
         /// <param name="services">The service collection.</param>
@@ -61,7 +61,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddMcpEssentialsEntityFrameworkTasks<TContext>(
             this IServiceCollection services,
             Func<string?> getCurrentUserId,
-            Action<AuthenticatedMcpTaskStoreOptions>? configure = null)
+            Action<McpTaskStoreOptions>? configure = null)
             where TContext : DbContext
         {
             ArgumentNullException.ThrowIfNull(services);
@@ -69,17 +69,17 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return RegisterStore<TContext>(services, sp =>
             {
-                var store = new EntityFrameworkAuthenticatedTaskStore<TContext>(
+                var store = new EFCoreMcpTaskStore<TContext>(
                     sp.GetRequiredService<IServiceScopeFactory>(),
                     getCurrentUserId,
                     sp.GetService<IMcpTaskInputSignalBus>());
-                AuthenticatedMcpTaskStoreOptions.Apply(configure, store);
+                McpTaskStoreOptions.Apply(configure, store);
                 return store;
             });
         }
 
         /// <summary>
-        /// Registers <see cref="EntityFrameworkAuthenticatedTaskStore{TContext}"/> using a
+        /// Registers <see cref="EFCoreMcpTaskStore{TContext}"/> using a
         /// <see cref="ClaimsPrincipal"/> factory resolved from the built provider.
         /// </summary>
         /// <typeparam name="TContext">The host <see cref="DbContext"/> that maps <see cref="McpTaskEntity"/>.</typeparam>
@@ -94,7 +94,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddMcpEssentialsEntityFrameworkTasks<TContext>(
             this IServiceCollection services,
             Func<IServiceProvider, ClaimsPrincipal?> getPrincipal,
-            Action<AuthenticatedMcpTaskStoreOptions>? configure = null)
+            Action<McpTaskStoreOptions>? configure = null)
             where TContext : DbContext
         {
             ArgumentNullException.ThrowIfNull(services);
@@ -102,11 +102,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return RegisterStore<TContext>(services, sp =>
             {
-                var store = new EntityFrameworkAuthenticatedTaskStore<TContext>(
+                var store = new EFCoreMcpTaskStore<TContext>(
                     sp.GetRequiredService<IServiceScopeFactory>(),
                     () => getPrincipal(sp),
                     sp.GetService<IMcpTaskInputSignalBus>());
-                AuthenticatedMcpTaskStoreOptions.Apply(configure, store);
+                McpTaskStoreOptions.Apply(configure, store);
                 return store;
             });
         }
@@ -117,12 +117,12 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static IServiceCollection RegisterStore<TContext>(
             IServiceCollection services,
-            Func<IServiceProvider, EntityFrameworkAuthenticatedTaskStore<TContext>> factory)
+            Func<IServiceProvider, EFCoreMcpTaskStore<TContext>> factory)
             where TContext : DbContext
         {
             services.TryAddSingleton(factory);
-            services.TryAddSingleton<IPerUserMcpTaskStore>(sp => sp.GetRequiredService<EntityFrameworkAuthenticatedTaskStore<TContext>>());
-            services.TryAddSingleton<IMcpTaskStore>(sp => sp.GetRequiredService<EntityFrameworkAuthenticatedTaskStore<TContext>>());
+            services.TryAddSingleton<IMcpTaskStorePlus>(sp => sp.GetRequiredService<EFCoreMcpTaskStore<TContext>>());
+            services.TryAddSingleton<IMcpTaskStore>(sp => sp.GetRequiredService<EFCoreMcpTaskStore<TContext>>());
 
             return services;
         }

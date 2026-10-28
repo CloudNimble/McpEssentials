@@ -16,7 +16,7 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
 {
 
     /// <summary>
-    /// An <see cref="IPerUserMcpTaskStore"/> that persists snapshots on
+    /// An <see cref="IMcpTaskStorePlus"/> that persists snapshots on
     /// <c>TContext.Set&lt;McpTaskEntity&gt;()</c>. Register as a singleton. The host registers
     /// <typeparamref name="TContext"/> as scoped (standard <c>AddDbContext</c>); this store opens
     /// a scope per operation.
@@ -30,11 +30,11 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
     /// <remarks>
     /// Client-facing operations require a current user and treat another user's task as missing.
     /// Server-side completion skips the live-user check. Optional <see cref="IMcpTaskInputSignalBus"/>
-    /// fans <see cref="AuthenticatedMcpTaskStoreBase.InputResponseReceived"/> out to other nodes.
+    /// fans <see cref="McpTaskStoreBase.InputResponseReceived"/> out to other nodes.
     /// The SDK <c>WithTasks</c> API captures the store instance before <c>Build()</c>; use
-    /// <c>WithEntityFrameworkTasks</c> so the provider is stamped on first use.
+    /// <c>WithTasksPlus</c> so the provider is stamped on first use.
     /// </remarks>
-    public class EntityFrameworkAuthenticatedTaskStore<TContext> : AuthenticatedMcpTaskStoreBase, IDisposable
+    public class EFCoreMcpTaskStore<TContext> : McpTaskStoreBase, IDisposable
         where TContext : DbContext
     {
 
@@ -64,13 +64,13 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EntityFrameworkAuthenticatedTaskStore{TContext}"/> class.
+        /// Initializes a new instance of the <see cref="EFCoreMcpTaskStore{TContext}"/> class.
         /// </summary>
         /// <param name="scopeFactory">Opens a scope per operation to resolve <typeparamref name="TContext"/>.</param>
         /// <param name="getCurrentUserId">Returns the current user identifier, or <see langword="null"/> when unauthenticated.</param>
         /// <param name="signalBus">Optional bus that fans resolved input out to other nodes.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="scopeFactory"/> or <paramref name="getCurrentUserId"/> is <see langword="null"/>.</exception>
-        public EntityFrameworkAuthenticatedTaskStore(
+        public EFCoreMcpTaskStore(
             IServiceScopeFactory scopeFactory,
             Func<string?> getCurrentUserId,
             IMcpTaskInputSignalBus? signalBus = null)
@@ -80,13 +80,13 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EntityFrameworkAuthenticatedTaskStore{TContext}"/> class
+        /// Initializes a new instance of the <see cref="EFCoreMcpTaskStore{TContext}"/> class
         /// that always uses <paramref name="userId"/>.
         /// </summary>
         /// <param name="scopeFactory">Opens a scope per operation to resolve <typeparamref name="TContext"/>.</param>
         /// <param name="userId">The user identifier, or <see langword="null"/> to treat the process as unauthenticated.</param>
         /// <param name="signalBus">Optional bus that fans resolved input out to other nodes.</param>
-        public EntityFrameworkAuthenticatedTaskStore(
+        public EFCoreMcpTaskStore(
             IServiceScopeFactory scopeFactory,
             string? userId,
             IMcpTaskInputSignalBus? signalBus = null)
@@ -95,14 +95,14 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EntityFrameworkAuthenticatedTaskStore{TContext}"/> class
+        /// Initializes a new instance of the <see cref="EFCoreMcpTaskStore{TContext}"/> class
         /// that resolves the user from a <see cref="ClaimsPrincipal"/>.
         /// </summary>
         /// <param name="scopeFactory">Opens a scope per operation to resolve <typeparamref name="TContext"/>.</param>
         /// <param name="getPrincipal">Returns the principal for the current request.</param>
         /// <param name="signalBus">Optional bus that fans resolved input out to other nodes.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="scopeFactory"/> or <paramref name="getPrincipal"/> is <see langword="null"/>.</exception>
-        public EntityFrameworkAuthenticatedTaskStore(
+        public EFCoreMcpTaskStore(
             IServiceScopeFactory scopeFactory,
             Func<ClaimsPrincipal?> getPrincipal,
             IMcpTaskInputSignalBus? signalBus = null)
@@ -112,14 +112,14 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EntityFrameworkAuthenticatedTaskStore{TContext}"/> class
+        /// Initializes a new instance of the <see cref="EFCoreMcpTaskStore{TContext}"/> class
         /// with deferred factories so the MCP server builder can capture the store before <c>Build()</c>.
         /// </summary>
         /// <param name="getScopeFactory">Returns the scope factory from the built provider.</param>
         /// <param name="getCurrentUserId">Returns the current user identifier, or <see langword="null"/> when unauthenticated.</param>
         /// <param name="getSignalBus">Returns the optional bus from the built provider.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="getScopeFactory"/> or <paramref name="getCurrentUserId"/> is <see langword="null"/>.</exception>
-        public EntityFrameworkAuthenticatedTaskStore(
+        public EFCoreMcpTaskStore(
             Func<IServiceScopeFactory> getScopeFactory,
             Func<string?> getCurrentUserId,
             Func<IMcpTaskInputSignalBus?>? getSignalBus = null)
@@ -327,9 +327,9 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
         /// <inheritdoc />
         /// <remarks>
         /// Set-deletes rows whose <see cref="StoredMcpTask.DiscardAfter"/> has passed.
-        /// That stamp matches default <see cref="AuthenticatedMcpTaskStoreBase.ShouldDiscard"/>.
+        /// That stamp matches default <see cref="McpTaskStoreBase.ShouldDiscard"/>.
         /// Override this method when bulk criteria must differ; per-row Get and mutate still
-        /// call <see cref="AuthenticatedMcpTaskStoreBase.ShouldDiscard"/>.
+        /// call <see cref="McpTaskStoreBase.ShouldDiscard"/>.
         /// </remarks>
         protected override async Task SweepExpiredCoreAsync(DateTimeOffset now, CancellationToken cancellationToken)
         {
@@ -418,7 +418,7 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
         }
 
         /// <summary>
-        /// Raises <see cref="AuthenticatedMcpTaskStoreBase.InputResponseReceived"/> from a bus payload.
+        /// Raises <see cref="McpTaskStoreBase.InputResponseReceived"/> from a bus payload.
         /// </summary>
         protected virtual void OnBusSignal(string taskId, string requestId)
         {

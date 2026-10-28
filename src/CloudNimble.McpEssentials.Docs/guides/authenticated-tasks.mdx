@@ -1,12 +1,12 @@
 ---
 title: "Authenticated tasks"
 description: "Record the user who started an MCP task and isolate later get, update, and cancel calls to that user."
-keywords: ["IMcpTaskStore", "IPerUserMcpTaskStore", "InMemoryAuthenticatedMcpTaskStore", "WithAuthenticatedTasks", "AddHttpContextAccessor"]
+keywords: ["IMcpTaskStore", "IMcpTaskStorePlus", "InMemoryMcpTaskStorePlus", "WithTasksPlus", "AddHttpContextAccessor"]
 ---
 
 MCP Tasks (SEP-2663) let a client start long-running work, get a task id, and poll `tasks/get` until the work finishes. The C# SDK stores that state in `IMcpTaskStore`. The built-in `InMemoryMcpTaskStore` is shared across every request to the process.
 
-`InMemoryAuthenticatedMcpTaskStore` is our own in-memory store. It records the owner on create and never leaks another user's task, payload, or existence. It implements `IPerUserMcpTaskStore`, which extends `IMcpTaskStore` with `ClaimsPrincipal` overloads. `AuthenticatedMcpTaskStoreBase` takes a `Func<string?>` (or a principal factory / constant user id), fail-closed identity, and `InputResponseReceived`. Durable providers subclass that base and persist their own snapshots.
+`InMemoryMcpTaskStorePlus` is our own in-memory store. It records the owner on create and never leaks another user's task, payload, or existence. It implements `IMcpTaskStorePlus`, which extends `IMcpTaskStore` with `ClaimsPrincipal` overloads. `McpTaskStoreBase` takes a `Func<string?>` (or a principal factory / constant user id), fail-closed identity, and `InputResponseReceived`. Durable providers subclass that base and persist their own snapshots.
 
 1. `CreateTaskAsync` reads the current user and records it.
 2. `GetTaskAsync`, `SetCancelledAsync`, and `ResolveInputRequestsAsync` require the same user. Another user sees "not found".
@@ -16,7 +16,7 @@ No user on a client-facing call throws `McpTaskUserRequiredException`.
 
 ## Wire it up
 
-HTTP hosts register `IHttpContextAccessor` the platform way and pass a factory that resolves it from the built `IServiceProvider`. That is the same factory pattern as `AddHttpClient`, `AddOptions`, and `AddInMemoryAuthenticatedTaskStore`.
+HTTP hosts register `IHttpContextAccessor` the platform way and pass a factory that resolves it from the built `IServiceProvider`. That is the same factory pattern as `AddHttpClient`, `AddOptions`, and `AddInMemoryMcpTaskStorePlus`.
 
 ```csharp
 builder.Services.AddHttpContextAccessor();
@@ -24,7 +24,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddMcpServer()
     .WithHttpTransport(o => o.Stateless = true)
     .WithTools<MyTools>()
-    .WithAuthenticatedTasks(
+    .WithTasksPlus(
         sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
         o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
 ```
@@ -37,14 +37,14 @@ Async `[McpServerTool]` methods that return `Task` / `Task<T>` automatically adv
 
 ```csharp
 builder.Services.AddMcpServer()
-    .WithAuthenticatedTasks("local-user");
+    .WithTasksPlus("local-user");
 ```
 
 **Store only** — same factory, without `IMcpServerBuilder`:
 
 ```csharp
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddInMemoryAuthenticatedTaskStore(
+builder.Services.AddInMemoryMcpTaskStorePlus(
     sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
     o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
 ```
@@ -52,27 +52,27 @@ builder.Services.AddInMemoryAuthenticatedTaskStore(
 **Tests** — a constant user, a callback, an explicit principal, or a service already in the test provider:
 
 ```csharp
-IPerUserMcpTaskStore store = new InMemoryAuthenticatedMcpTaskStore("user-1");
+IMcpTaskStorePlus store = new InMemoryMcpTaskStorePlus("user-1");
 
-var store2 = new InMemoryAuthenticatedMcpTaskStore(() => currentUserId);
+var store2 = new InMemoryMcpTaskStorePlus(() => currentUserId);
 
 var created = await store2.CreateTaskAsync(httpContext.User);
 
-builder.WithAuthenticatedTasks(sp => sp.GetRequiredService<ClaimsPrincipal>());
+builder.WithTasksPlus(sp => sp.GetRequiredService<ClaimsPrincipal>());
 ```
 
-Claim lookup matches the SDK session identity order: `NameIdentifier`, `sub`, `UPN`, `Name`. Types are unsealed; subclass `AuthenticatedMcpTaskStoreBase` or `InMemoryAuthenticatedMcpTaskStore` to change isolation, TTL, or storage.
+Claim lookup matches the SDK session identity order: `NameIdentifier`, `sub`, `UPN`, `Name`. Types are unsealed; subclass `McpTaskStoreBase` or `InMemoryMcpTaskStorePlus` to change isolation, TTL, or storage.
 
 ## Overloads
 
 | Call | When |
 |---|---|
-| `WithAuthenticatedTasks("user-id")` | Stdio, tests, one user for the process |
-| `WithAuthenticatedTasks(() => currentUserId)` | Tests that switch the user id |
-| `WithAuthenticatedTasks(() => principal)` | A principal you already hold |
-| `WithAuthenticatedTasks(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User)` | ASP.NET Core. Call `AddHttpContextAccessor()` first. |
+| `WithTasksPlus("user-id")` | Stdio, tests, one user for the process |
+| `WithTasksPlus(() => currentUserId)` | Tests that switch the user id |
+| `WithTasksPlus(() => principal)` | A principal you already hold |
+| `WithTasksPlus(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User)` | ASP.NET Core. Call `AddHttpContextAccessor()` first. |
 
-Each overload has a matching `AddInMemoryAuthenticatedTaskStore` on `IServiceCollection`. Pass `AuthenticatedMcpTaskStoreOptions` as the next argument to set `DefaultTimeToLive` and `DefaultPollIntervalMs` at registration. `null` TTL keeps tasks until the store discards them.
+Each overload has a matching `AddInMemoryMcpTaskStorePlus` on `IServiceCollection`. Pass `McpTaskStoreOptions` as the next argument to set `DefaultTimeToLive` and `DefaultPollIntervalMs` at registration. `null` TTL keeps tasks until the store discards them.
 
 ## Sample
 
@@ -100,4 +100,4 @@ Owner comparison is ordinal. Register the store as a **singleton**. Stateless HT
 
 ## Swap the backing store later
 
-`IPerUserMcpTaskStore` and `AuthenticatedMcpTaskStoreBase` are the contract durable providers implement. Pick a backing store in [Stores](/guides/stores). The first durable how-to is [Entity Framework Core](/guides/stores/entity-framework-core).
+`IMcpTaskStorePlus` and `McpTaskStoreBase` are the contract durable providers implement. Pick a backing store in [Stores](/guides/stores). The first durable how-to is [Entity Framework Core](/guides/stores/entity-framework-core).

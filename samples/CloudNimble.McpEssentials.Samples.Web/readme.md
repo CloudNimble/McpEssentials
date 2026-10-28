@@ -1,6 +1,6 @@
 # Authenticated MCP sample
 
-A Streamable HTTP MCP server. Fake authentication is the `X-User-Id` header. Tasks go through `InMemoryAuthenticatedMcpTaskStore`, so the user who started a task is the only one who can poll or cancel it.
+A Streamable HTTP MCP server. Fake authentication is the `X-User-Id` header. Tasks go through `InMemoryMcpTaskStorePlus`, so the user who started a task is the only one who can poll or cancel it.
 
 ## Run
 
@@ -18,7 +18,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddMcpServer()
     .WithHttpTransport(options => options.Stateless = true)
     .WithTools<HelloWorldTools>()
-    .WithAuthenticatedTasks(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User);
+    .WithTasksPlus(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User);
 ```
 
 `AddHttpContextAccessor()` is the platform registration. The store factory pulls `IHttpContextAccessor` from the built provider on each client-facing task call.

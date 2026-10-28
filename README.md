@@ -6,7 +6,7 @@ Useful extensions to the [Model Context Protocol C# SDK](https://github.com/mode
 
 The SDK `InMemoryMcpTaskStore` is process-wide. A multi-user remote MCP server needs per-user isolation: the user who started a task is the only one who can poll, update, or cancel it.
 
-**McpEssentials.Core** ships `InMemoryAuthenticatedMcpTaskStore`. It records the logged-in user on create and treats everyone else's `tasks/get` / `tasks/update` / `tasks/cancel` as not found.
+**McpEssentials.Core** ships `InMemoryMcpTaskStorePlus`. It records the logged-in user on create and treats everyone else's `tasks/get` / `tasks/update` / `tasks/cancel` as not found.
 
 **McpEssentials.EntityFrameworkCore** persists the same contract on any EF Core database. Other durable providers (PostgreSQL, Redis, …) are specified in [`specs/authenticated-task-stores.md`](specs/authenticated-task-stores.md).
 
@@ -28,7 +28,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddMcpServer()
     .WithHttpTransport(o => o.Stateless = true)
     .WithTools<MyTools>()
-    .WithAuthenticatedTasks(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User);
+    .WithTasksPlus(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User);
 ```
 
 ## Solution layout

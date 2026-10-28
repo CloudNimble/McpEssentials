@@ -20,8 +20,8 @@ Every store, regardless of engine:
 
 | Rule | Detail |
 |---|---|
-| Interface | `IPerUserMcpTaskStore` : `IMcpTaskStore` (ClaimsPrincipal overloads for client-facing calls) |
-| User | `Func<string?>` / `Func<ClaimsPrincipal?>` / constant user id on `AuthenticatedMcpTaskStoreBase` |
+| Interface | `IMcpTaskStorePlus` : `IMcpTaskStore` (ClaimsPrincipal overloads for client-facing calls) |
+| User | `Func<string?>` / `Func<ClaimsPrincipal?>` / constant user id on `McpTaskStoreBase` |
 | Isolation helpers | `RequireUserId` / `IsOwnedBy` (ordinal) |
 | Lifetime | Singleton. Stateless HTTP creates a new `McpServer` per POST. |
 | Create durability | `CreateTaskAsync` does not return until a later `GetTaskAsync` on any node can see the task (SEP-2663 §306). |
@@ -32,7 +32,7 @@ Every store, regardless of engine:
 | TTL | Expired tasks disappear on access and via a sweep or native expiry. |
 | Thread safety | Every method may run concurrently. |
 
-Claim order for `AuthenticatedMcpTaskStoreBase.GetUserId` (same as the SDK session identity): `ClaimTypes.NameIdentifier`, `sub`, `ClaimTypes.Upn`, `ClaimTypes.Name`, `IIdentity.Name`. Principal must be authenticated.
+Claim order for `McpTaskStoreBase.GetUserId` (same as the SDK session identity): `ClaimTypes.NameIdentifier`, `sub`, `ClaimTypes.Upn`, `ClaimTypes.Name`, `IIdentity.Name`. Principal must be authenticated.
 
 ## Canonical record
 
@@ -66,11 +66,11 @@ NuGet package ids drop the `CloudNimble.` prefix (same as EasyAF / ClaudeEssenti
 
 ### 1. `McpEssentials.Core` — done
 
-- `IPerUserMcpTaskStore` extends `IMcpTaskStore` with `ClaimsPrincipal` overloads for create/get/cancel/resolve.
-- `AuthenticatedMcpTaskStoreBase` takes a current-user callback, fail-closed identity, and `InputResponseReceived`.
+- `IMcpTaskStorePlus` extends `IMcpTaskStore` with `ClaimsPrincipal` overloads for create/get/cancel/resolve.
+- `McpTaskStoreBase` takes a current-user callback, fail-closed identity, and `InputResponseReceived`.
 - `StoredMcpTask` is the persistence foundation: settable protocol fields, `McpTaskStatus`, ctor from `McpTaskInfo`, `ToMcpTaskInfo()`, `IsFinished` / `IsActive` / `HasExpired` / `IsExpired` / `IsOwnedBy`, and `Try*` transitions. `DiscardAfter` is stamped at write as `CreatedAt + 2×TimeToLive`. Cached `Info` avoids an allocation on unchanged gets.
-- `InMemoryAuthenticatedMcpTaskStore` owns `StoredMcpTask` snapshots in a `ConcurrentDictionary`, clones then `Try*` for compare-and-swap, and TTL sweep. It does not wrap the SDK `InMemoryMcpTaskStore`. Unsealed; methods are virtual.
-- `WithAuthenticatedTasks("userId")` (stdio). HTTP: `AddHttpContextAccessor()` then `WithAuthenticatedTasks(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User)`. The same `Func<IServiceProvider, ClaimsPrincipal?>` factory exists on `AddInMemoryAuthenticatedTaskStore`. Both take `Action<AuthenticatedMcpTaskStoreOptions>` to set `DefaultTimeToLive` and `DefaultPollIntervalMs` at registration.
+- `InMemoryMcpTaskStorePlus` owns `StoredMcpTask` snapshots in a `ConcurrentDictionary`, clones then `Try*` for compare-and-swap, and TTL sweep. It does not wrap the SDK `InMemoryMcpTaskStore`. Unsealed; methods are virtual.
+- `WithTasksPlus("userId")` (stdio). HTTP: `AddHttpContextAccessor()` then `WithTasksPlus(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User)`. The same `Func<IServiceProvider, ClaimsPrincipal?>` factory exists on `AddInMemoryMcpTaskStorePlus`. Both take `Action<McpTaskStoreOptions>` to set `DefaultTimeToLive` and `DefaultPollIntervalMs` at registration.
 - Target frameworks: `net11.0;net10.0;net9.0;net8.0` (same as OData MCP). AOT compatible.
 
 Use for tests, local MCP, and single-instance remote MCP.
@@ -83,8 +83,8 @@ Use for tests, local MCP, and single-instance remote MCP.
 
 - `McpTaskEntity : StoredMcpTask` mapped to table `McpTasks` (configurable). Adds `RowVersion` only. Status and payloads convert to strings.
 - `IEntityTypeConfiguration<McpTaskEntity>` so hosts can call `modelBuilder.ApplyConfiguration`.
-- `EntityFrameworkAuthenticatedTaskStore<TContext>` where `TContext : DbContext`.
-- Extension `AddMcpEssentialsEntityFrameworkTasks<TContext>()` / `WithEntityFrameworkTasks<TContext>()`, same `AuthenticatedMcpTaskStoreOptions` as Core.
+- `EFCoreMcpTaskStore<TContext>` where `TContext : DbContext`.
+- Extension `AddMcpEssentialsEntityFrameworkTasks<TContext>()` / `WithTasksPlus<TContext>()`, same `McpTaskStoreOptions` as Core.
 
 **Concurrency:** rowversion / `xmin` / ETag on the entity; `SaveChanges` retry on unique-key races for create.
 
@@ -218,7 +218,7 @@ Do not mix session id and user id in the owner key unless a host explicitly impl
 - `McpTaskId` on domain entities.
 - A scoped `IMcpTaskStore` under stateless HTTP.
 - Anonymous-by-default isolation in Core (hosts that want it pass a constant user id).
-- A provider that reimplements claim lookup. Call `AuthenticatedMcpTaskStoreBase.GetUserId` or override `RequireUserId`.
+- A provider that reimplements claim lookup. Call `McpTaskStoreBase.GetUserId` or override `RequireUserId`.
 
 ## Implementation order
 
@@ -234,7 +234,7 @@ Each package: same TFMs as Core, MSTest + FluentAssertions, `InternalsVisibleTo`
 
 | Decision | Rationale |
 |---|---|
-| Own in-memory storage in `InMemoryAuthenticatedMcpTaskStore` | Isolation, TTL, CAS, and leak-resistance stay under our control. Durable providers subclass `AuthenticatedMcpTaskStoreBase` and persist their own snapshots. |
+| Own in-memory storage in `InMemoryMcpTaskStorePlus` | Isolation, TTL, CAS, and leak-resistance stay under our control. Durable providers subclass `McpTaskStoreBase` and persist their own snapshots. |
 | Current-user callback, fail closed | `IMcpTaskStore` has no user argument; hosts pass `Func<string?>`, a principal factory, or a constant id. Missing user is a host bug. |
 | Server-side completion skips live user | Background DI scope has no `HttpContext`. |
 | Wrong user → not found | Do not leak that the task exists. |

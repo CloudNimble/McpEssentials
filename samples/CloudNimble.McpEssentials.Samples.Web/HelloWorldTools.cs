@@ -29,7 +29,7 @@ namespace CloudNimble.McpEssentials.Samples.Web
         [McpServerTool(Name = "HelloWorld"), Description("Says hello to the authenticated user. Clients that opt into MCP Tasks receive a trackable task.")]
         public static async Task<string> HelloWorld(ClaimsPrincipal user, CancellationToken cancellationToken)
         {
-            var userId = AuthenticatedMcpTaskStoreBase.GetUserId(user);
+            var userId = McpTaskStoreBase.GetUserId(user);
             if (string.IsNullOrEmpty(userId))
             {
                 return "Unauthenticated. Send the X-User-Id header.";

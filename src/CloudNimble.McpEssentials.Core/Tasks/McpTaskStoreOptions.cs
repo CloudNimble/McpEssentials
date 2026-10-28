@@ -5,10 +5,10 @@ namespace CloudNimble.McpEssentials.Core.Tasks
 
     /// <summary>
     /// Registration knobs for authenticated MCP task stores. Passed to
-    /// <c>AddInMemoryAuthenticatedTaskStore</c>, <c>WithAuthenticatedTasks</c>,
+    /// <c>AddInMemoryMcpTaskStorePlus</c>, <c>WithTasksPlus</c>,
     /// and the Entity Framework equivalents.
     /// </summary>
-    public class AuthenticatedMcpTaskStoreOptions
+    public class McpTaskStoreOptions
     {
 
         #region Properties
@@ -61,7 +61,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         /// </summary>
         /// <param name="store">The store to configure.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="store"/> is <see langword="null"/>.</exception>
-        public virtual void ApplyTo(AuthenticatedMcpTaskStoreBase store)
+        public virtual void ApplyTo(McpTaskStoreBase store)
         {
             ArgumentNullException.ThrowIfNull(store);
             store.DefaultTimeToLive = DefaultTimeToLive;
@@ -78,7 +78,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         /// <param name="configure">Optional callback that sets TTL, poll interval, and flush knobs.</param>
         /// <param name="store">The store to configure.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="store"/> is <see langword="null"/>.</exception>
-        public static void Apply(Action<AuthenticatedMcpTaskStoreOptions>? configure, AuthenticatedMcpTaskStoreBase store)
+        public static void Apply(Action<McpTaskStoreOptions>? configure, McpTaskStoreBase store)
         {
             ArgumentNullException.ThrowIfNull(store);
             if (configure is null)
@@ -86,7 +86,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
                 return;
             }
 
-            var options = new AuthenticatedMcpTaskStoreOptions();
+            var options = new McpTaskStoreOptions();
             configure(options);
             options.ApplyTo(store);
         }

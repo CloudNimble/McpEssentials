@@ -8,7 +8,7 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Tasks
     /// <summary>
     /// EF store whose clock is a settable <see cref="Now"/> for TTL and sweep tests.
     /// </summary>
-    internal class ClockEfStore : EntityFrameworkAuthenticatedTaskStore<McpTaskDbContext>
+    internal class ClockEfStore : EFCoreMcpTaskStore<McpTaskDbContext>
     {
 
         #region Properties

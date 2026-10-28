@@ -4,7 +4,7 @@
         <TargetFrameworks>net11.0;net10.0;net9.0;net8.0;</TargetFrameworks>
         <DocumentationFile>$(DocumentationFile)\$(AssemblyName).xml</DocumentationFile>
         <Title>McpEssentials — Core</Title>
-        <Description>Authenticated MCP task stores and shared primitives for generic Model Context Protocol servers. Start with InMemoryAuthenticatedMcpTaskStore; swap in a durable provider later.</Description>
+        <Description>MCP task stores and shared primitives for generic Model Context Protocol servers. Start with InMemoryMcpTaskStorePlus; swap in a durable provider later.</Description>
         <PackageTags>mcp;modelcontextprotocol;tasks;authentication;cloudnimble</PackageTags>
     </PropertyGroup>
 

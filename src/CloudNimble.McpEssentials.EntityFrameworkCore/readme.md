@@ -1,6 +1,6 @@
 # McpEssentials.EntityFrameworkCore
 
-Authenticated MCP task store backed by Entity Framework Core. Same per-user isolation as `InMemoryAuthenticatedMcpTaskStore`, persisted on any EF Core database.
+Authenticated MCP task store backed by Entity Framework Core. Same per-user isolation as `InMemoryMcpTaskStorePlus`, persisted on any EF Core database.
 
 The host owns the `DbContext`, the connection, and migrations. This package ships the entity, the `IEntityTypeConfiguration`, and a singleton store that opens a scope per operation so a standard scoped `AddDbContext` works.
 
@@ -19,7 +19,7 @@ builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(connectionString
 builder.Services.AddMcpServer()
     .WithHttpTransport()
     .WithTools<MyTools>()
-    .WithEntityFrameworkTasks<AppDbContext>(
+    .WithTasksPlus<AppDbContext>(
         sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
         o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
 ```

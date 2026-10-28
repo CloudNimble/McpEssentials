@@ -17,10 +17,10 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
 
     /// <summary>
     /// Unit coverage for owned in-memory storage, per-user isolation, and the
-    /// <see cref="IPerUserMcpTaskStore"/> ClaimsPrincipal surface.
+    /// <see cref="IMcpTaskStorePlus"/> ClaimsPrincipal surface.
     /// </summary>
     [TestClass]
-    public class InMemoryAuthenticatedMcpTaskStoreTests : BreakdanceMSTestBase
+    public class InMemoryMcpTaskStorePlusTests : BreakdanceMSTestBase
     {
 
         #region Public Methods
@@ -29,7 +29,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         public async Task CreateTaskAsync_RecordsCurrentUser_AndOwnerCanGet()
         {
             var user = new TestUser("alice");
-            var store = new InMemoryAuthenticatedMcpTaskStore(() => user.UserId);
+            var store = new InMemoryMcpTaskStorePlus(() => user.UserId);
 
             var created = await store.CreateTaskAsync();
             var fetched = await store.GetTaskAsync(created.TaskId);
@@ -45,7 +45,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task CreateTaskAsync_IPerUser_UsesPrincipal()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore((string?)null);
+            var store = new InMemoryMcpTaskStorePlus((string?)null);
             var alice = TestUser.Authenticated("alice");
 
             var created = await store.CreateTaskAsync(alice);
@@ -58,7 +58,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task StringCtor_UsesConstantUser()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
 
             var created = await store.CreateTaskAsync();
             var fetched = await store.GetTaskAsync(created.TaskId);
@@ -71,7 +71,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         public async Task PrincipalCtor_UsesClaims()
         {
             ClaimsPrincipal? current = TestUser.Authenticated("alice");
-            var store = new InMemoryAuthenticatedMcpTaskStore(() => current);
+            var store = new InMemoryMcpTaskStorePlus(() => current);
 
             var created = await store.CreateTaskAsync();
             current = TestUser.Authenticated("bob");
@@ -85,7 +85,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task CreateTaskAsync_WhenUnauthenticated_Throws()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore((string?)null);
+            var store = new InMemoryMcpTaskStorePlus((string?)null);
 
             var act = async () => await store.CreateTaskAsync();
 
@@ -95,7 +95,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task CreateTaskAsync_IPerUser_WhenUnauthenticated_Throws()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
 
             var act = async () => await store.CreateTaskAsync(TestUser.Unauthenticated());
 
@@ -105,7 +105,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task CreateTaskAsync_IPerUser_WhenPrincipalIsNull_Throws()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
 
             var act = async () => await store.CreateTaskAsync((ClaimsPrincipal)null!);
 
@@ -116,7 +116,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         public async Task GetTaskAsync_WhenDifferentUser_ReturnsNull()
         {
             var user = new TestUser("alice");
-            var store = new InMemoryAuthenticatedMcpTaskStore(() => user.UserId);
+            var store = new InMemoryMcpTaskStorePlus(() => user.UserId);
             var created = await store.CreateTaskAsync();
 
             user.UserId = "bob";
@@ -142,7 +142,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task GetTaskAsync_WhenUnknownId_ReturnsNull()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
 
             var fetched = await store.GetTaskAsync("does-not-exist");
 
@@ -153,7 +153,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         public async Task GetTaskAsync_WhenUnauthenticated_Throws()
         {
             var user = new TestUser("alice");
-            var store = new InMemoryAuthenticatedMcpTaskStore(() => user.UserId);
+            var store = new InMemoryMcpTaskStorePlus(() => user.UserId);
             var created = await store.CreateTaskAsync();
 
             user.UserId = null;
@@ -165,7 +165,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task GetTaskAsync_WhenTaskIdIsWhitespace_Throws()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
 
             var act = async () => await store.GetTaskAsync("  ");
 
@@ -175,7 +175,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task SetCancelledAsync_WhenOwner_Cancels()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
 
             var cancelled = await store.SetCancelledAsync(created.TaskId);
@@ -188,7 +188,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task SetCancelledAsync_IPerUser_WhenOwner_Cancels()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore((string?)null);
+            var store = new InMemoryMcpTaskStorePlus((string?)null);
             var alice = TestUser.Authenticated("alice");
             var created = await store.CreateTaskAsync(alice);
 
@@ -202,7 +202,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         public async Task SetCancelledAsync_WhenDifferentUser_ReturnsFalse_AndLeavesTaskWorking()
         {
             var user = new TestUser("alice");
-            var store = new InMemoryAuthenticatedMcpTaskStore(() => user.UserId);
+            var store = new InMemoryMcpTaskStorePlus(() => user.UserId);
             var created = await store.CreateTaskAsync();
 
             user.UserId = "bob";
@@ -218,7 +218,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task SetCancelledAsync_WhenMissing_ReturnsFalse()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
 
             (await store.SetCancelledAsync("missing")).Should().BeFalse();
         }
@@ -226,7 +226,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task SetCancelledAsync_WhenAlreadyTerminal_ReturnsFalse()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
             await store.SetCompletedAsync(created.TaskId, JsonPayload(new { ok = true }));
 
@@ -238,7 +238,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         public async Task SetCompletedAsync_WithoutCurrentUser_StillCompletes()
         {
             var user = new TestUser("alice");
-            var store = new InMemoryAuthenticatedMcpTaskStore(() => user.UserId);
+            var store = new InMemoryMcpTaskStorePlus(() => user.UserId);
             var created = await store.CreateTaskAsync();
             var payload = JsonPayload(new { secret = "alice-only" });
 
@@ -258,7 +258,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task SetCompletedAsync_WhenMissing_DoesNotThrow()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
 
             var act = async () => await store.SetCompletedAsync("missing", JsonPayload(true));
 
@@ -268,7 +268,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task SetCompletedAsync_WhenAlreadyTerminal_IsIdempotent()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
             await store.SetFailedAsync(created.TaskId, JsonPayload(new { message = "boom" }));
 
@@ -282,7 +282,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task SetFailedAsync_WhenAlreadyTerminal_IsIdempotent()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
             await store.SetCompletedAsync(created.TaskId, JsonPayload(new { ok = true }));
 
@@ -297,7 +297,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         public async Task SetFailedAsync_WithoutCurrentUser_StillFails()
         {
             var user = new TestUser("alice");
-            var store = new InMemoryAuthenticatedMcpTaskStore(() => user.UserId);
+            var store = new InMemoryMcpTaskStorePlus(() => user.UserId);
             var created = await store.CreateTaskAsync();
             var error = JsonPayload(new { message = "boom" });
 
@@ -314,7 +314,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         public async Task UsersCannotSeeEachOthersTasks_OrPayloads()
         {
             var user = new TestUser("alice");
-            var store = new InMemoryAuthenticatedMcpTaskStore(() => user.UserId);
+            var store = new InMemoryMcpTaskStorePlus(() => user.UserId);
             var aliceTask = await store.CreateTaskAsync();
             await store.SetCompletedAsync(aliceTask.TaskId, JsonPayload(new { secret = "alice" }));
 
@@ -336,7 +336,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         public async Task ResolveInputRequestsAsync_WhenDifferentUser_DoesNotRaiseEvent()
         {
             var user = new TestUser("alice");
-            var store = new InMemoryAuthenticatedMcpTaskStore(() => user.UserId);
+            var store = new InMemoryMcpTaskStorePlus(() => user.UserId);
             var created = await store.CreateTaskAsync();
             var raised = 0;
             store.InputResponseReceived += _ => raised++;
@@ -363,7 +363,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task ResolveInputRequestsAsync_WhenOwner_RaisesEvent_AndReturnsToWorking()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
             var raised = 0;
             store.InputResponseReceived += args =>
@@ -392,7 +392,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task ResolveInputRequestsAsync_IPerUser_WhenOwner_RaisesEvent()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore((string?)null);
+            var store = new InMemoryMcpTaskStorePlus((string?)null);
             var alice = TestUser.Authenticated("alice");
             var created = await store.CreateTaskAsync(alice);
             var raised = 0;
@@ -413,7 +413,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task ResolveInputRequestsAsync_WhenOneOfTwoRemain_StaysInputRequired()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
             await store.SetInputRequestsAsync(created.TaskId, new Dictionary<string, InputRequest>
             {
@@ -463,7 +463,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task ResolveInputRequestsAsync_WhenNoPendingRequests_StaysWorking()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
 
             await store.ResolveInputRequestsAsync(created.TaskId, new Dictionary<string, InputResponse>
@@ -479,7 +479,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task ResolveInputRequestsAsync_WhenMissing_DoesNotRaise()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var raised = 0;
             store.InputResponseReceived += _ => raised++;
 
@@ -494,7 +494,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task ResolveInputRequestsAsync_Unsubscribe_DoesNotInvoke()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
             var raised = 0;
             void Handler(InputResponseReceivedEventArgs _) => raised++;
@@ -516,7 +516,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task SetInputRequestsAsync_MergesAndOverwrites()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
             var first = CreateElicitRequest();
             var second = CreateElicitRequest();
@@ -540,7 +540,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task SetInputRequestsAsync_WhenEmpty_TransitionsToInputRequired()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
 
             await store.SetInputRequestsAsync(created.TaskId, new Dictionary<string, InputRequest>());
@@ -553,7 +553,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task SetInputRequestsAsync_WhenTerminal_DoesNotChange()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
             await store.SetCancelledAsync(created.TaskId);
 
@@ -570,7 +570,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task SetInputRequestsAsync_WhenNull_Throws()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
 
             var act = async () => await store.SetInputRequestsAsync(created.TaskId, null!);
@@ -581,7 +581,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task ResolveInputRequestsAsync_WhenNull_Throws()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
 
             var act = async () => await store.ResolveInputRequestsAsync(created.TaskId, null!);
@@ -592,7 +592,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public void Constructor_WhenGetCurrentUserIdIsNull_Throws()
         {
-            Action act = () => _ = new InMemoryAuthenticatedMcpTaskStore((Func<string?>)null!);
+            Action act = () => _ = new InMemoryMcpTaskStorePlus((Func<string?>)null!);
 
             act.Should().Throw<ArgumentNullException>().WithParameterName("getCurrentUserId");
         }
@@ -600,7 +600,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public void Constructor_WhenGetPrincipalIsNull_Throws()
         {
-            Action act = () => _ = new InMemoryAuthenticatedMcpTaskStore((Func<ClaimsPrincipal?>)null!);
+            Action act = () => _ = new InMemoryMcpTaskStorePlus((Func<ClaimsPrincipal?>)null!);
 
             act.Should().Throw<ArgumentNullException>().WithParameterName("getPrincipal");
         }
@@ -618,17 +618,17 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public void Type_IsPerUserStore_NotSdkWrapper()
         {
-            typeof(InMemoryAuthenticatedMcpTaskStore).BaseType.Should().Be(typeof(AuthenticatedMcpTaskStoreBase));
-            typeof(IPerUserMcpTaskStore).GetInterfaces().Should().Contain(typeof(IMcpTaskStore));
-            typeof(InMemoryAuthenticatedMcpTaskStore).GetProperty("Inner").Should().BeNull();
-            typeof(InMemoryAuthenticatedMcpTaskStore).GetInterfaces().Should().Contain(typeof(IPerUserMcpTaskStore));
-            typeof(IPerUserMcpTaskStore).GetMethod(nameof(IPerUserMcpTaskStore.SweepExpiredAsync)).Should().NotBeNull();
+            typeof(InMemoryMcpTaskStorePlus).BaseType.Should().Be(typeof(McpTaskStoreBase));
+            typeof(IMcpTaskStorePlus).GetInterfaces().Should().Contain(typeof(IMcpTaskStore));
+            typeof(InMemoryMcpTaskStorePlus).GetProperty("Inner").Should().BeNull();
+            typeof(InMemoryMcpTaskStorePlus).GetInterfaces().Should().Contain(typeof(IMcpTaskStorePlus));
+            typeof(IMcpTaskStorePlus).GetMethod(nameof(IMcpTaskStorePlus.SweepExpiredAsync)).Should().NotBeNull();
         }
 
         [TestMethod]
         public async Task DefaultPollIntervalMs_IsAppliedToNewTasks()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice")
+            var store = new InMemoryMcpTaskStorePlus("alice")
             {
                 DefaultPollIntervalMs = 2500
             };
@@ -641,7 +641,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task DefaultTimeToLive_IsAppliedToNewTasks()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice")
+            var store = new InMemoryMcpTaskStorePlus("alice")
             {
                 DefaultTimeToLive = TimeSpan.FromMinutes(5)
             };
@@ -654,7 +654,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task DefaultTimeToLive_NonPositive_IsUnlimited()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice")
+            var store = new InMemoryMcpTaskStorePlus("alice")
             {
                 DefaultTimeToLive = TimeSpan.Zero
             };
@@ -789,7 +789,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task GetTaskAsync_TerminalSnapshot_ServeAndDrop()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
             await store.SetCompletedAsync(created.TaskId, JsonPayload(new { ok = true }));
 
@@ -828,7 +828,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task GetTaskAsync_InputRequired_DoesNotDrop()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
             await store.SetInputRequestsAsync(created.TaskId, new Dictionary<string, InputRequest>
             {
@@ -1195,7 +1195,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task CreateTaskAsync_WhenCancelled_Throws()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             using var cts = new CancellationTokenSource();
             cts.Cancel();
 
@@ -1207,7 +1207,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task GetTaskAsync_WhenCancelled_Throws()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             using var cts = new CancellationTokenSource();
             cts.Cancel();
 
@@ -1219,7 +1219,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task PublicMethods_CanceledToken_ThrowWithoutMutating()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
             using var cts = new CancellationTokenSource();
             cts.Cancel();
@@ -1309,7 +1309,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task ServeAndDropOff_OwnerGetKeepsTerminalRow()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice") { ServeAndDrop = false };
+            var store = new InMemoryMcpTaskStorePlus("alice") { ServeAndDrop = false };
             var created = await store.CreateTaskAsync();
             await store.SetCompletedAsync(created.TaskId, JsonPayload(new { ok = true }));
 
@@ -1335,7 +1335,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task ConcurrentCreates_ProduceUniqueIds()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var tasks = Enumerable.Range(0, 32).Select(_ => store.CreateTaskAsync()).ToArray();
 
             var created = await Task.WhenAll(tasks);
@@ -1346,7 +1346,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         [TestMethod]
         public async Task ConcurrentSetInputRequests_DoNotLoseKeys()
         {
-            var store = new InMemoryAuthenticatedMcpTaskStore("alice");
+            var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
             var writes = Enumerable.Range(0, 20).Select(i =>
                 store.SetInputRequestsAsync(created.TaskId, new Dictionary<string, InputRequest>

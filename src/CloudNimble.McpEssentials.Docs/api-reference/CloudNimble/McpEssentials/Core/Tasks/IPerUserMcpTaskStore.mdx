@@ -1,6 +1,5 @@
 ---
 title: IPerUserMcpTaskStore
-description: "An `IMcpTaskStore` that isolates tasks per authenticated user and exposes [ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.cla..."
 icon: plug
 keywords: ['IPerUserMcpTaskStore', 'CloudNimble.McpEssentials.Core.Tasks.IPerUserMcpTaskStore', 'CloudNimble.McpEssentials.Core.Tasks', 'interface', 'ModelContextProtocol.Extensions.Tasks.IMcpTaskStore']
 ---
@@ -17,32 +16,9 @@ keywords: ['IPerUserMcpTaskStore', 'CloudNimble.McpEssentials.Core.Tasks.IPerUse
 CloudNimble.McpEssentials.Core.Tasks.IPerUserMcpTaskStore
 ```
 
-## Summary
-
-An `IMcpTaskStore` that isolates tasks per authenticated user and exposes
-[ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.claimsprincipal) overloads for every client-facing operation.
-
-## Remarks
-
-The MCP C# SDK calls the `IMcpTaskStore` methods, which have no user parameter.
-Authenticated stores resolve the caller from the current-user callback captured at construction.
-Hosts, tests, and durable providers that already have a [ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.claimsprincipal)
-call the overloads on this interface instead.
-
-Client-facing operations (create, get, cancel, resolve) require an authenticated principal
-and treat another user's task as missing. Server-side completion (set completed, set failed,
-set input requests) stays on `IMcpTaskStore` and skips the live-user check because
-the SDK runs those from a background DI scope after the originating request is gone.
-
-Every store exposes `CancellationToken)` so a host can flush expired rows on its
-own schedule. The base class also pulses that flush after create and on get unless
-`AutoSweep` is turned off.
-
 ## Methods
 
 ### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> CreateTaskAsync <Badge color="orange">Abstract</Badge>
-
-Creates a new task owned by *user*.
 
 #### Syntax
 
@@ -54,25 +30,14 @@ System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> C
 
 | Name | Type | Description |
 |------|------|-------------|
-| `user` | `System.Security.Claims.ClaimsPrincipal` | The authenticated principal that will own the task. |
-| `cancellationToken` | `System.Threading.CancellationToken` | Cancellation token for the operation. |
+| `user` | `System.Security.Claims.ClaimsPrincipal` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
 
 #### Returns
 
 Type: `System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo>`
-A `McpTaskInfo` with a unique task id, initial status of
-`Working`, and timing metadata.
-
-#### Exceptions
-
-| Exception | Description |
-|-----------|-------------|
-| `ArgumentNullException` | Thrown when *user* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
-| `McpTaskUserRequiredException` | Thrown when *user* is unauthenticated. |
 
 ### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetTaskAsync <Badge color="orange">Abstract</Badge>
-
-Retrieves the current state of a task when *user* owns it.
 
 #### Syntax
 
@@ -84,27 +49,15 @@ System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> G
 
 | Name | Type | Description |
 |------|------|-------------|
-| `taskId` | `string` | The unique identifier of the task to retrieve. |
-| `user` | `System.Security.Claims.ClaimsPrincipal` | The authenticated principal making the request. |
-| `cancellationToken` | `System.Threading.CancellationToken` | Cancellation token for the operation. |
+| `taskId` | `string` | - |
+| `user` | `System.Security.Claims.ClaimsPrincipal` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
 
 #### Returns
 
 Type: `System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo?>`
-The current task state, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when the task is missing, expired, or owned by another user.
-
-#### Exceptions
-
-| Exception | Description |
-|-----------|-------------|
-| `ArgumentException` | Thrown when *taskId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or whitespace. |
-| `ArgumentNullException` | Thrown when *user* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
-| `McpTaskUserRequiredException` | Thrown when *user* is unauthenticated. |
 
 ### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ResolveInputRequestsAsync <Badge color="orange">Abstract</Badge>
-
-Removes matched input requests and raises `InputResponseReceived`
-when *user* owns the task.
 
 #### Syntax
 
@@ -116,26 +69,16 @@ System.Threading.Tasks.Task ResolveInputRequestsAsync(string taskId, System.Coll
 
 | Name | Type | Description |
 |------|------|-------------|
-| `taskId` | `string` | The unique identifier of the task. |
-| `inputResponses` | `System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse>` | The input responses keyed by the original request identifier. |
-| `user` | `System.Security.Claims.ClaimsPrincipal` | The authenticated principal making the request. |
-| `cancellationToken` | `System.Threading.CancellationToken` | Cancellation token for the operation. |
+| `taskId` | `string` | - |
+| `inputResponses` | `System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse>` | - |
+| `user` | `System.Security.Claims.ClaimsPrincipal` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
 
 #### Returns
 
 Type: `System.Threading.Tasks.Task`
 
-#### Exceptions
-
-| Exception | Description |
-|-----------|-------------|
-| `ArgumentException` | Thrown when *taskId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or whitespace. |
-| `ArgumentNullException` | Thrown when *inputResponses* or *user* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
-| `McpTaskUserRequiredException` | Thrown when *user* is unauthenticated. |
-
 ### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetCancelledAsync <Badge color="orange">Abstract</Badge>
-
-Transitions the task to `Cancelled` when *user* owns it.
 
 #### Syntax
 
@@ -147,27 +90,15 @@ System.Threading.Tasks.Task<bool> SetCancelledAsync(string taskId, System.Securi
 
 | Name | Type | Description |
 |------|------|-------------|
-| `taskId` | `string` | The unique identifier of the task to cancel. |
-| `user` | `System.Security.Claims.ClaimsPrincipal` | The authenticated principal making the request. |
-| `cancellationToken` | `System.Threading.CancellationToken` | Cancellation token for the operation. |
+| `taskId` | `string` | - |
+| `user` | `System.Security.Claims.ClaimsPrincipal` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
 
 #### Returns
 
 Type: `System.Threading.Tasks.Task<bool>`
-[`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when the task was cancelled;
-[`false`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when the task is missing, expired, already terminal, or owned by another user.
-
-#### Exceptions
-
-| Exception | Description |
-|-----------|-------------|
-| `ArgumentException` | Thrown when *taskId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or whitespace. |
-| `ArgumentNullException` | Thrown when *user* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
-| `McpTaskUserRequiredException` | Thrown when *user* is unauthenticated. |
 
 ### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SweepExpiredAsync <Badge color="orange">Abstract</Badge>
-
-Removes snapshots the store's discard criteria say are gone.
 
 #### Syntax
 
@@ -179,24 +110,11 @@ System.Threading.Tasks.Task SweepExpiredAsync(System.Threading.CancellationToken
 
 | Name | Type | Description |
 |------|------|-------------|
-| `cancellationToken` | `System.Threading.CancellationToken` | Cancellation token for the operation. |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
 
 #### Returns
 
 Type: `System.Threading.Tasks.Task`
-A task that completes when the pass finishes.
-
-#### Exceptions
-
-| Exception | Description |
-|-----------|-------------|
-| `OperationCanceledException` | *cancellationToken* was cancelled during the pass. |
-
-#### Remarks
-
-Always runs a full pass. Automatic create/get pulses are separate and throttled.
-Set `AutoSweep` to [`false`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) and call this method from your own job
-when you want to own the schedule.
 
 ## Related APIs
 

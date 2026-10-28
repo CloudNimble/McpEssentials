@@ -15,7 +15,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
     /// <summary>
     /// Base type for authenticated MCP task stores. Wires the current-user callback, fail-closed
     /// identity, <see cref="InputResponseReceived"/>, flush pulses, and the mapping from
-    /// <see cref="IMcpTaskStore"/> / <see cref="IPerUserMcpTaskStore"/> into per-user core methods.
+    /// <see cref="IMcpTaskStore"/> / <see cref="IMcpTaskStorePlus"/> into per-user core methods.
     /// </summary>
     /// <remarks>
     /// Subclass and implement the <c>Core</c> methods plus <see cref="SweepExpiredCoreAsync"/> to
@@ -24,7 +24,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
     /// from your own job to own the schedule. Override <see cref="ShouldDiscard"/> to change keep
     /// rules. Do not wrap the SDK <c>InMemoryMcpTaskStore</c>; each provider owns its storage.
     /// </remarks>
-    public abstract class AuthenticatedMcpTaskStoreBase : IPerUserMcpTaskStore
+    public abstract class McpTaskStoreBase : IMcpTaskStorePlus
     {
 
         #region Fields
@@ -110,33 +110,33 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuthenticatedMcpTaskStoreBase"/> class.
+        /// Initializes a new instance of the <see cref="McpTaskStoreBase"/> class.
         /// </summary>
         /// <param name="getCurrentUserId">Returns the current user identifier, or <see langword="null"/> when unauthenticated.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="getCurrentUserId"/> is <see langword="null"/>.</exception>
-        protected AuthenticatedMcpTaskStoreBase(Func<string?> getCurrentUserId)
+        protected McpTaskStoreBase(Func<string?> getCurrentUserId)
         {
             ArgumentNullException.ThrowIfNull(getCurrentUserId);
             GetCurrentUserId = getCurrentUserId;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuthenticatedMcpTaskStoreBase"/> class
+        /// Initializes a new instance of the <see cref="McpTaskStoreBase"/> class
         /// that always uses <paramref name="userId"/>.
         /// </summary>
         /// <param name="userId">The user identifier, or <see langword="null"/> to treat the process as unauthenticated.</param>
-        protected AuthenticatedMcpTaskStoreBase(string? userId)
+        protected McpTaskStoreBase(string? userId)
             : this(() => userId)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AuthenticatedMcpTaskStoreBase"/> class
+        /// Initializes a new instance of the <see cref="McpTaskStoreBase"/> class
         /// that resolves the user from a <see cref="ClaimsPrincipal"/>.
         /// </summary>
         /// <param name="getPrincipal">Returns the principal for the current request.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="getPrincipal"/> is <see langword="null"/>.</exception>
-        protected AuthenticatedMcpTaskStoreBase(Func<ClaimsPrincipal?> getPrincipal)
+        protected McpTaskStoreBase(Func<ClaimsPrincipal?> getPrincipal)
         {
             ArgumentNullException.ThrowIfNull(getPrincipal);
             GetCurrentUserId = () => GetUserId(getPrincipal());
@@ -215,7 +215,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
 
         #endregion
 
-        #region IPerUserMcpTaskStore
+        #region IMcpTaskStorePlus
 
         /// <inheritdoc />
         public virtual async Task<McpTaskInfo> CreateTaskAsync(ClaimsPrincipal user, CancellationToken cancellationToken = default)

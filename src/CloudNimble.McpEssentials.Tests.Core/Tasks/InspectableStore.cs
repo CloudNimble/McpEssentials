@@ -15,7 +15,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
     /// <summary>
     /// Exposes in-memory store internals (clock, ids, CAS, TTL) for unit coverage.
     /// </summary>
-    internal class InspectableStore : InMemoryAuthenticatedMcpTaskStore
+    internal class InspectableStore : InMemoryMcpTaskStorePlus
     {
 
         #region Properties

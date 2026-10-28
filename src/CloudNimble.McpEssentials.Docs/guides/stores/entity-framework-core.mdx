@@ -1,10 +1,10 @@
 ---
 title: "Entity Framework Core"
 description: "Persist per-user MCP tasks on any EF Core database. The host owns the DbContext, the connection, and migrations."
-keywords: ["EntityFrameworkCore", "AddMcpTasksTable", "WithEntityFrameworkTasks", "McpTaskEntity", "SQL Server", "SQLite", "PostgreSQL"]
+keywords: ["EntityFrameworkCore", "AddMcpTasksTable", "WithTasksPlus", "McpTaskEntity", "SQL Server", "SQLite", "PostgreSQL"]
 ---
 
-`McpEssentials.EntityFrameworkCore` is the first durable authenticated task store. It subclasses [`AuthenticatedMcpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase) and persists [`McpTaskEntity`](/api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/McpTaskEntity) rows through **your** `DbContext`.
+`McpEssentials.EntityFrameworkCore` is the first durable authenticated task store. It subclasses [`McpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) and persists [`McpTaskEntity`](/api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/McpTaskEntity) rows through **your** `DbContext`.
 
 <Note>
 This package works with **any EF Core database provider**. SQL Server, SQLite, PostgreSQL (Npgsql), MySQL, MariaDB, Cosmos via EF, Oracle, and whatever else you already pass to `AddDbContext` are all valid. The store talks to `TContext.Set<McpTaskEntity>()`; it never binds a specific engine.
@@ -74,7 +74,7 @@ Mapped columns include `TaskId`, `OwnerUserId`, `Status` (enum name as string), 
 
 ## Wire the store
 
-Same identity factory as [Authenticated tasks](/guides/authenticated-tasks). The SDK `WithTasks` API captures the store before `Build()`; [`WithEntityFrameworkTasks`](/api-reference/Microsoft/Extensions/DependencyInjection/IMcpServerBuilder) stamps the provider on first use.
+Same identity factory as [Authenticated tasks](/guides/authenticated-tasks). The SDK `WithTasks` API captures the store before `Build()`; [`WithTasksPlus`](/api-reference/Microsoft/Extensions/DependencyInjection/IMcpServerBuilder) stamps the provider on first use.
 
 ```csharp
 builder.Services.AddHttpContextAccessor();
@@ -83,7 +83,7 @@ builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(connectionString
 builder.Services.AddMcpServer()
     .WithHttpTransport(o => o.Stateless = true)
     .WithTools<MyTools>()
-    .WithEntityFrameworkTasks<AppDbContext>(
+    .WithTasksPlus<AppDbContext>(
         sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
         o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
 ```
@@ -93,7 +93,7 @@ builder.Services.AddMcpServer()
 ```csharp
 builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlite("Data Source=tasks.db"));
 builder.Services.AddMcpServer()
-    .WithEntityFrameworkTasks<AppDbContext>("local-user");
+    .WithTasksPlus<AppDbContext>("local-user");
 ```
 
 **Store only**, without `IMcpServerBuilder`:
@@ -109,7 +109,7 @@ Register the store as a **singleton**. The context stays scoped. Each operation 
 
 ## Options
 
-Pass `Action<AuthenticatedMcpTaskStoreOptions>` as the next argument after identity.
+Pass `Action<McpTaskStoreOptions>` as the next argument after identity.
 
 | Knob | Default | Role |
 |---|---|---|
@@ -120,7 +120,7 @@ Pass `Action<AuthenticatedMcpTaskStoreOptions>` as the next argument after ident
 | `ServeAndDrop` | `true` | Owner get of a terminal snapshot serves it and then deletes the row. |
 
 ```csharp
-.WithEntityFrameworkTasks<AppDbContext>(currentUser, o =>
+.WithTasksPlus<AppDbContext>(currentUser, o =>
 {
     o.DefaultTimeToLive = TimeSpan.FromMinutes(5);
     o.AutoSweep = false;          // you own the schedule
@@ -128,7 +128,7 @@ Pass `Action<AuthenticatedMcpTaskStoreOptions>` as the next argument after ident
 });
 ```
 
-Call [`SweepExpiredAsync`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore) from a hosted service or SQL Agent wrapper when `AutoSweep` is off. The public handle always runs a full pass.
+Call [`SweepExpiredAsync`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) from a hosted service or SQL Agent wrapper when `AutoSweep` is off. The public handle always runs a full pass.
 
 The EF drain is a set-delete: `DELETE WHERE DiscardAfter IS NOT NULL AND DiscardAfter <= now`. It does not load the table. SQLite stores `DiscardAfter` as UTC ticks so that comparison translates; SQL Server and PostgreSQL use the same path.
 
