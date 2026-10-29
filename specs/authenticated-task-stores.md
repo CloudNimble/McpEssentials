@@ -120,22 +120,24 @@ Use for tests, local MCP, and single-instance remote MCP.
 
 ### 5. `McpEssentials.Redis`
 
-**Engine:** StackExchange.Redis.
+**Engine:** StackExchange.Redis. Shipped.
 
 **Key layout:**
 
 ```
-mcp:task:{taskId}            HASH or JSON  (full record, including OwnerUserId)
-mcp:user:{ownerUserId}:tasks SET           (optional index for admin sweep)
+{prefix}:task:{taskId}   JSON string  (RedisStoredMcpTask, including OwnerUserId)
+{prefix}:task:input      pub/sub      (RedisInputSignal: taskId + requestId)
 ```
 
-**TTL:** `EXPIRE` / `EXPIREAT` on the task key from `DiscardAfter`. Native, no sweeper required. `GetTaskAsync` treats a missing key as not found and does not distinguish expiry from isolation.
+Default prefix is `mcp`. No per-user SET index: SET members do not expire with the task key.
 
-**Events:** `PUBLISH mcp:task:input {taskId}:{requestId}` after a successful `ResolveInputRequests`. Subscribers raise `InputResponseReceived`.
+**TTL:** `PEXPIREAT` on the task key from `DiscardAfter` (`CreatedAt + 2×TimeToLive`). Native, no sweeper required. `AutoSweep` defaults to `false`. `SweepExpiredCoreAsync` is a no-op. Per-row get still honors `ShouldDiscard` so a custom clock can drop a key before Redis does. Unlimited TTL leaves the key until a terminal owner get (`ServeAndDrop`) or an explicit delete. `GetTaskAsync` treats a missing key as not found and does not distinguish expiry from isolation.
 
-**Consistency:** `CreateTaskAsync` uses `SET` with wait for replica acknowledgement when the connection is configured with `Wait` / `waitReplicas`. Document that eventually-consistent Redis without wait is not SEP-2663 compliant.
+**Events:** native pub/sub. After a successful `ResolveInputRequests`, the publishing node raises `InputResponseReceived` locally, then `PUBLISH` JSON `{ taskId, requestId }`. Subscribers skip their own echo (token dictionary) and raise a stub `InputResponse` so `ElicitAsync` waiters on other nodes wake.
 
-**CAS:** Lua script that checks status before transitioning to a terminal state.
+**Consistency:** `CreateTaskAsync` Lua `EXISTS` then `SET` + `PEXPIREAT`, then `WAIT` when `WaitReplicas` is positive. Standalone Redis leaves wait at 0. Eventually-consistent Redis without wait is not SEP-2663 durable across nodes.
+
+**CAS:** Lua compares the expected JSON, then `SET` + `PEXPIREAT`. Retry on conflict.
 
 ### 6. `McpEssentials.DistributedCache`
 
@@ -224,7 +226,7 @@ Do not mix session id and user id in the owner key unless a host explicitly impl
 
 1. Core in-memory store (this repo, done).
 2. Entity Framework Core package + SQLite tests (this repo, done).
-3. Redis package (TTL + pub/sub).
+3. Redis package (TTL + pub/sub) (this repo, done).
 4. PostgreSQL native package if EF + Npgsql is not enough for NOTIFY.
 5. Cosmos, MongoDB, DistributedCache, Azure Tables, NATS as demand appears.
 

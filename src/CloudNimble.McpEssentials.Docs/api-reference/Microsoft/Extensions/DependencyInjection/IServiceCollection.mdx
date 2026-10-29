@@ -27,83 +27,17 @@ See [Microsoft documentation](https://learn.microsoft.com/dotnet/api/microsoft.e
 
 ## Methods
 
-### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddInMemoryAuthenticatedTaskStore <Badge color="green">Extension</Badge>
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddInMemoryMcpTaskStorePlus <Badge color="green">Extension</Badge>
 
 <Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Core_ServiceCollectionExtensions`</Note>
 
-#### Syntax
-
-```csharp
-public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddInMemoryAuthenticatedTaskStore(Microsoft.Extensions.DependencyInjection.IServiceCollection services, string userId, System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions> configure = null)
-```
-
-#### Parameters
-
-| Name | Type | Description |
-|------|------|-------------|
-| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | - |
-| `userId` | `string` | - |
-| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions>?` | - |
-
-#### Returns
-
-Type: `Microsoft.Extensions.DependencyInjection.IServiceCollection`
-
-### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddInMemoryAuthenticatedTaskStore <Badge color="green">Extension</Badge>
-
-<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Core_ServiceCollectionExtensions`</Note>
+Registers [InMemoryMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryMcpTaskStorePlus) as the singleton
+[IMcpTaskStore](/api-reference/ModelContextProtocol/Extensions/Tasks/IMcpTaskStore) and [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) for a single user.
 
 #### Syntax
 
 ```csharp
-public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddInMemoryAuthenticatedTaskStore(Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Func<string> getCurrentUserId, System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions> configure = null)
-```
-
-#### Parameters
-
-| Name | Type | Description |
-|------|------|-------------|
-| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | - |
-| `getCurrentUserId` | `System.Func<string?>` | - |
-| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions>?` | - |
-
-#### Returns
-
-Type: `Microsoft.Extensions.DependencyInjection.IServiceCollection`
-
-### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddInMemoryAuthenticatedTaskStore <Badge color="green">Extension</Badge>
-
-<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Core_ServiceCollectionExtensions`</Note>
-
-#### Syntax
-
-```csharp
-public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddInMemoryAuthenticatedTaskStore(Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal> getPrincipal, System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions> configure = null)
-```
-
-#### Parameters
-
-| Name | Type | Description |
-|------|------|-------------|
-| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | - |
-| `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | - |
-| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions>?` | - |
-
-#### Returns
-
-Type: `Microsoft.Extensions.DependencyInjection.IServiceCollection`
-
-### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddMcpEssentialsEntityFrameworkTasks <Badge color="green">Extension</Badge>
-
-<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_EntityFrameworkCore_ServiceCollectionExtensions`</Note>
-
-Registers `EntityFrameworkAuthenticatedTaskStore`1` as the singleton
-`IMcpTaskStore` and [IPerUserMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore) for a single user.
-
-#### Syntax
-
-```csharp
-public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcpEssentialsEntityFrameworkTasks<TContext>(Microsoft.Extensions.DependencyInjection.IServiceCollection services, string userId, System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions> configure = null) where TContext : Microsoft.EntityFrameworkCore.DbContext
+public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddInMemoryMcpTaskStorePlus(Microsoft.Extensions.DependencyInjection.IServiceCollection services, string userId, System.Action<CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions> configure = null)
 ```
 
 #### Parameters
@@ -112,7 +46,104 @@ public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcp
 |------|------|-------------|
 | `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
 | `userId` | `string` | The owner stamped on every task this process creates. |
-| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions>?` | Optional store options (TTL, poll interval). |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions>?` | Optional store options (TTL, poll interval). |
+
+#### Returns
+
+Type: `Microsoft.Extensions.DependencyInjection.IServiceCollection`
+The service collection.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *services* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `ArgumentException` | Thrown when *userId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or whitespace. |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddInMemoryMcpTaskStorePlus <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Core_ServiceCollectionExtensions`</Note>
+
+Registers [InMemoryMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryMcpTaskStorePlus) as the singleton
+[IMcpTaskStore](/api-reference/ModelContextProtocol/Extensions/Tasks/IMcpTaskStore) and [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus).
+
+#### Syntax
+
+```csharp
+public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddInMemoryMcpTaskStorePlus(Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Func<string> getCurrentUserId, System.Action<CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions> configure = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
+| `getCurrentUserId` | `System.Func<string?>` | Returns the current user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unauthenticated. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions>?` | Optional store options (TTL, poll interval). |
+
+#### Returns
+
+Type: `Microsoft.Extensions.DependencyInjection.IServiceCollection`
+The service collection.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *services* or *getCurrentUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddInMemoryMcpTaskStorePlus <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Core_ServiceCollectionExtensions`</Note>
+
+Registers [InMemoryMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryMcpTaskStorePlus) using a [ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.claimsprincipal) factory.
+
+#### Syntax
+
+```csharp
+public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddInMemoryMcpTaskStorePlus(Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal> getPrincipal, System.Action<CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions> configure = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
+| `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. Hosts typically pass
+`sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions>?` | Optional store options (TTL, poll interval). |
+
+#### Returns
+
+Type: `Microsoft.Extensions.DependencyInjection.IServiceCollection`
+The service collection.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *services* or *getPrincipal* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddMcpEssentialsEntityFrameworkTasks <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_EntityFrameworkCore_ServiceCollectionExtensions`</Note>
+
+Registers `EFCoreMcpTaskStore`1` as the singleton
+[IMcpTaskStore](/api-reference/ModelContextProtocol/Extensions/Tasks/IMcpTaskStore) and [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) for a single user.
+
+#### Syntax
+
+```csharp
+public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcpEssentialsEntityFrameworkTasks<TContext>(Microsoft.Extensions.DependencyInjection.IServiceCollection services, string userId, System.Action<CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions> configure = null) where TContext : Microsoft.EntityFrameworkCore.DbContext
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
+| `userId` | `string` | The owner stamped on every task this process creates. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions>?` | Optional store options (TTL, poll interval). |
 
 #### Returns
 
@@ -134,13 +165,13 @@ The service collection.
 
 <Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_EntityFrameworkCore_ServiceCollectionExtensions`</Note>
 
-Registers `EntityFrameworkAuthenticatedTaskStore`1` as the singleton
-`IMcpTaskStore` and [IPerUserMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore).
+Registers `EFCoreMcpTaskStore`1` as the singleton
+[IMcpTaskStore](/api-reference/ModelContextProtocol/Extensions/Tasks/IMcpTaskStore) and [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus).
 
 #### Syntax
 
 ```csharp
-public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcpEssentialsEntityFrameworkTasks<TContext>(Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Func<string> getCurrentUserId, System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions> configure = null) where TContext : Microsoft.EntityFrameworkCore.DbContext
+public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcpEssentialsEntityFrameworkTasks<TContext>(Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Func<string> getCurrentUserId, System.Action<CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions> configure = null) where TContext : Microsoft.EntityFrameworkCore.DbContext
 ```
 
 #### Parameters
@@ -149,7 +180,7 @@ public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcp
 |------|------|-------------|
 | `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
 | `getCurrentUserId` | `System.Func<string?>` | Returns the current user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unauthenticated. |
-| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions>?` | Optional store options (TTL, poll interval). |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions>?` | Optional store options (TTL, poll interval). |
 
 #### Returns
 
@@ -170,13 +201,13 @@ The service collection.
 
 <Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_EntityFrameworkCore_ServiceCollectionExtensions`</Note>
 
-Registers `EntityFrameworkAuthenticatedTaskStore`1` using a
+Registers `EFCoreMcpTaskStore`1` using a
 [ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.claimsprincipal) factory resolved from the built provider.
 
 #### Syntax
 
 ```csharp
-public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcpEssentialsEntityFrameworkTasks<TContext>(Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal> getPrincipal, System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions> configure = null) where TContext : Microsoft.EntityFrameworkCore.DbContext
+public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcpEssentialsEntityFrameworkTasks<TContext>(Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal> getPrincipal, System.Action<CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions> configure = null) where TContext : Microsoft.EntityFrameworkCore.DbContext
 ```
 
 #### Parameters
@@ -186,7 +217,7 @@ public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcp
 | `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
 | `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. Hosts typically pass
 `sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`. |
-| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreOptions>?` | Optional store options (TTL, poll interval). |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions>?` | Optional store options (TTL, poll interval). |
 
 #### Returns
 
@@ -196,6 +227,104 @@ The service collection.
 #### Type Parameters
 
 - `TContext` - The host [DbContext](https://learn.microsoft.com/dotnet/api/microsoft.entityframeworkcore.dbcontext) that maps [McpTaskEntity](/api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/McpTaskEntity).
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *services* or *getPrincipal* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddMcpEssentialsRedisTasks <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Redis_ServiceCollectionExtensions`</Note>
+
+Registers [RedisMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTaskStore) as the singleton
+[IMcpTaskStore](/api-reference/ModelContextProtocol/Extensions/Tasks/IMcpTaskStore) and [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) for a single user.
+
+#### Syntax
+
+```csharp
+public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcpEssentialsRedisTasks(Microsoft.Extensions.DependencyInjection.IServiceCollection services, string userId, System.Action<CloudNimble.McpEssentials.Redis.Tasks.RedisMcpTaskStoreOptions> configure = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
+| `userId` | `string` | The owner stamped on every task this process creates. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Redis.Tasks.RedisMcpTaskStoreOptions>?` | Optional store options (TTL, key prefix, replica wait). |
+
+#### Returns
+
+Type: `Microsoft.Extensions.DependencyInjection.IServiceCollection`
+The service collection.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *services* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `ArgumentException` | Thrown when *userId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or whitespace. |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddMcpEssentialsRedisTasks <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Redis_ServiceCollectionExtensions`</Note>
+
+Registers [RedisMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTaskStore) as the singleton
+[IMcpTaskStore](/api-reference/ModelContextProtocol/Extensions/Tasks/IMcpTaskStore) and [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus).
+
+#### Syntax
+
+```csharp
+public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcpEssentialsRedisTasks(Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Func<string> getCurrentUserId, System.Action<CloudNimble.McpEssentials.Redis.Tasks.RedisMcpTaskStoreOptions> configure = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
+| `getCurrentUserId` | `System.Func<string?>` | Returns the current user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unauthenticated. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Redis.Tasks.RedisMcpTaskStoreOptions>?` | Optional store options (TTL, key prefix, replica wait). |
+
+#### Returns
+
+Type: `Microsoft.Extensions.DependencyInjection.IServiceCollection`
+The service collection.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *services* or *getCurrentUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddMcpEssentialsRedisTasks <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Redis_ServiceCollectionExtensions`</Note>
+
+Registers [RedisMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTaskStore) using a
+[ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.claimsprincipal) factory resolved from the built provider.
+
+#### Syntax
+
+```csharp
+public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcpEssentialsRedisTasks(Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal> getPrincipal, System.Action<CloudNimble.McpEssentials.Redis.Tasks.RedisMcpTaskStoreOptions> configure = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
+| `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. Hosts typically pass
+`sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Redis.Tasks.RedisMcpTaskStoreOptions>?` | Optional store options (TTL, key prefix, replica wait). |
+
+#### Returns
+
+Type: `Microsoft.Extensions.DependencyInjection.IServiceCollection`
+The service collection.
 
 #### Exceptions
 

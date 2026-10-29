@@ -1,15 +1,19 @@
 ---
-title: "Guides"
+title: "Overview"
 description: "Authenticated MCP task stores for generic servers, and the provider packages that persist them."
+icon: "circle-exclamation"
 ---
 
 Start with the in-memory store in Core. HTTP hosts call `AddHttpContextAccessor()` and pass a factory that resolves `IHttpContextAccessor` from the built provider. When the host scales out, swap in a durable provider of the same contract.
 
 <CardGroup cols={2}>
-  <Card title="Authenticated tasks" href="/guides/authenticated-tasks">
+  <Card title="Authenticated tasks" icon="user-lock" href="/guides/authenticated-tasks">
     In-process store, identity wiring, isolation rules, and the web sample.
   </Card>
-  <Card title="Choose a store" href="/guides/stores">
+  <Card title="Form elicitation" icon="clipboard-list" href="/guides/form-elicitation">
+    Fluent form schemas, ElicitAsync, and parking a form on a task.
+  </Card>
+  <Card title="Choose a store" icon="database" href="/guides/stores">
     Database, distributed cache, and eventing providers. Start with Entity Framework Core.
   </Card>
 </CardGroup>

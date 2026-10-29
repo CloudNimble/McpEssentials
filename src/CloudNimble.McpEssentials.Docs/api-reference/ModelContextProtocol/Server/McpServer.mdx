@@ -1,0 +1,188 @@
+---
+title: McpServer
+description: "Extension methods for McpServer from ModelContextProtocol.Core"
+icon: file-brackets-curly
+keywords: ['McpServer', 'ModelContextProtocol.Server.McpServer', 'ModelContextProtocol.Server', 'error']
+---
+
+## Definition
+
+**Assembly:** ModelContextProtocol.Core.dll
+
+**Namespace:** ModelContextProtocol.Server
+
+## Syntax
+
+```csharp
+ModelContextProtocol.Server.McpServer
+```
+
+## Summary
+
+This type is defined in ModelContextProtocol.Core.
+
+## Methods
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ElicitAsync <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `ModelContextProtocol.Server.McpEssentials_Core_McpServerExtensions`</Note>
+
+Builds *form* and elicits it from the client.
+
+#### Syntax
+
+```csharp
+public static System.Threading.Tasks.ValueTask<ModelContextProtocol.Protocol.ElicitResult> ElicitAsync(ModelContextProtocol.Server.McpServer server, CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource form, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `server` | `ModelContextProtocol.Server.McpServer` | The MCP server. |
+| `form` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource` | A form builder or field facade. |
+| `cancellationToken` | `System.Threading.CancellationToken` | The cancellation token. |
+
+#### Returns
+
+Type: `System.Threading.Tasks.ValueTask<ModelContextProtocol.Protocol.ElicitResult>`
+The untyped elicitation result.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *server* or *form* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+#### Examples
+
+Metadata-driven tools keep the builder and add a field per property name:
+```csharp
+var form = FormElicitation.Create($"How should we query {entitySet}?");
+form.String("filter").Title("$filter");
+form.Integer("top").Title("$top").Min(1).Max(1000).Default(20);
+var result = await server.ElicitAsync(form, cancellationToken);
+```
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ElicitAsync <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `ModelContextProtocol.Server.McpEssentials_Core_McpServerExtensions`</Note>
+
+Builds *form*, elicits it, and deserializes accepted content as *T*.
+
+#### Syntax
+
+```csharp
+public static System.Threading.Tasks.ValueTask<ModelContextProtocol.Protocol.ElicitResult<T>> ElicitAsync<T>(ModelContextProtocol.Server.McpServer server, CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource<T> form, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `server` | `ModelContextProtocol.Server.McpServer` | The MCP server. |
+| `form` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource<T>` | A typed form builder or field facade. |
+| `cancellationToken` | `System.Threading.CancellationToken` | The cancellation token. |
+
+#### Returns
+
+Type: `System.Threading.Tasks.ValueTask<ModelContextProtocol.Protocol.ElicitResult<T>>`
+The typed elicitation result.
+
+#### Type Parameters
+
+- `T` - The form type. Inferred from `String)`.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *server* or *form* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+#### Examples
+
+```csharp
+var result = await server.ElicitAsync(
+    FormElicitation.From&lt;ProductQuery&gt;("Query products").Exclude(x =&gt; x.Skip),
+    cancellationToken);
+if (result.IsAccepted) { Use(result.Content); }
+```
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ElicitAsync <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `ModelContextProtocol.Server.McpEssentials_Core_McpServerExtensions`</Note>
+
+Builds an untyped *form*, elicits it, and deserializes accepted content as *T*.
+
+#### Syntax
+
+```csharp
+public static System.Threading.Tasks.ValueTask<ModelContextProtocol.Protocol.ElicitResult<T>> ElicitAsync<T>(ModelContextProtocol.Server.McpServer server, CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource form, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `server` | `ModelContextProtocol.Server.McpServer` | The MCP server. |
+| `form` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource` | A form built field-by-field, typically from metadata. |
+| `cancellationToken` | `System.Threading.CancellationToken` | The cancellation token. |
+
+#### Returns
+
+Type: `System.Threading.Tasks.ValueTask<ModelContextProtocol.Protocol.ElicitResult<T>>`
+The typed elicitation result.
+
+#### Type Parameters
+
+- `T` - The CLR type to bind accepted content onto.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *server* or *form* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ElicitAsync <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `ModelContextProtocol.Server.McpEssentials_Core_McpServerExtensions`</Note>
+
+Builds *form*, elicits it, and deserializes accepted content as *T*
+using *options*.
+
+#### Syntax
+
+```csharp
+public static System.Threading.Tasks.ValueTask<ModelContextProtocol.Protocol.ElicitResult<T>> ElicitAsync<T>(ModelContextProtocol.Server.McpServer server, CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource form, System.Text.Json.JsonSerializerOptions options, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `server` | `ModelContextProtocol.Server.McpServer` | The MCP server. |
+| `form` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource` | Any form source, including an untyped builder filled from metadata. |
+| `options` | `System.Text.Json.JsonSerializerOptions?` | Serializer options. When [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null), properties are camelCase and enums use their member names.
+Native AOT callers should pass options from a [JsonSerializerContext](https://learn.microsoft.com/dotnet/api/system.text.json.serialization.jsonserializercontext). |
+| `cancellationToken` | `System.Threading.CancellationToken` | The cancellation token. |
+
+#### Returns
+
+Type: `System.Threading.Tasks.ValueTask<ModelContextProtocol.Protocol.ElicitResult<T>>`
+The typed elicitation result.
+
+#### Type Parameters
+
+- `T` - The form type.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *server* or *form* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+#### Remarks
+
+Use this overload when the form was built from string field names (EDM properties, query options)
+and you still want a CLR DTO back.
+

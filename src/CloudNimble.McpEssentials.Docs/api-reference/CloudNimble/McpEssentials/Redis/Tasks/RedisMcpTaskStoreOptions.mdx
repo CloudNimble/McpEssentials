@@ -1,0 +1,119 @@
+---
+title: RedisMcpTaskStoreOptions
+description: "Registration knobs for [RedisMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTaskStore)."
+icon: file-brackets-curly
+keywords: ['RedisMcpTaskStoreOptions', 'CloudNimble.McpEssentials.Redis.Tasks.RedisMcpTaskStoreOptions', 'CloudNimble.McpEssentials.Redis.Tasks', 'class', 'CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Redis.dll
+
+**Namespace:** CloudNimble.McpEssentials.Redis.Tasks
+
+**Inheritance:** CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Redis.Tasks.RedisMcpTaskStoreOptions
+```
+
+## Summary
+
+Registration knobs for [RedisMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTaskStore).
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance with Redis defaults: no request-path sweep
+([McpTaskStoreOptions.AutoSweep](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreOptions#autosweep) is [`false`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool)).
+Redis expires keys from [StoredMcpTask.DiscardAfter](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#discardafter).
+
+#### Syntax
+
+```csharp
+public RedisMcpTaskStoreOptions()
+```
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Database
+
+Gets or sets the Redis database index, or `-1` for the multiplexer default.
+
+#### Syntax
+
+```csharp
+public int Database { get; set; }
+```
+
+#### Property Value
+
+Type: `int`
+The default is `-1`.
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> KeyPrefix
+
+Gets or sets the key prefix. Task keys are `{prefix}:task:{taskId}`.
+The input channel is `{prefix}:task:input`.
+
+#### Syntax
+
+```csharp
+public string KeyPrefix { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+The default is `mcp`.
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> WaitReplicas
+
+Gets or sets how many replicas must acknowledge a write before
+`CreateTaskAsync` returns. Zero skips `WAIT` (standalone Redis).
+
+#### Syntax
+
+```csharp
+public int WaitReplicas { get; set; }
+```
+
+#### Property Value
+
+Type: `int`
+The default is 0.
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> WaitTimeout
+
+Gets or sets how long to wait for replica acknowledgement.
+
+#### Syntax
+
+```csharp
+public System.TimeSpan WaitTimeout { get; set; }
+```
+
+#### Property Value
+
+Type: `System.TimeSpan`
+The default is one second.
+
+## Methods
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ApplyTo <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override void ApplyTo(CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase store)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `store` | `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase` | - |
+

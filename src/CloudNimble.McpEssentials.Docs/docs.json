@@ -21,6 +21,7 @@
         "pages": [
           "guides/index",
           "guides/authenticated-tasks",
+          "guides/form-elicitation",
           {
             "group": "Stores",
             "root": "guides/stores/index",
@@ -80,14 +81,37 @@
                         "pages": [
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/index",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/ApplyResult",
-                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase",
-                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreOptions",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus",
-                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryAuthenticatedMcpTaskStore",
-                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore",
+                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus",
+                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryMcpTaskStorePlus",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTasksJsonContext",
+                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase",
+                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBuilder",
+                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreOptions",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskUserRequiredException",
-                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask"
+                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask",
+                          {
+                            "group": "Elicitations",
+                            "icon": "folder-tree",
+                            "pages": [
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/index",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/BooleanFieldBuilder",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/BooleanFieldBuilder",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/ChoiceFieldBuilder",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/ChoiceFieldBuilder",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitation",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/IFormElicitationSource",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/IFormElicitationSource",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/MultiChoiceFieldBuilder",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/MultiChoiceFieldBuilder",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/NumberFieldBuilder",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/NumberFieldBuilder",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/StringFieldBuilder",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/StringFieldBuilder"
+                            ]
+                          }
                         ]
                       }
                     ]
@@ -101,9 +125,28 @@
                         "icon": "folder-tree",
                         "pages": [
                           "api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/index",
-                          "api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/EntityFrameworkAuthenticatedTaskStore",
+                          "api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/EFCoreMcpTaskStore",
+                          "api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/EFCoreMcpTaskStoreOptions",
                           "api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/McpTaskEntity",
                           "api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/McpTaskEntityConfiguration"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "group": "Redis",
+                    "icon": "folder-tree",
+                    "pages": [
+                      {
+                        "group": "Tasks",
+                        "icon": "folder-tree",
+                        "pages": [
+                          "api-reference/CloudNimble/McpEssentials/Redis/Tasks/index",
+                          "api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisInputSignal",
+                          "api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTasksJsonContext",
+                          "api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTaskStore",
+                          "api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTaskStoreOptions",
+                          "api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisStoredMcpTask"
                         ]
                       }
                     ]
@@ -139,6 +182,34 @@
                       "api-reference/Microsoft/Extensions/DependencyInjection/IServiceCollection"
                     ]
                   }
+                ]
+              }
+            ]
+          },
+          {
+            "group": "ModelContextProtocol",
+            "icon": "folder-tree",
+            "pages": [
+              {
+                "group": "Extensions",
+                "icon": "folder-tree",
+                "pages": [
+                  {
+                    "group": "Tasks",
+                    "icon": "folder-tree",
+                    "pages": [
+                      "api-reference/ModelContextProtocol/Extensions/Tasks/index",
+                      "api-reference/ModelContextProtocol/Extensions/Tasks/IMcpTaskStore"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Server",
+                "icon": "folder-tree",
+                "pages": [
+                  "api-reference/ModelContextProtocol/Server/index",
+                  "api-reference/ModelContextProtocol/Server/McpServer"
                 ]
               }
             ]

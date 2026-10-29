@@ -1,6 +1,7 @@
 ---
-title: "McpEssentials"
+title: "Overview"
 description: "Useful extensions to the Model Context Protocol C# SDK that make it easier to build generic MCP servers."
+icon: "circle-exclamation"
 ---
 
 McpEssentials is CloudNimble's companion to the official [MCP C# SDK](https://csharp.sdk.modelcontextprotocol.io/). It fills the gaps that show up the moment you host a **generic** MCP server for more than one user: per-user task isolation, and a family of stores that persist those tasks in the engine you already run.
@@ -10,6 +11,9 @@ The first package is **McpEssentials.Core**. It ships `InMemoryMcpTaskStorePlus`
 <CardGroup cols={2}>
   <Card title="Authenticated tasks" icon="user-lock" href="/guides/authenticated-tasks">
     Stamp the logged-in user on create. Isolate later manipulation to that user.
+  </Card>
+  <Card title="Form elicitation" icon="clipboard-list" href="/guides/form-elicitation">
+    Fluent form schemas, ElicitAsync, and parking a form on a task.
   </Card>
   <Card title="Choose a store" icon="database" href="/guides/stores">
     Database, distributed cache, and eventing. Entity Framework Core works with any EF provider.

@@ -8,7 +8,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
 
     /// <summary>
-    /// Enables authenticated MCP Tasks on an <see cref="IMcpServerBuilder"/>.
+    /// Enables MCP Tasks on an <see cref="IMcpServerBuilder"/> with a plus store.
     /// </summary>
     public static class McpEssentials_Core_McpServerBuilderExtensions
     {

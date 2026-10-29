@@ -26,7 +26,8 @@
                         <Group Name="Guides" Icon="dog-leashed" Root="guides/index">
                             <Pages>
                                 guides/index;
-                                guides/authenticated-tasks
+                                guides/authenticated-tasks;
+                                guides/form-elicitation
                             </Pages>
                             <Groups>
                                 <Group Name="Stores" Icon="database" Root="guides/stores/index">
@@ -68,6 +69,7 @@
     <ItemGroup>
         <ProjectReference Include="..\CloudNimble.McpEssentials.Core\CloudNimble.McpEssentials.Core.csproj" />
         <ProjectReference Include="..\CloudNimble.McpEssentials.EntityFrameworkCore\CloudNimble.McpEssentials.EntityFrameworkCore.csproj" />
+        <ProjectReference Include="..\CloudNimble.McpEssentials.Redis\CloudNimble.McpEssentials.Redis.csproj" />
     </ItemGroup>
 
 </Project>

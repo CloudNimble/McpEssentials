@@ -1,6 +1,7 @@
 ---
-title: "Stores"
+title: "Overview"
 description: "Pick an authenticated MCP task store by the engine you already run: database, distributed cache, or eventing."
+icon: "circle-exclamation"
 keywords: ["IMcpTaskStore", "IMcpTaskStorePlus", "EntityFrameworkCore", "Redis", "PostgreSQL"]
 ---
 
@@ -39,7 +40,7 @@ Low-latency handles with native or host-owned expiry.
 
 | Package | How-to | Engine | Status |
 |---|---|---|---|
-| `McpEssentials.Redis` | [Redis](/guides/stores/redis) | StackExchange.Redis, `EXPIRE` plus pub/sub | Specified |
+| `McpEssentials.Redis` | [Redis](/guides/stores/redis) | StackExchange.Redis, `PEXPIREAT` plus pub/sub | Shipped |
 | `McpEssentials.DistributedCache` | [IDistributedCache](/guides/stores/distributed-cache) | Whatever you already registered as `IDistributedCache` | Specified |
 
 Prefer Redis when you need pub/sub for elicitation across nodes. Use `IDistributedCache` when that abstraction is already in DI and a host-supplied bus covers fan-out.
@@ -88,6 +89,13 @@ builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(connectionString
 builder.Services.AddMcpServer()
     .WithHttpTransport(o => o.Stateless = true)
     .WithTasksPlus<AppDbContext>(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+
+// Production (Redis)
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+    _ => ConnectionMultiplexer.Connect(redisConnectionString));
+builder.Services.AddMcpServer()
+    .WithHttpTransport(o => o.Stateless = true)
+    .WithRedisTasks(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
 ```
 
 Map `McpTasks` with `AddMcpTasksTable`. See [Entity Framework Core](/guides/stores/entity-framework-core) for which overload to call (`OnModelCreating` vs `AddDbContext`).

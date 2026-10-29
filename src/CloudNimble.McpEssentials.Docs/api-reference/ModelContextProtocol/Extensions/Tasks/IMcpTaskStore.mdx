@@ -1,0 +1,157 @@
+---
+title: IMcpTaskStore
+description: "Extension methods for IMcpTaskStore from ModelContextProtocol.Extensions.Tasks"
+icon: file-brackets-curly
+keywords: ['IMcpTaskStore', 'ModelContextProtocol.Extensions.Tasks.IMcpTaskStore', 'ModelContextProtocol.Extensions.Tasks', 'error']
+---
+
+## Definition
+
+**Assembly:** ModelContextProtocol.Extensions.Tasks.dll
+
+**Namespace:** ModelContextProtocol.Extensions.Tasks
+
+## Syntax
+
+```csharp
+ModelContextProtocol.Extensions.Tasks.IMcpTaskStore
+```
+
+## Summary
+
+This type is defined in ModelContextProtocol.Extensions.Tasks.
+
+## Methods
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetInputRequestsAsync <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `ModelContextProtocol.Extensions.Tasks.McpEssentials_Core_McpTaskStoreExtensions`</Note>
+
+Parks *form* on *taskId* under a generated request id.
+
+#### Syntax
+
+```csharp
+public static System.Threading.Tasks.Task SetInputRequestsAsync(ModelContextProtocol.Extensions.Tasks.IMcpTaskStore store, string taskId, CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource form, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `store` | `ModelContextProtocol.Extensions.Tasks.IMcpTaskStore` | The task store. |
+| `taskId` | `string` | The task identifier. |
+| `form` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource` | A form builder or field facade. |
+| `cancellationToken` | `System.Threading.CancellationToken` | The cancellation token. |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+A task that completes when the form is stored.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *store* or *form* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetInputRequestsAsync <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `ModelContextProtocol.Extensions.Tasks.McpEssentials_Core_McpTaskStoreExtensions`</Note>
+
+Parks *form* on *taskId* under *requestId*.
+
+#### Syntax
+
+```csharp
+public static System.Threading.Tasks.Task SetInputRequestsAsync(ModelContextProtocol.Extensions.Tasks.IMcpTaskStore store, string taskId, string requestId, CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource form, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `store` | `ModelContextProtocol.Extensions.Tasks.IMcpTaskStore` | The task store. |
+| `taskId` | `string` | The task identifier. |
+| `requestId` | `string` | The key used to match the later input response. |
+| `form` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource` | A form builder or field facade. |
+| `cancellationToken` | `System.Threading.CancellationToken` | The cancellation token. |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+A task that completes when the form is stored.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *store* or *form* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `ArgumentException` | Thrown when *requestId* is empty. |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetInputRequestsAsync <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `ModelContextProtocol.Extensions.Tasks.McpEssentials_Core_McpTaskStoreExtensions`</Note>
+
+Parks a single *request* on *taskId* under a generated request id.
+
+#### Syntax
+
+```csharp
+public static System.Threading.Tasks.Task SetInputRequestsAsync(ModelContextProtocol.Extensions.Tasks.IMcpTaskStore store, string taskId, ModelContextProtocol.Protocol.InputRequest request, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `store` | `ModelContextProtocol.Extensions.Tasks.IMcpTaskStore` | The task store. |
+| `taskId` | `string` | The task identifier. |
+| `request` | `ModelContextProtocol.Protocol.InputRequest` | The input request. |
+| `cancellationToken` | `System.Threading.CancellationToken` | The cancellation token. |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+A task that completes when the request is stored.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *store* or *request* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetInputRequestsAsync <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `ModelContextProtocol.Extensions.Tasks.McpEssentials_Core_McpTaskStoreExtensions`</Note>
+
+Parks a single *request* on *taskId* under *requestId*.
+
+#### Syntax
+
+```csharp
+public static System.Threading.Tasks.Task SetInputRequestsAsync(ModelContextProtocol.Extensions.Tasks.IMcpTaskStore store, string taskId, string requestId, ModelContextProtocol.Protocol.InputRequest request, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `store` | `ModelContextProtocol.Extensions.Tasks.IMcpTaskStore` | The task store. |
+| `taskId` | `string` | The task identifier. |
+| `requestId` | `string` | The key used to match the later input response. |
+| `request` | `ModelContextProtocol.Protocol.InputRequest` | The input request. |
+| `cancellationToken` | `System.Threading.CancellationToken` | The cancellation token. |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+A task that completes when the request is stored.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *store* or *request* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `ArgumentException` | Thrown when *requestId* is empty. |
+

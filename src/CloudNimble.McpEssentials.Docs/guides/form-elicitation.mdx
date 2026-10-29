@@ -1,0 +1,362 @@
+---
+title: "Form elicitation"
+description: "Build MCP form schemas fluently, send them with ElicitAsync, and park them on a task."
+icon: "clipboard-list"
+keywords: ["FormElicitation", "ElicitAsync", "IFormElicitationSource", "InputRequest", "Bind"]
+---
+
+MCP form elicitation asks the client for a **flat object of primitives**. [`FormElicitation`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitation) builds that schema. [`server.ElicitAsync(form)`](/api-reference/ModelContextProtocol/Server/McpServer) sends it. When the tool is running as an MCP task, the SDK interceptor parks the form on the task for you.
+
+<CardGroup cols={3}>
+  <Card title="Field by field" icon="keyboard">
+    `Create` plus named starters. Best when the shape comes from metadata.
+  </Card>
+  <Card title="From a CLR type" icon="cube">
+    `From<T>()` seeds public properties. Customize, then `Exclude`.
+  </Card>
+  <Card title="Inside a task" icon="hourglass-half">
+    `await server.ElicitAsync(form)` is enough. Do not call the store yourself.
+  </Card>
+</CardGroup>
+
+## Pick an authoring style
+
+<Tabs>
+  <Tab title="Field by field" icon="keyboard">
+    Start empty and add fields by wire name. Keep the builder when you add several fields in a loop.
+
+    ```csharp
+    var result = await server.ElicitAsync(
+        FormElicitation.Create("Tell us who you are")
+            .String("firstName").Required().MinLength(1)
+            .Email("email").Required()
+            .Integer("age").Between(18, 120),
+        cancellationToken);
+
+    if (!result.IsAccepted)
+    {
+        return "cancelled";
+    }
+
+    var name = result.Content!["firstName"].GetString();
+    ```
+  </Tab>
+  <Tab title="From a type" icon="cube">
+    Seed from a DTO, then override titles, bounds, and required. `T` is inferred on `ElicitAsync`.
+
+    ```csharp
+    public class ProductQuery
+    {
+        public string? Filter { get; set; }
+        public int Top { get; set; }
+        public int Skip { get; set; }
+    }
+
+    var result = await server.ElicitAsync(
+        FormElicitation.From<ProductQuery>("Query products")
+            .Exclude(x => x.Skip)
+            .Integer(x => x.Top).Min(1).Max(1000).Default(20),
+        cancellationToken);
+
+    if (result.IsAccepted)
+    {
+        Query(result.Content!);
+    }
+    ```
+  </Tab>
+  <Tab title="Metadata-driven" icon="diagram-project">
+    Keep the builder. Add a field per runtime name (EDM property, query option, action parameter). Bind accepted content onto a DTO if you have one.
+
+    ```csharp
+    var form = FormElicitation.Create($"How should we query {entitySet}?");
+    form.String("filter").Title("$filter").Description("OData filter expression");
+    form.Integer("top").Title("$top").Min(1).Max(1000).Default(20);
+
+    var result = await server.ElicitAsync<ProductQuery>(form, cancellationToken);
+    if (result.IsAccepted)
+    {
+        Query(result.Content!);
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Tip>
+`Create`, `From<T>`, and every field facade implement [`IFormElicitationSource`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/IFormElicitationSource). The current node on the chain is a valid argument to `ElicitAsync` and `SetInputRequestsAsync`.
+</Tip>
+
+## Start a form
+
+<CodeGroup>
+
+```csharp Create
+var form = FormElicitation.Create("Need a shipping address");
+```
+
+```csharp From a type
+var form = FormElicitation.From<CheckoutForm>("Confirm checkout");
+```
+
+```csharp Confirm dialog
+var result = await server.ElicitAsync(
+    FormElicitation.From<EmptyForm>("Delete this order?"),
+    cancellationToken);
+```
+
+</CodeGroup>
+
+`From<T>().Build()` with no chain is a valid form. Zero fields is a confirm dialog: the client shows the message and accept / decline.
+
+`Create(null)` and `From<T>(null)` throw `ArgumentNullException`. Whitespace messages are allowed at create and throw from `Build()`.
+
+## Field kinds
+
+Starters camelCase the name (`FirstName` → `firstName`) and Titleize the label (`TimeToLive` → `"Time To Live"`). `.Title(...)` overrides the label.
+
+<AccordionGroup>
+  <Accordion title="String, email, URI, date" icon="font">
+    ```csharp
+    form.String("notes").MinLength(1).MaxLength(400).Default("n/a");
+    form.Email("email").Required();
+    form.Uri("homepage");
+    form.Date("birthday");       // format date
+    form.DateTime("startsAt");   // format date-time
+    ```
+
+    `String` after `Email` on the same name clears the format. `Email` / `Uri` / `Date` / `DateTime` on an existing string field set the format in place.
+  </Accordion>
+  <Accordion title="Integer and number" icon="hashtag">
+    ```csharp
+    form.Integer("age").Min(0).Max(130).Default(42);
+    form.Number("price").Between(0.5, 99.9);
+    ```
+
+    `Between` throws immediately when min &gt; max. Setting `Min` then `Max` inverted throws from `Build()`.
+  </Accordion>
+  <Accordion title="Boolean" icon="toggle-on">
+    ```csharp
+    form.Boolean("subscribe").Default(true).Optional();
+    ```
+  </Accordion>
+  <Accordion title="Single-select and multi-select" icon="list-check">
+    Untitled options emit `enum`. Any titled option emits `oneOf` / `anyOf` with `const` + `title`.
+
+    <CodeGroup>
+
+    ```csharp Untitled
+    form.Choice("color")
+        .Option("red")
+        .Option("blue")
+        .Default("red");
+    ```
+
+    ```csharp Titled
+    form.Choice("color")
+        .Option("red", "Crimson")
+        .Option("blue", "Blue")
+        .Default("red");
+    ```
+
+    ```csharp Multi-select
+    form.MultiChoice("roles")
+        .Option("admin", "Administrator")
+        .Option("user", "User")
+        .MinItems(1)
+        .MaxItems(2)
+        .Default("user");
+    ```
+
+    </CodeGroup>
+
+    Duplicate option values throw immediately. An empty option list throws from `Build()`. A default that is not in the list throws from `Build()`.
+  </Accordion>
+</AccordionGroup>
+
+## Required vs optional
+
+<Tabs>
+  <Tab title="C# nullability" icon="code">
+    Non-nullable properties and the `required` keyword seed as required. `string?` and `int?` seed as optional. `.Required()` / `.Optional()` override after seed.
+
+    ```csharp
+    public class SignupForm
+    {
+        public required string Code { get; set; }
+        public required string? Note { get; set; } // still required
+        public string? Hint { get; set; }          // optional
+        public int Age { get; set; }               // required
+        public int? Score { get; set; }            // optional
+    }
+    ```
+  </Tab>
+  <Tab title="Fluent override" icon="sliders">
+    ```csharp
+    FormElicitation.From<SignupForm>("Sign up")
+        .String(x => x.Code).Optional()
+        .String(x => x.Hint).Required();
+    ```
+  </Tab>
+</Tabs>
+
+## From a type
+
+`From<T>()` walks public instance readable properties. Unmappable members are skipped. Two properties that camelCase to the same wire name throw.
+
+<AccordionGroup>
+  <Accordion title="What maps" icon="check">
+    | CLR | Field |
+    |---|---|
+    | `string`, `Guid`, `char` | string |
+    | `Uri` | string, format `uri` |
+    | `DateOnly` | string, format `date` |
+    | `DateTime`, `DateTimeOffset` | string, format `date-time` |
+    | `bool` | boolean |
+    | integer types (`byte` … `ulong`) | integer |
+    | `float`, `double`, `decimal` | number |
+    | enum | single-select (titled from the member names) |
+    | `[Flags]` enum, `TEnum[]`, `IEnumerable<TEnum>` | multi-select |
+  </Accordion>
+  <Accordion title="What is skipped" icon="ban">
+    Nested objects, `Dictionary<,>`, `object`, `TimeSpan`, `byte[]`, `string[]`, `int[]`, indexers, write-only properties, static properties. `Exclude` of a skipped member is a successful no-op.
+  </Accordion>
+  <Accordion title="Reconfigure and extra fields" icon="pen">
+    ```csharp
+    FormElicitation.From<KitchenSinkForm>("Fill this out")
+        .Exclude(x => x.Nickname)
+        .String(x => x.Name).Title("Full name").MinLength(1)
+        .Email(x => x.Homepage)          // reconfigure a seeded URI as email
+        .Integer("extraCount").Min(0);   // extra string-named field
+    ```
+
+    Calling a starter for an existing name updates that field in place. A different kind resets kind-specific constraints and keeps name, title, description, and required.
+  </Accordion>
+</AccordionGroup>
+
+## Send the form
+
+<Tabs>
+  <Tab title="Untyped" icon="brackets-curly">
+    Content is `IDictionary<string, JsonElement>` keyed by camelCase wire names.
+
+    ```csharp
+    var result = await server.ElicitAsync(
+        FormElicitation.Create("Need a name").String("name").Required(),
+        cancellationToken);
+
+    if (result.IsAccepted)
+    {
+        var name = result.Content!["name"].GetString();
+    }
+    ```
+  </Tab>
+  <Tab title="Typed From&lt;T&gt;" icon="cube">
+    `T` is inferred. Cancel and decline leave `Content` default.
+
+    ```csharp
+    var result = await server.ElicitAsync(
+        FormElicitation.From<ProductQuery>("Query products"),
+        cancellationToken);
+
+    if (result.IsAccepted)
+    {
+        Use(result.Content!);
+    }
+    ```
+  </Tab>
+  <Tab title="Bind a dynamic form" icon="link">
+    Specify `T` when the form was built from strings.
+
+    ```csharp
+    var result = await server.ElicitAsync<ProductQuery>(form, cancellationToken);
+    ```
+
+    Or bind later:
+
+    ```csharp
+    var typed = FormElicitation.Bind<ProductQuery>(raw);
+    ```
+  </Tab>
+</Tabs>
+
+Wire names are camelCase. Enum members match `Enum.GetNames` (`BlueGreen`, not `blueGreen`). Native AOT callers pass `JsonSerializerOptions` from a `JsonSerializerContext`:
+
+```csharp
+var result = await server.ElicitAsync<ProductQuery>(
+    form,
+    ProductQueryJsonContext.Default.Options,
+    cancellationToken);
+```
+
+## Tasks
+
+A tool that `await`s `server.ElicitAsync(form)` inside a task **does not call the store**. The SDK interceptor writes the form as an [`InputRequest`](/api-reference/ModelContextProtocol/Extensions/Tasks/IMcpTaskStore) and resumes when the client responds.
+
+<Steps>
+  <Step title="Tool awaits ElicitAsync">
+    Same call as a non-task tool. Use the `McpServer` from the request context.
+  </Step>
+  <Step title="Interceptor parks the form">
+    The task moves to `InputRequired`. The client polls `tasks/get` and fulfills the elicitation.
+  </Step>
+  <Step title="Client responds">
+    `InputResponseReceived` completes the await. Bind or read `result.Content` and continue the tool.
+  </Step>
+</Steps>
+
+Park a form yourself from a background worker or when you need a stable request id:
+
+<CodeGroup>
+
+```csharp Generated id
+await store.SetInputRequestsAsync(taskId, form);
+```
+
+```csharp Explicit id
+await store.SetInputRequestsAsync(taskId, "create-product", form);
+```
+
+```csharp InputRequest
+await store.SetInputRequestsAsync(taskId, form.ToInputRequest());
+```
+
+</CodeGroup>
+
+`ToInputRequest()` is the same payload `ElicitAsync` sends. Omit the request id to get a 32-character hex key.
+
+## Validation that throws
+
+These fail at the fluent call or at `Build()` / `ElicitAsync` / `SetInputRequestsAsync`, not after the client answers.
+
+| When | Exception |
+|---|---|
+| Empty or whitespace field name | `ArgumentException` |
+| Negative `MinLength` / `MaxLength` / `MinItems` / `MaxItems` | `ArgumentOutOfRangeException` |
+| `Between` with min &gt; max | `ArgumentException` |
+| Duplicate option value | `InvalidOperationException` |
+| Empty option value or titled option with blank title | `ArgumentException` |
+| Whitespace message at `Build` | `InvalidOperationException` |
+| Choice with no options | `InvalidOperationException` |
+| Default not in the option list | `InvalidOperationException` |
+| `minLength` &gt; `maxLength` (or min/max, minItems/maxItems) at `Build` | `InvalidOperationException` |
+| Two `From<T>` properties that camelCase to the same name | `InvalidOperationException` |
+
+<Note>
+An empty property list is legal. Nested property access in `Exclude` / expression starters (`x => x.Address.City`) throws `ArgumentException`.
+</Note>
+
+## API
+
+<CardGroup cols={2}>
+  <Card title="FormElicitation" icon="bolt" href="/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitation">
+    `Create`, `From<T>`, and `Bind<T>`.
+  </Card>
+  <Card title="FormElicitationBuilder" icon="code-branch" href="/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder">
+    Field starters, `Build`, `ToInputRequest`.
+  </Card>
+  <Card title="McpServer.ElicitAsync" icon="paper-plane" href="/api-reference/ModelContextProtocol/Server/McpServer">
+    Send a form. Typed overloads infer `T` or bind a dynamic form.
+  </Card>
+  <Card title="IMcpTaskStore" icon="box-archive" href="/api-reference/ModelContextProtocol/Extensions/Tasks/IMcpTaskStore">
+    `SetInputRequestsAsync(taskId, form)` when you park the form yourself.
+  </Card>
+</CardGroup>

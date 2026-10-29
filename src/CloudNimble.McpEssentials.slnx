@@ -26,10 +26,12 @@
   </Folder>
   <Folder Name="/Stores/">
     <Project Path="CloudNimble.McpEssentials.EntityFrameworkCore/CloudNimble.McpEssentials.EntityFrameworkCore.csproj" />
+    <Project Path="CloudNimble.McpEssentials.Redis/CloudNimble.McpEssentials.Redis.csproj" />
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="CloudNimble.McpEssentials.Tests.AspNetCore/CloudNimble.McpEssentials.Tests.AspNetCore.csproj" />
     <Project Path="CloudNimble.McpEssentials.Tests.Core/CloudNimble.McpEssentials.Tests.Core.csproj" />
     <Project Path="CloudNimble.McpEssentials.Tests.EntityFrameworkCore/CloudNimble.McpEssentials.Tests.EntityFrameworkCore.csproj" />
+    <Project Path="CloudNimble.McpEssentials.Tests.Redis/CloudNimble.McpEssentials.Tests.Redis.csproj" />
   </Folder>
 </Solution>

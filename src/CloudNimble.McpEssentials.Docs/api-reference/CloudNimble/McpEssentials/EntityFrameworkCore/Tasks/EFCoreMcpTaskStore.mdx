@@ -1,9 +1,8 @@
 ---
-title: EntityFrameworkAuthenticatedTaskStore
-description: "An [IPerUserMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore) that persists snapshots on `TContext.Set&lt;McpTaskEntity..."
+title: EFCoreMcpTaskStore
+description: "An [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) that persists snapshots on `TContext.Set&lt;McpTaskEntity&gt;()..."
 icon: code-branch
-sidebarTitle: EntityFrameworkAuthenticatedTaskStore
-keywords: ['EntityFrameworkAuthenticatedTaskStore', 'CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.EntityFrameworkAuthenticatedTaskStore<TContext>', 'CloudNimble.McpEssentials.EntityFrameworkCore.Tasks', 'class', 'CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase', 'System.IDisposable']
+keywords: ['EFCoreMcpTaskStore', 'CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.EFCoreMcpTaskStore<TContext>', 'CloudNimble.McpEssentials.EntityFrameworkCore.Tasks', 'class', 'CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase', 'System.IDisposable']
 ---
 
 ## Definition
@@ -12,17 +11,17 @@ keywords: ['EntityFrameworkAuthenticatedTaskStore', 'CloudNimble.McpEssentials.E
 
 **Namespace:** CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
 
-**Inheritance:** CloudNimble.McpEssentials.Core.Tasks.AuthenticatedMcpTaskStoreBase
+**Inheritance:** CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase
 
 ## Syntax
 
 ```csharp
-CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.EntityFrameworkAuthenticatedTaskStore<TContext>
+CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.EFCoreMcpTaskStore<TContext>
 ```
 
 ## Summary
 
-An [IPerUserMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore) that persists snapshots on
+An [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) that persists snapshots on
 `TContext.Set&lt;McpTaskEntity&gt;()`. Register as a singleton. The host registers
 *TContext* as scoped (standard `AddDbContext`); this store opens
 a scope per operation.
@@ -31,9 +30,9 @@ a scope per operation.
 
 Client-facing operations require a current user and treat another user's task as missing.
 Server-side completion skips the live-user check. Optional [IMcpTaskInputSignalBus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus)
-fans [AuthenticatedMcpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase#inputresponsereceived) out to other nodes.
+fans [McpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase#inputresponsereceived) out to other nodes.
 The SDK `WithTasks` API captures the store instance before `Build()`; use
-`WithEntityFrameworkTasks` so the provider is stamped on first use.
+`WithTasksPlus` so the provider is stamped on first use.
 
 ## Type Parameters
 
@@ -46,12 +45,12 @@ project must not reference this package.
 
 ### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
 
-Initializes a new instance of the `EntityFrameworkAuthenticatedTaskStore`1` class.
+Initializes a new instance of the `EFCoreMcpTaskStore`1` class.
 
 #### Syntax
 
 ```csharp
-public EntityFrameworkAuthenticatedTaskStore(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory, System.Func<string> getCurrentUserId, CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus signalBus = null)
+public EFCoreMcpTaskStore(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory, System.Func<string> getCurrentUserId, CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus signalBus = null)
 ```
 
 #### Parameters
@@ -70,13 +69,13 @@ public EntityFrameworkAuthenticatedTaskStore(Microsoft.Extensions.DependencyInje
 
 ### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
 
-Initializes a new instance of the `EntityFrameworkAuthenticatedTaskStore`1` class
+Initializes a new instance of the `EFCoreMcpTaskStore`1` class
 that always uses *userId*.
 
 #### Syntax
 
 ```csharp
-public EntityFrameworkAuthenticatedTaskStore(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory, string userId, CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus signalBus = null)
+public EFCoreMcpTaskStore(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory, string userId, CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus signalBus = null)
 ```
 
 #### Parameters
@@ -89,13 +88,13 @@ public EntityFrameworkAuthenticatedTaskStore(Microsoft.Extensions.DependencyInje
 
 ### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
 
-Initializes a new instance of the `EntityFrameworkAuthenticatedTaskStore`1` class
+Initializes a new instance of the `EFCoreMcpTaskStore`1` class
 that resolves the user from a [ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.claimsprincipal).
 
 #### Syntax
 
 ```csharp
-public EntityFrameworkAuthenticatedTaskStore(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory, System.Func<System.Security.Claims.ClaimsPrincipal> getPrincipal, CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus signalBus = null)
+public EFCoreMcpTaskStore(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory, System.Func<System.Security.Claims.ClaimsPrincipal> getPrincipal, CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus signalBus = null)
 ```
 
 #### Parameters
@@ -114,13 +113,13 @@ public EntityFrameworkAuthenticatedTaskStore(Microsoft.Extensions.DependencyInje
 
 ### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
 
-Initializes a new instance of the `EntityFrameworkAuthenticatedTaskStore`1` class
+Initializes a new instance of the `EFCoreMcpTaskStore`1` class
 with deferred factories so the MCP server builder can capture the store before `Build()`.
 
 #### Syntax
 
 ```csharp
-public EntityFrameworkAuthenticatedTaskStore(System.Func<Microsoft.Extensions.DependencyInjection.IServiceScopeFactory> getScopeFactory, System.Func<string> getCurrentUserId, System.Func<CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus> getSignalBus = null)
+public EFCoreMcpTaskStore(System.Func<Microsoft.Extensions.DependencyInjection.IServiceScopeFactory> getScopeFactory, System.Func<string> getCurrentUserId, System.Func<CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus> getSignalBus = null)
 ```
 
 #### Parameters

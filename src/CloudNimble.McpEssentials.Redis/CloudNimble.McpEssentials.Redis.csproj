@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net11.0;net10.0;net9.0;net8.0;</TargetFrameworks>
+        <DocumentationFile>$(DocumentationFile)\$(AssemblyName).xml</DocumentationFile>
+        <Title>McpEssentials — Redis</Title>
+        <Description>Redis authenticated MCP task store. Native EXPIRE from DiscardAfter and pub/sub for multi-node elicitation.</Description>
+        <PackageTags>mcp;modelcontextprotocol;tasks;authentication;redis;stackexchange;cloudnimble</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="StackExchange.Redis" Version="2.*" />
+        <ProjectReference Include="..\CloudNimble.McpEssentials.Core\CloudNimble.McpEssentials.Core.csproj" />
+    </ItemGroup>
+
+</Project>

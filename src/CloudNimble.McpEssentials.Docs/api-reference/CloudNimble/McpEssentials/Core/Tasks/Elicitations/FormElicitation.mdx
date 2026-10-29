@@ -1,0 +1,121 @@
+---
+title: FormElicitation
+description: "Starts a fluent MCP form elicitation. `String)` is untyped; `String)` seeds fields from a CLR type, then the same chain customizes them. `JsonSerializerOptio..."
+icon: bolt
+tag: "STATIC"
+keywords: ['FormElicitation', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitation', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'class', 'System.Object']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Core.dll
+
+**Namespace:** CloudNimble.McpEssentials.Core.Tasks.Elicitations
+
+**Inheritance:** System.Object
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitation
+```
+
+## Summary
+
+Starts a fluent MCP form elicitation. `String)` is untyped;
+`String)` seeds fields from a CLR type, then the same chain customizes them.
+`JsonSerializerOptions)` projects an accepted result onto that type.
+
+## Methods
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Bind
+
+Projects accepted form content onto *T*. Cancel and decline return default content.
+
+#### Syntax
+
+```csharp
+public static ModelContextProtocol.Protocol.ElicitResult<T> Bind<T>(ModelContextProtocol.Protocol.ElicitResult result, System.Text.Json.JsonSerializerOptions options = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `result` | `ModelContextProtocol.Protocol.ElicitResult` | The untyped elicitation result. |
+| `options` | `System.Text.Json.JsonSerializerOptions?` | Serializer options. When omitted, properties are camelCase and enums use their member names.
+Native AOT callers should pass options from a [JsonSerializerContext](https://learn.microsoft.com/dotnet/api/system.text.json.serialization.jsonserializercontext). |
+
+#### Returns
+
+Type: `ModelContextProtocol.Protocol.ElicitResult<T>`
+A typed result with the same action as *result*.
+
+#### Type Parameters
+
+- `T` - The form type. Property names match camelCase wire names.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *result* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Create
+
+Starts an empty form with *message* as the prompt.
+
+#### Syntax
+
+```csharp
+public static CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder Create(string message)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `message` | `string` | The message presented to the user. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`
+An untyped form builder.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *message* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> From
+
+Starts a form seeded from the public instance properties of *T*.
+
+#### Syntax
+
+```csharp
+public static CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder<T> From<T>(string message)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `message` | `string` | The message presented to the user. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder<T>`
+A typed form builder.
+
+#### Type Parameters
+
+- `T` - The form type. Unmappable properties are skipped.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *message* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
