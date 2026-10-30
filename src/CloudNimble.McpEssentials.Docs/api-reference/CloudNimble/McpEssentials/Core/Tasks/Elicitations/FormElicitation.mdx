@@ -119,3 +119,58 @@ A typed form builder.
 |-----------|-------------|
 | `ArgumentNullException` | Thrown when *message* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
 
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> FromDefinition
+
+Rebuilds an untyped builder from a snapshot.
+
+#### Syntax
+
+```csharp
+public static CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder FromDefinition(CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormDefinition definition)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `definition` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormDefinition` | The snapshot. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`
+A builder whose [FormElicitationBuilder.Build](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder#build) matches the snapshot.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *definition* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `InvalidOperationException` | Thrown when a field name is duplicated or a facet is invalid. |
+
+#### Examples
+
+```csharp
+var builder = FormElicitation.FromDefinition(FormXml.Parse(xml));
+```
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ParseXml
+
+Rebuilds an untyped builder from a compact XML island.
+
+#### Syntax
+
+```csharp
+public static CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder ParseXml(string xml)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `xml` | `string` | The island text. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`
+A builder whose [FormElicitationBuilder.Build](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder#build) matches the island.
+

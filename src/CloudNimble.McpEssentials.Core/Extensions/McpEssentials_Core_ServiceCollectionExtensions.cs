@@ -1,6 +1,7 @@
 using System;
 using System.Security.Claims;
 using CloudNimble.McpEssentials.Core.Tasks;
+using CloudNimble.McpEssentials.Core.Tasks.Elicitations;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using ModelContextProtocol.Extensions.Tasks;
 
@@ -88,6 +89,53 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IMcpTaskStorePlus>(sp => sp.GetRequiredService<InMemoryMcpTaskStorePlus>());
             services.TryAddSingleton<IMcpTaskStore>(sp => sp.GetRequiredService<InMemoryMcpTaskStorePlus>());
 
+            return services;
+        }
+
+        /// <summary>
+        /// Registers <paramref name="form"/> as a keyed singleton <see cref="IFormElicitationSource"/>
+        /// named <paramref name="name"/>. Hosts resolve it the same way they resolve a named
+        /// <c>HttpClient</c>.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <param name="name">The keyed-DI name.</param>
+        /// <param name="form">The form instance. The same instance may be registered under more than one name.</param>
+        /// <returns>The service collection.</returns>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown when <paramref name="services"/> or <paramref name="form"/> is <see langword="null"/>.
+        /// </exception>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="name"/> is empty.</exception>
+        /// <example>
+        /// <code>
+        /// services.AddFormElicitation("ship",
+        ///     FormElicitation.Create("Ship this order")
+        ///         .String("trackingNumber").Required());
+        /// </code>
+        /// </example>
+        /// <remarks>
+        /// A duplicate registration of the same name throws. Tests that need to replace a form
+        /// build a fresh collection.
+        /// </remarks>
+        public static IServiceCollection AddFormElicitation(
+            this IServiceCollection services,
+            string name,
+            IFormElicitationSource form)
+        {
+            ArgumentNullException.ThrowIfNull(services);
+            ArgumentException.ThrowIfNullOrWhiteSpace(name);
+            ArgumentNullException.ThrowIfNull(form);
+
+            foreach (var descriptor in services)
+            {
+                if (descriptor.ServiceType == typeof(IFormElicitationSource)
+                    && descriptor.ServiceKey is string existing
+                    && string.Equals(existing, name, StringComparison.Ordinal))
+                {
+                    throw new InvalidOperationException($"A form named '{name}' is already registered.");
+                }
+            }
+
+            services.AddKeyedSingleton<IFormElicitationSource>(name, form);
             return services;
         }
 

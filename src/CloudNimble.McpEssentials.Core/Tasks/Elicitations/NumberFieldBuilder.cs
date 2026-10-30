@@ -173,6 +173,12 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// <inheritdoc cref="FormElicitationBuilder.ToInputRequest"/>
         public virtual InputRequest ToInputRequest() => Form.ToInputRequest();
 
+        /// <inheritdoc cref="FormElicitationBuilder.ToDefinition"/>
+        public virtual FormDefinition ToDefinition() => Form.ToDefinition();
+
+        /// <inheritdoc cref="FormElicitationBuilder.ToXml"/>
+        public virtual string ToXml(string? xmlNamespace = null) => Form.ToXml(xmlNamespace);
+
         #endregion
 
     }

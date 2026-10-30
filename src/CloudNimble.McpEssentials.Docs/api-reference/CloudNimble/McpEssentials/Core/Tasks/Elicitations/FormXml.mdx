@@ -1,0 +1,102 @@
+---
+title: FormXml
+description: "Closed AOT codec for the compact `Form` / `Field` / `Option` island. Uses [XmlWriter](https://learn.microsoft.com/dotnet/api/system.xml.xmlwriter) / [XmlRead..."
+icon: bolt
+tag: "STATIC"
+keywords: ['FormXml', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormXml', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'class', 'System.Object']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Core.dll
+
+**Namespace:** CloudNimble.McpEssentials.Core.Tasks.Elicitations
+
+**Inheritance:** System.Object
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormXml
+```
+
+## Summary
+
+Closed AOT codec for the compact `Form` / `Field` / `Option` island.
+Uses [XmlWriter](https://learn.microsoft.com/dotnet/api/system.xml.xmlwriter) / [XmlReader](https://learn.microsoft.com/dotnet/api/system.xml.xmlreader). Does not use
+`XmlSerializer`, sgen, or reflection over the form type.
+
+## Remarks
+
+Readers match [LocalName](https://learn.microsoft.com/dotnet/api/system.xml.xmlreader.localname) only. Writers emit `xmlns`
+when `xmlNamespace` is supplied. DTD processing is prohibited. Comments are
+ignored. Processing instructions inside `Form`, `Field`, or `Option`
+are unexpected nodes.
+
+## Examples
+
+```csharp
+var xml = FormXml.Serialize(form.ToDefinition());
+var definition = FormXml.Parse(xml);
+```
+
+## Methods
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Parse
+
+Reads a compact form island. Namespace prefixes are ignored.
+
+#### Syntax
+
+```csharp
+public static CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormDefinition Parse(string xml)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `xml` | `string` | The island text. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormDefinition`
+The snapshot.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentException` | Thrown when *xml* is empty. |
+| `InvalidOperationException` | Thrown when the island is not a valid form. |
+| `XmlException` | Thrown when the text is not well-formed XML or contains a DTD. |
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Serialize
+
+Writes a compact form island. Omits the XML declaration.
+
+#### Syntax
+
+```csharp
+public static string Serialize(CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormDefinition definition, string xmlNamespace = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `definition` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormDefinition` | The snapshot to write. |
+| `xmlNamespace` | `string?` | Optional namespace URI placed on `Form` as `xmlns`.
+OData passes the MCP vocabulary document URI. |
+
+#### Returns
+
+Type: `string`
+The island text.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *definition* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+

@@ -22,6 +22,19 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// <returns>An elicitation input request for task attachment.</returns>
         InputRequest ToInputRequest();
 
+        /// <summary>
+        /// Snapshots this form as an immutable definition.
+        /// </summary>
+        /// <returns>The field graph independent of the fluent builder.</returns>
+        FormDefinition ToDefinition();
+
+        /// <summary>
+        /// Serializes this form as a compact XML island.
+        /// </summary>
+        /// <param name="xmlNamespace">Optional xmlns on the <c>Form</c> element.</param>
+        /// <returns>The island text, with no XML declaration.</returns>
+        string ToXml(string? xmlNamespace = null);
+
     }
 
 }

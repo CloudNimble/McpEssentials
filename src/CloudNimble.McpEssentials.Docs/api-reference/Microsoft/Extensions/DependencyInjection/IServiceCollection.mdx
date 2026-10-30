@@ -27,6 +27,53 @@ See [Microsoft documentation](https://learn.microsoft.com/dotnet/api/microsoft.e
 
 ## Methods
 
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddFormElicitation <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Core_ServiceCollectionExtensions`</Note>
+
+Registers *form* as a keyed singleton [IFormElicitationSource](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/IFormElicitationSource)
+named *name*. Hosts resolve it the same way they resolve a named
+`HttpClient`.
+
+#### Syntax
+
+```csharp
+public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddFormElicitation(Microsoft.Extensions.DependencyInjection.IServiceCollection services, string name, CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource form)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
+| `name` | `string` | The keyed-DI name. |
+| `form` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource` | The form instance. The same instance may be registered under more than one name. |
+
+#### Returns
+
+Type: `Microsoft.Extensions.DependencyInjection.IServiceCollection`
+The service collection.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *services* or *form* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `ArgumentException` | Thrown when *name* is empty. |
+
+#### Examples
+
+```csharp
+services.AddFormElicitation("ship",
+    FormElicitation.Create("Ship this order")
+        .String("trackingNumber").Required());
+```
+
+#### Remarks
+
+A duplicate registration of the same name throws. Tests that need to replace a form
+build a fresh collection.
+
 ### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddInMemoryMcpTaskStorePlus <Badge color="green">Extension</Badge>
 
 <Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Core_ServiceCollectionExtensions`</Note>

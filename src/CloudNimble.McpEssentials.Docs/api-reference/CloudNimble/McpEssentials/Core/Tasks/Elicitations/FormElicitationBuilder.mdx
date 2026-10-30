@@ -114,7 +114,66 @@ public string Message { get; }
 
 Type: `string`
 
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Name <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`</Note>
+
+Gets or sets the optional keyed-DI name published on the XML island.
+
+#### Syntax
+
+```csharp
+public string Name { get; set; }
+```
+
+#### Property Value
+
+Type: `string?`
+
 ## Methods
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ApplyCommon <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`</Note>
+
+Applies common title, description, and required facets, overwriting Titleize defaults.
+
+#### Syntax
+
+```csharp
+internal static void ApplyCommon(CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition field, CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationField target)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `field` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition` | The snapshot field. |
+| `target` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationField` | The live field created by a starter. |
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ApplyField <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`</Note>
+
+Applies one snapshot field onto this builder using the public starters.
+
+#### Syntax
+
+```csharp
+internal void ApplyField(CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition field)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `field` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition` | The snapshot field. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `InvalidOperationException` | Thrown when the field type or format is unknown. |
 
 ### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Boolean
 
@@ -912,6 +971,81 @@ public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuil
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder`
 The string field facade.
 
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToDefinition <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`</Note>
+
+Snapshots this form as an immutable definition.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormDefinition ToDefinition()
+```
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormDefinition`
+The field graph independent of the fluent builder.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `InvalidOperationException` | Thrown when the message is blank or a field is invalid. |
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToFieldDefinition <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`</Note>
+
+Projects a live field onto an immutable snapshot, marking default options as selected.
+
+#### Syntax
+
+```csharp
+internal static CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition ToFieldDefinition(CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationField field)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `field` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationField` | The live field. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition`
+The snapshot field.
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToFieldType <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`</Note>
+
+Maps a live kind onto the public snapshot type.
+
+#### Syntax
+
+```csharp
+internal static CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldType ToFieldType(CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationFieldKind kind)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `kind` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationFieldKind` | The live kind. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldType`
+The snapshot type.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `InvalidOperationException` | Thrown when *kind* is unknown. |
+
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToInputRequest <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`</Note>
@@ -942,6 +1076,29 @@ public virtual string ToString()
 #### Returns
 
 Type: `string?`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToXml <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`</Note>
+
+Serializes this form as a compact XML island.
+
+#### Syntax
+
+```csharp
+public virtual string ToXml(string xmlNamespace = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `xmlNamespace` | `string?` | Optional xmlns on the `Form` element. |
+
+#### Returns
+
+Type: `string`
+The island text, with no XML declaration.
 
 ### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Uri
 

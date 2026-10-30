@@ -1,5 +1,6 @@
 using CloudNimble.Breakdance.Extensions.MSTest2;
 using CloudNimble.McpEssentials.Core.Tasks;
+using CloudNimble.McpEssentials.Core.Tasks.Elicitations;
 using CloudNimble.McpEssentials.Tests.Core.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -367,6 +368,97 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
             Action act = () => builder.WithTasksPlus((Func<IServiceProvider, ClaimsPrincipal?>)(_ => null));
 
             act.Should().Throw<ArgumentNullException>().WithParameterName("builder");
+        }
+
+        [TestMethod]
+        public void AddFormElicitation_ResolvesKeyedSingleton()
+        {
+            var form = FormElicitation.Create("Ship this order")
+                .String("trackingNumber").Required();
+            var services = new ServiceCollection();
+            services.AddFormElicitation("ship", form);
+
+            using var provider = services.BuildServiceProvider();
+            var resolved = provider.GetRequiredKeyedService<IFormElicitationSource>("ship");
+
+            resolved.Should().BeSameAs(form);
+            resolved.Build().Message.Should().Be("Ship this order");
+        }
+
+        [TestMethod]
+        public void AddFormElicitation_SameInstance_CanRegisterUnderTwoNames()
+        {
+            var form = FormElicitation.Create("Ship this order").String("trackingNumber").Required();
+            var services = new ServiceCollection();
+            services.AddFormElicitation("ship", form);
+            services.AddFormElicitation("dispatch", form);
+
+            using var provider = services.BuildServiceProvider();
+            provider.GetRequiredKeyedService<IFormElicitationSource>("ship").Should().BeSameAs(form);
+            provider.GetRequiredKeyedService<IFormElicitationSource>("dispatch").Should().BeSameAs(form);
+        }
+
+        [TestMethod]
+        public void AddFormElicitation_BlankName_ThrowsArgumentException()
+        {
+            var services = new ServiceCollection();
+            var form = FormElicitation.Create("m");
+            var act = () => services.AddFormElicitation("  ", form);
+            act.Should().Throw<ArgumentException>().WithParameterName("name");
+        }
+
+        [TestMethod]
+        public void AddFormElicitation_NullForm_ThrowsArgumentNullException()
+        {
+            var services = new ServiceCollection();
+            var act = () => services.AddFormElicitation("ship", null!);
+            act.Should().Throw<ArgumentNullException>().WithParameterName("form");
+        }
+
+        [TestMethod]
+        public void AddFormElicitation_NullServices_ThrowsArgumentNullException()
+        {
+            IServiceCollection services = null!;
+            var act = () => services.AddFormElicitation("ship", FormElicitation.Create("m"));
+            act.Should().Throw<ArgumentNullException>().WithParameterName("services");
+        }
+
+        [TestMethod]
+        public void AddFormElicitation_DuplicateName_ThrowsInvalidOperationException()
+        {
+            var services = new ServiceCollection();
+            var first = FormElicitation.Create("Ship this order").String("trackingNumber").Required();
+            var second = FormElicitation.Create("Dispatch").String("route").Required();
+            services.AddFormElicitation("ship", first);
+
+            var act = () => services.AddFormElicitation("ship", second);
+            act.Should().Throw<InvalidOperationException>().WithMessage("*already registered*");
+        }
+
+        [TestMethod]
+        public void AddFormElicitation_IgnoresUnkeyedAndNonStringKeys()
+        {
+            var form = FormElicitation.Create("Ship this order").String("trackingNumber").Required();
+            var services = new ServiceCollection();
+            services.AddSingleton<IFormElicitationSource>(form);
+            services.AddKeyedSingleton<IFormElicitationSource>(42, form);
+            services.AddFormElicitation("ship", form);
+
+            using var provider = services.BuildServiceProvider();
+            provider.GetRequiredKeyedService<IFormElicitationSource>("ship").Should().BeSameAs(form);
+        }
+
+        [TestMethod]
+        public void AddFormElicitation_DuplicateName_AfterOtherDescriptors_ThrowsInvalidOperationException()
+        {
+            var form = FormElicitation.Create("Ship this order").String("trackingNumber").Required();
+            var services = new ServiceCollection();
+            services.AddSingleton(form);
+            services.AddKeyedSingleton<IFormElicitationSource>("dispatch", form);
+            services.AddFormElicitation("ship", form);
+
+            var act = () => services.AddFormElicitation("ship", FormElicitation.Create("other"));
+            act.Should().Throw<InvalidOperationException>().WithMessage("*already registered*");
         }
 
         #endregion

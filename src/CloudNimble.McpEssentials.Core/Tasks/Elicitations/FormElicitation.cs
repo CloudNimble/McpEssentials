@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using ModelContextProtocol.Protocol;
@@ -58,6 +59,48 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "Binder.Bind is the annotated implementation.")]
         public static ElicitResult<T> Bind<T>(ElicitResult result, JsonSerializerOptions? options = null) =>
             FormElicitationBinder.Bind<T>(result, options);
+
+        /// <summary>
+        /// Rebuilds an untyped builder from a snapshot.
+        /// </summary>
+        /// <param name="definition">The snapshot.</param>
+        /// <returns>A builder whose <see cref="FormElicitationBuilder.Build"/> matches the snapshot.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="definition"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">Thrown when a field name is duplicated or a facet is invalid.</exception>
+        /// <example>
+        /// <code>
+        /// var builder = FormElicitation.FromDefinition(FormXml.Parse(xml));
+        /// </code>
+        /// </example>
+        public static FormElicitationBuilder FromDefinition(FormDefinition definition)
+        {
+            ArgumentNullException.ThrowIfNull(definition);
+            var builder = new FormElicitationBuilder(definition.Message)
+            {
+                Name = definition.Name
+            };
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var field in definition.Fields)
+            {
+                ArgumentNullException.ThrowIfNull(field);
+                var wire = FormElicitationProperty.WireName(field.Name);
+                if (!seen.Add(wire))
+                {
+                    throw new InvalidOperationException($"Form already has a field named '{field.Name}'.");
+                }
+
+                builder.ApplyField(field);
+            }
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Rebuilds an untyped builder from a compact XML island.
+        /// </summary>
+        /// <param name="xml">The island text.</param>
+        /// <returns>A builder whose <see cref="FormElicitationBuilder.Build"/> matches the island.</returns>
+        public static FormElicitationBuilder ParseXml(string xml) => FromDefinition(FormXml.Parse(xml));
 
         #endregion
 

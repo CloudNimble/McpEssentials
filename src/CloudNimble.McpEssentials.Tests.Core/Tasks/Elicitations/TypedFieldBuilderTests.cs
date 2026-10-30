@@ -55,6 +55,8 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             facade.MultiChoice(x => x.Access).Field.Kind.Should().Be(ElicitationFieldKind.MultiChoice);
             facade.Build().Mode.Should().Be("form");
             facade.ToInputRequest().Method.Should().Be(RequestMethods.ElicitationCreate);
+            facade.ToXml().Should().Contain("<Form ");
+            facade.ToDefinition().Message.Should().Be("m");
         }
 
         [TestMethod]
@@ -97,6 +99,8 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             facade.MultiChoice(x => x.Access);
             facade.Build().RequestedSchema!.Properties.Should().ContainKey("price");
             facade.ToInputRequest().ElicitationParams.Should().NotBeNull();
+            facade.ToXml().Should().Contain("Type=\"number\"");
+            facade.ToDefinition().Message.Should().Be("m");
         }
 
         [TestMethod]
@@ -135,6 +139,8 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             facade.MultiChoice(x => x.Access);
             facade.Build().Mode.Should().Be("form");
             facade.ToInputRequest().Method.Should().Be(RequestMethods.ElicitationCreate);
+            facade.ToXml().Should().Contain("Type=\"boolean\"");
+            facade.ToDefinition().Message.Should().Be("m");
         }
 
         [TestMethod]
@@ -175,6 +181,8 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             facade.MultiChoice(x => x.Access);
             facade.Build().RequestedSchema!.Properties.Should().ContainKey("color");
             facade.ToInputRequest().Method.Should().Be(RequestMethods.ElicitationCreate);
+            facade.ToXml().Should().Contain("Type=\"enum\"");
+            facade.ToDefinition().Message.Should().Be("m");
         }
 
         [TestMethod]
@@ -218,6 +226,8 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             facade.MultiChoice(x => x.Access);
             facade.Build().RequestedSchema!.Properties.Should().ContainKey("access");
             facade.ToInputRequest().Method.Should().Be(RequestMethods.ElicitationCreate);
+            facade.ToXml().Should().Contain("Type=\"multi\"");
+            facade.ToDefinition().Message.Should().Be("m");
         }
 
         [TestMethod]

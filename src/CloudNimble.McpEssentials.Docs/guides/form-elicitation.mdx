@@ -109,6 +109,26 @@ var result = await server.ElicitAsync(
 
 `Create(null)` and `From<T>(null)` throw `ArgumentNullException`. Whitespace messages are allowed at create and throw from `Build()`.
 
+## Compact XML
+
+`Build()` materializes SDK `ElicitRequestParams`. `ToInputRequest()` projects that graph as JSON. `ToXml()` writes a compact `<Form>` island for hosts that publish the schema (OData `$metadata` wraps it in `Mcp.ElicitForm`).
+
+```csharp
+var form = FormElicitation.Create("Ship this order")
+    .String("trackingNumber").Required();
+
+string xml = form.ToXml();
+var again = FormElicitation.ParseXml(xml);
+```
+
+Register a named form for hosts that resolve it like a named `HttpClient`:
+
+```csharp
+services.AddFormElicitation("ship", form);
+```
+
+The codec is handwritten `XmlWriter` / `XmlReader` (AOT-safe). See `specs/form-xml.md`.
+
 ## Field kinds
 
 Starters camelCase the name (`FirstName` → `firstName`) and Titleize the label (`TimeToLive` → `"Time To Live"`). `.Title(...)` overrides the label.

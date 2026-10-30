@@ -47,6 +47,8 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
 
             facade.Build().Message.Should().Be("m");
             facade.ToInputRequest().Method.Should().Be(RequestMethods.ElicitationCreate);
+            facade.ToXml().Should().Contain("<Form ");
+            facade.ToDefinition().Message.Should().Be("m");
         }
 
         [TestMethod]
@@ -82,6 +84,8 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             facade.MultiChoice("j").Option("y").Field.Kind.Should().Be(ElicitationFieldKind.MultiChoice);
             facade.Build().RequestedSchema!.Properties.Should().ContainKey("age");
             facade.ToInputRequest().ElicitationParams.Should().NotBeNull();
+            facade.ToXml().Should().Contain("Type=\"integer\"");
+            facade.ToDefinition().Fields.Should().Contain(f => f.Name == "age");
         }
 
         [TestMethod]
@@ -109,6 +113,8 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             facade.MultiChoice("j").Option("y");
             facade.Build().Mode.Should().Be("form");
             facade.ToInputRequest().Method.Should().Be(RequestMethods.ElicitationCreate);
+            facade.ToXml().Should().Contain("Type=\"boolean\"");
+            facade.ToDefinition().Message.Should().Be("m");
         }
 
         [TestMethod]
@@ -138,6 +144,8 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             facade.MultiChoice("j").Option("y");
             facade.Build().RequestedSchema!.Properties.Should().ContainKey("color");
             facade.ToInputRequest().Method.Should().Be(RequestMethods.ElicitationCreate);
+            facade.ToXml().Should().Contain("Type=\"enum\"");
+            facade.ToDefinition().Fields.Should().Contain(f => f.Name == "color");
         }
 
         [TestMethod]
@@ -177,6 +185,8 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             facade.MultiChoice("j").Option("y");
             facade.Build().RequestedSchema!.Properties.Should().ContainKey("roles");
             facade.ToInputRequest().Method.Should().Be(RequestMethods.ElicitationCreate);
+            facade.ToXml().Should().Contain("Type=\"multi\"");
+            facade.ToDefinition().Fields.Should().Contain(f => f.Name == "roles");
         }
 
         [TestMethod]
