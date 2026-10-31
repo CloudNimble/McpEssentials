@@ -127,7 +127,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
                 }
 
                 var word = humanized.AsSpan(start, i - start);
-                if (word.Length == 0 || IsAllUpper(word))
+                if (IsAllUpper(word))
                 {
                     builder.Append(word);
                     continue;

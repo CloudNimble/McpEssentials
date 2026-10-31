@@ -225,6 +225,164 @@ public virtual string ToString()
 
 Type: `string?`
 
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> UseCosmos <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Cosmos_McpTaskStoreBuilderExtensions`</Note>
+
+Uses [CosmosMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosMcpTaskStore) with a constant owner.
+
+#### Syntax
+
+```csharp
+public static CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder UseCosmos(CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder builder, string userId, System.Action<CloudNimble.McpEssentials.Cosmos.Tasks.CosmosMcpTaskStoreOptions> configure = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `builder` | `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder` | The task-store builder. |
+| `userId` | `string` | The owner stamped on every task this process creates. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Cosmos.Tasks.CosmosMcpTaskStoreOptions>?` | Optional store options (TTL, database and container ids). |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder`
+The builder.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *builder* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `ArgumentException` | Thrown when *userId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or whitespace. |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> UseCosmos <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Cosmos_McpTaskStoreBuilderExtensions`</Note>
+
+Uses [CosmosMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosMcpTaskStore) with an owner callback.
+
+#### Syntax
+
+```csharp
+public static CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder UseCosmos(CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder builder, System.Func<string> getCurrentUserId, System.Action<CloudNimble.McpEssentials.Cosmos.Tasks.CosmosMcpTaskStoreOptions> configure = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `builder` | `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder` | The task-store builder. |
+| `getCurrentUserId` | `System.Func<string?>` | Returns the current user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unauthenticated. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Cosmos.Tasks.CosmosMcpTaskStoreOptions>?` | Optional store options (TTL, database and container ids). |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder`
+The builder.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *builder* or *getCurrentUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> UseCosmos <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Cosmos_McpTaskStoreBuilderExtensions`</Note>
+
+Uses [CosmosMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosMcpTaskStore), resolving the owner from a principal.
+
+#### Syntax
+
+```csharp
+public static CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder UseCosmos(CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder builder, System.Func<System.Security.Claims.ClaimsPrincipal> getPrincipal, System.Action<CloudNimble.McpEssentials.Cosmos.Tasks.CosmosMcpTaskStoreOptions> configure = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `builder` | `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder` | The task-store builder. |
+| `getPrincipal` | `System.Func<System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Cosmos.Tasks.CosmosMcpTaskStoreOptions>?` | Optional store options (TTL, database and container ids). |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder`
+The builder.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *builder* or *getPrincipal* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> UseCosmos <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Cosmos_McpTaskStoreBuilderExtensions`</Note>
+
+Uses [CosmosMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosMcpTaskStore), resolving the owner from the built provider.
+
+#### Syntax
+
+```csharp
+public static CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder UseCosmos(CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder builder, System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal> getPrincipal, System.Action<CloudNimble.McpEssentials.Cosmos.Tasks.CosmosMcpTaskStoreOptions> configure = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `builder` | `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder` | The task-store builder. |
+| `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. ASP.NET Core hosts pass
+`sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Cosmos.Tasks.CosmosMcpTaskStoreOptions>?` | Optional store options (TTL, database and container ids). |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder`
+The builder.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *builder* or *getPrincipal* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> UseCosmos <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Cosmos_McpTaskStoreBuilderExtensions`</Note>
+
+Uses [CosmosMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosMcpTaskStore) with an owner id from the built provider.
+Resolves [CosmosClient](https://learn.microsoft.com/dotnet/api/microsoft.azure.cosmos.cosmosclient) from DI.
+
+#### Syntax
+
+```csharp
+public static CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder UseCosmos(CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder builder, System.Func<System.IServiceProvider, string> getCurrentUserId, System.Action<CloudNimble.McpEssentials.Cosmos.Tasks.CosmosMcpTaskStoreOptions> configure = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `builder` | `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder` | The task-store builder. |
+| `getCurrentUserId` | `System.Func<System.IServiceProvider, string?>` | Returns the current user identifier from the built provider. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.Cosmos.Tasks.CosmosMcpTaskStoreOptions>?` | Optional store options (TTL, database and container ids). |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder`
+The builder.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *builder* or *getCurrentUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
 ### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> UseEntityFramework <Badge color="green">Extension</Badge>
 
 <Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_EntityFrameworkCore_McpTaskStoreBuilderExtensions`</Note>

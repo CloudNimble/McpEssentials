@@ -129,11 +129,6 @@ namespace CloudNimble.McpEssentials.Analyzers
                 return true;
             }
 
-            if (type.SpecialType == SpecialType.System_String)
-            {
-                return true;
-            }
-
             if (type is IArrayTypeSymbol array)
             {
                 return array.ElementType.TypeKind == TypeKind.Enum;
@@ -193,13 +188,8 @@ namespace CloudNimble.McpEssentials.Analyzers
         /// </summary>
         /// <param name="type">A type symbol.</param>
         /// <returns><see langword="true"/> when the sequence item is an enum.</returns>
-        private static bool TryGetEnumEnumerable(ITypeSymbol type)
+        internal static bool TryGetEnumEnumerable(ITypeSymbol type)
         {
-            if (type.SpecialType == SpecialType.System_String)
-            {
-                return false;
-            }
-
             foreach (var argument in EnumerateEnumerableArguments(type))
             {
                 if (argument.TypeKind == TypeKind.Enum)

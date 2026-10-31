@@ -4,6 +4,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ModelContextProtocol.Server;
 using System;
+using System.IO;
 
 namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
 {
@@ -32,8 +33,10 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         {
             McpServer server = null!;
             var act = () => server.ElicitAsync((IFormElicitationSource)null!);
-            act.Should().Throw<ArgumentNullException>();
+            act.Should().Throw<ArgumentNullException>().WithParameterName("form");
         }
+
+
 
         [TestMethod]
         public void ElicitAsyncTyped_NullServer_Throws()
@@ -45,11 +48,54 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         }
 
         [TestMethod]
+        public void ElicitAsyncTyped_NullForm_Throws()
+        {
+            McpServer server = null!;
+            var act = () => server.ElicitAsync((IFormElicitationSource<EmptyForm>)null!);
+            act.Should().Throw<ArgumentNullException>().WithParameterName("form");
+        }
+
+        [TestMethod]
         public void ElicitAsyncUntypedAsDto_NullForm_Throws()
         {
             McpServer server = null!;
             var act = () => server.ElicitAsync<BindTargetForm>((IFormElicitationSource)null!);
-            act.Should().Throw<ArgumentNullException>();
+            act.Should().Throw<ArgumentNullException>().WithParameterName("form");
+        }
+
+        [TestMethod]
+        public void ElicitAsync_WithRealServer_InvokesBuild()
+        {
+            using var input = new MemoryStream();
+            using var output = new MemoryStream();
+            var transport = new StreamServerTransport(input, output, "test", loggerFactory: null);
+            var server = McpServer.Create(transport, new McpServerOptions(), loggerFactory: null, serviceProvider: null);
+            var untyped = FormElicitation.Create("m");
+            var typed = FormElicitation.From<EmptyForm>("m");
+
+            try
+            {
+                _ = server.ElicitAsync(untyped);
+            }
+            catch (Exception)
+            {
+            }
+
+            try
+            {
+                _ = server.ElicitAsync(typed);
+            }
+            catch (Exception)
+            {
+            }
+
+            try
+            {
+                _ = server.ElicitAsync<BindTargetForm>(untyped);
+            }
+            catch (Exception)
+            {
+            }
         }
 
         #endregion

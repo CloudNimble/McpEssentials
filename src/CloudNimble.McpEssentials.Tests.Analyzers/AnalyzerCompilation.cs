@@ -87,6 +87,55 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
             return await withAnalyzers.GetAnalyzerDiagnosticsAsync(CancellationToken.None).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Compiles <paramref name="source"/> and returns the compilation for symbol tests.
+        /// </summary>
+        /// <param name="source">C# statements and type declarations.</param>
+        /// <returns>A compilation that references Core.</returns>
+        public static CSharpCompilation Compile(string source)
+        {
+            var tree = CSharpSyntaxTree.ParseText($$"""
+                using System;
+                using System.Collections.Generic;
+                using CloudNimble.McpEssentials.Core.Tasks.Elicitations;
+
+                {{source}}
+                """);
+
+            var references = new List<MetadataReference>
+            {
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(FormElicitation).Assembly.Location)
+            };
+
+            foreach (var assembly in typeof(FormElicitation).Assembly.GetReferencedAssemblies())
+            {
+                try
+                {
+                    var loaded = System.Reflection.Assembly.Load(assembly);
+                    if (!string.IsNullOrEmpty(loaded.Location) && File.Exists(loaded.Location))
+                    {
+                        references.Add(MetadataReference.CreateFromFile(loaded.Location));
+                    }
+                }
+                catch (FileNotFoundException)
+                {
+                }
+            }
+
+            AddFrameworkReference(references, "System.Runtime");
+            AddFrameworkReference(references, "netstandard");
+            AddFrameworkReference(references, "System.Collections");
+
+            return CSharpCompilation.Create(
+                "AnalyzerTest",
+                [tree],
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Enable));
+        }
+
         #endregion
 
         #region Private Methods

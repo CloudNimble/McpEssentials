@@ -709,6 +709,67 @@ namespace CloudNimble.McpEssentials.Tests.Redis.Tasks
             fetched.Result!.Value.GetProperty("n").GetInt32().Should().Be(7);
         }
 
+        [TestMethod]
+        public async Task Database_PositiveIndex_StillCreates()
+        {
+            using var redis = new RedisStoreTestContext();
+            var store = redis.CreateStore("alice");
+            store.Database = 0;
+
+            var created = await store.CreateTaskAsync();
+            created.TaskId.Should().NotBeNullOrWhiteSpace();
+        }
+
+        [TestMethod]
+        public async Task PubSub_EmptyAndInvalidPayloads_AreIgnored()
+        {
+            using var redis = new RedisStoreTestContext();
+            using var store = redis.CreateStore("alice");
+            var created = await store.CreateTaskAsync();
+            (await store.GetTaskAsync(created.TaskId)).Should().NotBeNull();
+
+            var subscriber = redis.Multiplexer.GetSubscriber();
+            var channel = RedisChannel.Literal("mcp:task:input");
+            await subscriber.PublishAsync(channel, RedisValue.EmptyString);
+            await subscriber.PublishAsync(channel, "not-json");
+            await subscriber.PublishAsync(channel, "{\"taskId\":\"\",\"requestId\":\"\"}");
+            await subscriber.PublishAsync(channel, "{\"taskId\":\"x\",\"requestId\":\"y\"}");
+        }
+
+        [TestMethod]
+        public async Task Dispose_AfterMultiplexerDisposed_DoesNotThrow()
+        {
+            var redis = new RedisStoreTestContext();
+            var store = redis.CreateStore("alice");
+            await store.CreateTaskAsync();
+            redis.Dispose();
+            store.Dispose();
+        }
+
+        [TestMethod]
+        public async Task GetTaskAsync_WhenPayloadEmpty_TreatsAsMissing()
+        {
+            using var redis = new RedisStoreTestContext();
+            var store = redis.CreateStore("alice");
+            var created = await store.CreateTaskAsync();
+            redis.Database.StringSet($"mcp:task:{created.TaskId}", "");
+
+            var act = async () => await store.GetTaskAsync(created.TaskId);
+            await act.Should().ThrowAsync<JsonException>();
+        }
+
+        [TestMethod]
+        public async Task GetTaskAsync_WhenPayloadIsJsonNull_Throws()
+        {
+            using var redis = new RedisStoreTestContext();
+            var store = redis.CreateStore("alice");
+            var created = await store.CreateTaskAsync();
+            redis.Database.StringSet($"mcp:task:{created.TaskId}", "null");
+
+            var act = async () => await store.GetTaskAsync(created.TaskId);
+            await act.Should().ThrowAsync<JsonException>();
+        }
+
         #endregion
 
         #region Private Methods

@@ -157,8 +157,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
                     return current;
                 }
 
-                var next = current.Clone();
-                return next.TryCancel(now) ? next : current;
+                return current.WithTry(next => next.TryCancel(now));
             }, out _, cancellationToken);
 
             return result == ApplyResult.Updated ? TrueTask : FalseTask;
@@ -176,8 +175,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
                     return current;
                 }
 
-                var next = current.Clone();
-                return next.TryResolveInputRequests(inputResponses, now) ? next : current;
+                return current.WithTry(next => next.TryResolveInputRequests(inputResponses, now));
             }, out var applied, cancellationToken);
 
             if (result != ApplyResult.Updated || applied is null)
@@ -198,11 +196,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         {
             cancellationToken.ThrowIfCancellationRequested();
             var now = GetUtcNow();
-            TryApply(taskId, current =>
-            {
-                var next = current.Clone();
-                return next.TryComplete(result, now) ? next : current;
-            }, out _, cancellationToken);
+            TryApply(taskId, current => current.WithTry(next => next.TryComplete(result, now)), out _, cancellationToken);
 
             return Task.CompletedTask;
         }
@@ -212,11 +206,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         {
             cancellationToken.ThrowIfCancellationRequested();
             var now = GetUtcNow();
-            TryApply(taskId, current =>
-            {
-                var next = current.Clone();
-                return next.TryFail(error, now) ? next : current;
-            }, out _, cancellationToken);
+            TryApply(taskId, current => current.WithTry(next => next.TryFail(error, now)), out _, cancellationToken);
 
             return Task.CompletedTask;
         }
@@ -233,8 +223,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
                     return current;
                 }
 
-                var next = current.Clone();
-                return next.TrySetInputRequests(inputRequests, now) ? next : current;
+                return current.WithTry(next => next.TrySetInputRequests(inputRequests, now));
             }, out _, cancellationToken);
 
             return Task.CompletedTask;
@@ -243,11 +232,6 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         #endregion
 
         #region Protected Methods
-
-        /// <summary>
-        /// Generates a unique task identifier.
-        /// </summary>
-        protected virtual string NewTaskId() => Guid.NewGuid().ToString("N");
 
         /// <inheritdoc />
         protected override Task SweepExpiredCoreAsync(DateTimeOffset now, CancellationToken cancellationToken)

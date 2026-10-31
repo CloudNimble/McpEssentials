@@ -44,6 +44,12 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         /// </summary>
         protected static readonly Task<bool> TrueTask = Task.FromResult(true);
 
+        /// <summary>
+        /// Empty elicitation response used when a bus or pub/sub payload only carries ids.
+        /// </summary>
+        protected static readonly InputResponse EmptyInputResponse =
+            InputResponse.FromElicitResult(new ElicitResult());
+
         private long _lastSweepTicks;
 
         #endregion
@@ -315,6 +321,12 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         /// Returns the current UTC timestamp used for create, update, expiry, and sweep.
         /// </summary>
         protected virtual DateTimeOffset GetUtcNow() => DateTimeOffset.UtcNow;
+
+        /// <summary>
+        /// Generates a unique task identifier.
+        /// </summary>
+        /// <returns>A 32-character hex id.</returns>
+        protected virtual string NewTaskId() => Guid.NewGuid().ToString("N");
 
         /// <summary>
         /// Returns a positive TTL, or <see langword="null"/> when tasks should be retained until discarded.

@@ -57,6 +57,25 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         internal const string XmlNamespaceUri = "http://www.w3.org/XML/1998/namespace";
         internal const string XmlnsNamespaceUri = "http://www.w3.org/2000/xmlns/";
 
+        private static readonly UTF8Encoding Utf8NoBom = new(encoderShouldEmitUTF8Identifier: false);
+
+        private static readonly XmlReaderSettings ReaderSettings = new()
+        {
+            DtdProcessing = DtdProcessing.Prohibit,
+            XmlResolver = null,
+            IgnoreComments = true,
+            IgnoreProcessingInstructions = false,
+            IgnoreWhitespace = true
+        };
+
+        private static readonly XmlWriterSettings WriterSettings = new()
+        {
+            OmitXmlDeclaration = true,
+            Indent = true,
+            Encoding = Utf8NoBom,
+            Async = false
+        };
+
         #endregion
 
         #region Public Methods
@@ -73,16 +92,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(xml);
 
-            var settings = new XmlReaderSettings
-            {
-                DtdProcessing = DtdProcessing.Prohibit,
-                XmlResolver = null,
-                IgnoreComments = true,
-                IgnoreProcessingInstructions = false,
-                IgnoreWhitespace = true
-            };
-
-            using var reader = XmlReader.Create(new StringReader(xml), settings);
+            using var reader = XmlReader.Create(new StringReader(xml), ReaderSettings);
             while (reader.Read())
             {
                 if (reader.NodeType == XmlNodeType.Element && reader.LocalName == FormElement)
@@ -108,16 +118,8 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         {
             ArgumentNullException.ThrowIfNull(definition);
 
-            var settings = new XmlWriterSettings
-            {
-                OmitXmlDeclaration = true,
-                Indent = true,
-                Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
-                Async = false
-            };
-
             var builder = new StringBuilder();
-            using var writer = XmlWriter.Create(builder, settings);
+            using var writer = XmlWriter.Create(builder, WriterSettings);
             WriteForm(writer, definition, xmlNamespace);
             writer.Flush();
             return builder.ToString();

@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "CloudNimble.McpEssentials.Samples.Web": {
+    "CloudNimble.McpEssentials.Samples.Basic": {
       "commandName": "Project",
       "launchBrowser": false,
       "environmentVariables": {

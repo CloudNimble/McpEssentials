@@ -132,6 +132,25 @@
                     ]
                   },
                   {
+                    "group": "Cosmos",
+                    "icon": "folder-tree",
+                    "pages": [
+                      {
+                        "group": "Tasks",
+                        "icon": "folder-tree",
+                        "pages": [
+                          "api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/index",
+                          "api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosMcpTasksJsonContext",
+                          "api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosMcpTaskStore",
+                          "api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosMcpTaskStoreOptions",
+                          "api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosStoredMcpTask",
+                          "api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosSystemTextJsonSerializer",
+                          "api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosTaskIndex"
+                        ]
+                      }
+                    ]
+                  },
+                  {
                     "group": "EntityFrameworkCore",
                     "icon": "folder-tree",
                     "pages": [

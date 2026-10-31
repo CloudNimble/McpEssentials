@@ -72,6 +72,8 @@ builder.Services.AddMcpEssentialsRedisTasks(
 
 Replica sets: set `WaitReplicas` so `CreateTaskAsync` does not return until a later get on another node can see the key. Standalone Redis leaves this at 0. Eventually-consistent Redis without wait is not SEP-2663 durable across nodes.
 
+A runnable host is [`samples/CloudNimble.McpEssentials.Samples.Redis`](https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.Redis). It expects Redis at `localhost:6379`.
+
 ## Isolation
 
 `CreateTaskAsync` stamps `OwnerUserId`. Client-facing get/cancel/resolve require that user. Server-side complete/fail/input-request skip the live-user check. Another user's task is not found. A missing key is not found; get does not distinguish expiry from isolation.

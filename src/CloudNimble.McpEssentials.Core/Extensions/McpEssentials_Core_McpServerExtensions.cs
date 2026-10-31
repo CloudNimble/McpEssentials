@@ -42,8 +42,8 @@ namespace ModelContextProtocol.Server
             IFormElicitationSource form,
             CancellationToken cancellationToken = default)
         {
-            ArgumentNullException.ThrowIfNull(server);
             ArgumentNullException.ThrowIfNull(form);
+            ArgumentNullException.ThrowIfNull(server);
             return server.ElicitAsync(form.Build(), cancellationToken);
         }
 
@@ -73,8 +73,8 @@ namespace ModelContextProtocol.Server
             IFormElicitationSource<T> form,
             CancellationToken cancellationToken = default)
         {
-            ArgumentNullException.ThrowIfNull(server);
             ArgumentNullException.ThrowIfNull(form);
+            ArgumentNullException.ThrowIfNull(server);
             return ElicitAsync<T>(server, form, options: null, cancellationToken);
         }
 
@@ -96,8 +96,8 @@ namespace ModelContextProtocol.Server
             IFormElicitationSource form,
             CancellationToken cancellationToken = default)
         {
-            ArgumentNullException.ThrowIfNull(server);
             ArgumentNullException.ThrowIfNull(form);
+            ArgumentNullException.ThrowIfNull(server);
             return ElicitAsync<T>(server, form, options: null, cancellationToken);
         }
 

@@ -1,37 +1,96 @@
 ---
 title: "Cosmos DB"
-description: "Azure Cosmos DB for NoSQL authenticated task store, partitioned by owner. Specified; not in this repository yet."
+description: "Persist per-user MCP tasks as Cosmos documents. Partitioned by owner, native document TTL, and an index so background completion still finds the row."
 icon: "globe"
-keywords: ["Cosmos DB", "Azure Cosmos"]
+keywords: ["Cosmos DB", "Azure Cosmos", "WithCosmosTasks", "CosmosMcpTaskStore", "ttl"]
 ---
 
-<Warning>
-`McpEssentials.Cosmos` is specified and is not in this repository yet. Use [Entity Framework Core](/guides/stores/entity-framework-core) with `UseCosmos` until it ships, or wait for the native package when you need partition-key point reads and change feed.
-</Warning>
+`McpEssentials.Cosmos` is the authenticated task store for hosts that already run Azure Cosmos DB for NoSQL. It subclasses [`McpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) and persists [`StoredMcpTask`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask) snapshots as documents.
 
-## When to use it
+Prefer this over [Entity Framework Core](/guides/stores/entity-framework-core) with `UseCosmos` when you want in-partition point reads and native document TTL. Cosmos expires documents; the request-path sweep is off by default.
 
-- The host already runs Azure Cosmos DB for NoSQL.
-- You want `/ownerUserId` as the partition key and native document TTL.
+The host owns [`CosmosClient`](https://learn.microsoft.com/azure/cosmos-db/nosql/how-to-dotnet-get-started). This package ships the store and registration. Register the client as a singleton.
 
-EF Core's Cosmos provider works through `AddMcpTasksTable` today. The native package earns its keep with in-partition point reads and change feed fan-out.
+## Install
 
-## Intended how-to
+```bash
+dotnet add package McpEssentials.Cosmos
+```
 
-1. Add `McpEssentials.Cosmos`.
-2. Create a tasks container partitioned by `/ownerUserId`. Point reads are `taskId` + partition `ownerUserId`.
-3. Client-facing get/cancel/resolve always have the user, so they stay in-partition.
-4. Server-facing complete has `taskId` only. Keep a second index container `McpTaskIndex` with `taskId` as partition key mapping to `ownerUserId`. `CreateTaskAsync` awaits both writes.
-5. Register the store as a singleton with the same current-user factory as [Authenticated tasks](/guides/authenticated-tasks).
+```csharp
+builder.Services.AddSingleton(_ => new CosmosClient(
+    connectionString,
+    CosmosMcpTaskStore.DefaultClientOptions()));
+```
+
+Pass [`CosmosMcpTaskStore.DefaultClientOptions()`](/api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosMcpTaskStore). The Cosmos SDK default serializer is Newtonsoft; without these options, `id` / `ttl` / camelCase enum names on task documents do not map.
+
+## Wire the store
+
+Same identity factory as [Authenticated tasks](/guides/authenticated-tasks). Cosmos has no generic context type, so the MCP builder method is [`WithCosmosTasks`](/api-reference/Microsoft/Extensions/DependencyInjection/IMcpServerBuilder) rather than `WithTasksPlus<TContext>`.
+
+```csharp
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton(_ => new CosmosClient(
+    connectionString,
+    CosmosMcpTaskStore.DefaultClientOptions()));
+
+builder.Services.AddMcpServer()
+    .WithHttpTransport(o => o.Stateless = true)
+    .WithTools<MyTools>()
+    .WithCosmosTasks(
+        sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
+        o =>
+        {
+            o.DefaultTimeToLive = TimeSpan.FromMinutes(5);
+            o.DatabaseId = "mcpessentials";
+            o.TasksContainerId = "McpTasks";
+            o.IndexContainerId = "McpTaskIndex";
+        });
+```
+
+**Stdio / single user**
+
+```csharp
+builder.Services.AddMcpServer()
+    .WithCosmosTasks("local-user");
+```
+
+**Store only**, without `IMcpServerBuilder`:
+
+```csharp
+builder.Services.AddMcpEssentialsCosmosTasks(
+    sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
+    o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+```
+
+## Containers and TTL
+
+| Container | Partition | Role |
+|---|---|---|
+| `McpTasks` | `/ownerUserId` | Task document, `id` = task id |
+| `McpTaskIndex` | `/id` | `taskId` → `ownerUserId` for server-side complete |
+
+`CreateTaskAsync` writes the task, then the index. If the index write fails, the task document is deleted. Client-facing get/cancel/resolve are in-partition. Background complete/fail/input-request read the index first, then point-read the task.
+
+`DiscardAfter` is stamped at write as `CreatedAt + 2×TimeToLive`. The document `ttl` property is that instant as whole seconds from now (at least 1). The index row gets the same `ttl` so it does not outlive the task. Unlimited TTL (`null`) leaves both documents until a terminal owner get (`ServeAndDrop`) or an explicit delete.
+
+Both containers enable per-document TTL (`DefaultTimeToLive = -1`). `AutoSweep` defaults to `false`. [`SweepExpiredAsync`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) is a no-op; Cosmos owns expiry. Per-row get still honors `ShouldDiscard` so a custom clock can drop a document before Cosmos does.
+
+On first use the store creates the database and containers when they are missing. Default throughput is 400 RU/s (`CosmosMcpTaskStoreOptions.Throughput`). Serverless accounts should pre-create the containers and set `Throughput` to `null`.
+
+A runnable host is [`samples/CloudNimble.McpEssentials.Samples.Cosmos`](https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.Cosmos). It expects the emulator at `https://localhost:8081/`.
+
+## Isolation
+
+`CreateTaskAsync` stamps `OwnerUserId`. Client-facing get/cancel/resolve require that user. Server-side complete/fail/input-request skip the live-user check. Another user's task is not found. A missing document is not found; get does not distinguish expiry from isolation.
+
+Updates replace the task document with an ETag `IfMatch`. A terminal owner get with `ServeAndDrop` (default) deletes the task and the index row after serving it.
 
 Do not encode the user id in the task id.
 
 ## Events
 
-Change feed on `input_required` transitions and input-request map changes, or Azure Service Bus as [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus).
-
-## TTL
-
-Cosmos native TTL on the document from `DiscardAfter` (Unix seconds), or a container default.
+v1 does not subscribe to the change feed. After a successful resolve, the node raises `InputResponseReceived` locally. Multi-node `ElicitAsync` needs an [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus) (Azure Service Bus is the usual pair). Missing bus plus multiple nodes means `ElicitAsync` waits until timeout.
 
 See [Stores](/guides/stores).

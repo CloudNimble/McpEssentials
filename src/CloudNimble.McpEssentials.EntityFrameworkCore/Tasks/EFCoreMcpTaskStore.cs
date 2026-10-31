@@ -178,9 +178,7 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
             using var scope = ScopeFactory.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<TContext>();
             var set = db.Set<McpTaskEntity>();
-            var entity = await set.AsNoTracking()
-                .FirstOrDefaultAsync(e => e.TaskId == taskId, cancellationToken)
-                .ConfigureAwait(false);
+            var entity = await set.FindAsync(new object[] { taskId }, cancellationToken).ConfigureAwait(false);
 
             if (entity is null)
             {
@@ -189,7 +187,8 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
 
             if (ShouldDiscard(entity, now))
             {
-                await DeleteByIdAsync(taskId, cancellationToken).ConfigureAwait(false);
+                set.Remove(entity);
+                await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                 return null;
             }
 
@@ -201,7 +200,8 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
             var info = entity.ToMcpTaskInfo();
             if (entity.IsFinished && ServeAndDrop)
             {
-                await DeleteByIdAsync(taskId, cancellationToken).ConfigureAwait(false);
+                set.Remove(entity);
+                await db.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             }
 
             return info;
@@ -310,11 +310,6 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
         #region Protected Methods
 
         /// <summary>
-        /// Generates a unique task identifier.
-        /// </summary>
-        protected virtual string NewTaskId() => Guid.NewGuid().ToString("N");
-
-        /// <summary>
         /// Generates a new application-managed concurrency token.
         /// </summary>
         protected virtual byte[] NewRowVersion()
@@ -364,8 +359,7 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
                 using var scope = ScopeFactory.CreateScope();
                 var db = scope.ServiceProvider.GetRequiredService<TContext>();
                 var set = db.Set<McpTaskEntity>();
-                var entity = await set.FirstOrDefaultAsync(e => e.TaskId == taskId, cancellationToken)
-                    .ConfigureAwait(false);
+                var entity = await set.FindAsync(new object[] { taskId }, cancellationToken).ConfigureAwait(false);
 
                 if (entity is null)
                 {
@@ -422,21 +416,7 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
         /// </summary>
         protected virtual void OnBusSignal(string taskId, string requestId)
         {
-            OnInputResponseReceived(taskId, requestId, InputResponse.FromElicitResult(new ElicitResult()));
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        private async Task DeleteByIdAsync(string taskId, CancellationToken cancellationToken)
-        {
-            using var scope = ScopeFactory.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<TContext>();
-            await db.Set<McpTaskEntity>()
-                .Where(e => e.TaskId == taskId)
-                .ExecuteDeleteAsync(cancellationToken)
-                .ConfigureAwait(false);
+            OnInputResponseReceived(taskId, requestId, EmptyInputResponse);
         }
 
         #endregion

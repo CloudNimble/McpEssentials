@@ -7,62 +7,73 @@ keywords: ["IMcpTaskStore", "IMcpTaskStorePlus", "InMemoryMcpTaskStorePlus", "Wi
 
 MCP Tasks (SEP-2663) let a client start long-running work, get a task id, and poll `tasks/get` until the work finishes. The C# SDK stores that state in `IMcpTaskStore`. The built-in `InMemoryMcpTaskStore` is shared across every request to the process.
 
-`InMemoryMcpTaskStorePlus` is our own in-memory store. It records the owner on create and never leaks another user's task, payload, or existence. It implements `IMcpTaskStorePlus`, which extends `IMcpTaskStore` with `ClaimsPrincipal` overloads. `McpTaskStoreBase` takes a `Func<string?>` (or a principal factory / constant user id), fail-closed identity, and `InputResponseReceived`. Durable providers subclass that base and persist their own snapshots.
+[`InMemoryMcpTaskStorePlus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryMcpTaskStorePlus) records the owner on create and never leaks another user's task, payload, or existence. Durable providers persist the same contract.
 
-1. `CreateTaskAsync` reads the current user and records it.
-2. `GetTaskAsync`, `SetCancelledAsync`, and `ResolveInputRequestsAsync` require the same user. Another user sees "not found".
-3. `SetCompletedAsync`, `SetFailedAsync`, and `SetInputRequestsAsync` skip the live-user check. The SDK runs those from a background DI scope after the original HTTP request is gone.
-
-No user on a client-facing call throws `McpTaskUserRequiredException`.
+<CardGroup cols={3}>
+  <Card title="Stamp the owner" icon="user">
+    `CreateTaskAsync` reads the current user and records it on the snapshot.
+  </Card>
+  <Card title="Isolate later calls" icon="lock">
+    Get, cancel, and resolve require that user. Anyone else sees not found.
+  </Card>
+  <Card title="Complete in the background" icon="gears">
+    The SDK finishes work after the HTTP request is gone. Complete, fail, and set-input skip the live-user check.
+  </Card>
+</CardGroup>
 
 ## Wire it up
 
-HTTP hosts register `IHttpContextAccessor` the platform way and pass a factory that resolves it from the built `IServiceProvider`. That is the same factory pattern as `AddHttpClient`, `AddOptions`, and `AddInMemoryMcpTaskStorePlus`.
+HTTP hosts register `IHttpContextAccessor` the platform way and pass a factory that resolves it from the built `IServiceProvider`.
 
-```csharp
-builder.Services.AddHttpContextAccessor();
+<Tabs>
+  <Tab title="HTTP" icon="globe">
+    ```csharp
+    builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddMcpServer()
-    .WithHttpTransport(o => o.Stateless = true)
-    .WithTools<MyTools>()
-    .WithTasksPlus(
+    builder.Services.AddMcpServer()
+        .WithHttpTransport(o => o.Stateless = true)
+        .WithTools<MyTools>()
+        .WithTasksPlus(
+            sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
+            o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+    ```
+
+    The SDK `WithTasks` API needs the store object at registration time, before `Build()`. The factory overload creates the store immediately and captures the provider when the container is built. Each client-facing task call then reads `HttpContext.User`.
+  </Tab>
+  <Tab title="Stdio" icon="terminal">
+    ```csharp
+    builder.Services.AddMcpServer()
+        .WithTasksPlus("local-user");
+    ```
+  </Tab>
+  <Tab title="Store only" icon="database">
+    Same factory, without `IMcpServerBuilder`:
+
+    ```csharp
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddInMemoryMcpTaskStorePlus(
         sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
         o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
-```
+    ```
+  </Tab>
+  <Tab title="Tests" icon="flask">
+    ```csharp
+    IMcpTaskStorePlus store = new InMemoryMcpTaskStorePlus("user-1");
 
-The SDK `WithTasks` API needs the store object at registration time, before `Build()`. The factory overload creates the store immediately and captures the provider when the container is built (and again when `McpServerOptions` is composed on the first request). Each client-facing task call then reads `HttpContext.User` from the accessor already in DI.
+    var store2 = new InMemoryMcpTaskStorePlus(() => currentUserId);
 
+    var created = await store2.CreateTaskAsync(httpContext.User);
+
+    builder.WithTasksPlus(sp => sp.GetRequiredService<ClaimsPrincipal>());
+    ```
+  </Tab>
+</Tabs>
+
+<Tip>
 Async `[McpServerTool]` methods that return `Task` / `Task<T>` automatically advertise task support. A client that opts into `io.modelcontextprotocol/tasks` gets a task id owned by the user on that request.
+</Tip>
 
-**Stdio / single user**
-
-```csharp
-builder.Services.AddMcpServer()
-    .WithTasksPlus("local-user");
-```
-
-**Store only** — same factory, without `IMcpServerBuilder`:
-
-```csharp
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddInMemoryMcpTaskStorePlus(
-    sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
-    o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
-```
-
-**Tests** — a constant user, a callback, an explicit principal, or a service already in the test provider:
-
-```csharp
-IMcpTaskStorePlus store = new InMemoryMcpTaskStorePlus("user-1");
-
-var store2 = new InMemoryMcpTaskStorePlus(() => currentUserId);
-
-var created = await store2.CreateTaskAsync(httpContext.User);
-
-builder.WithTasksPlus(sp => sp.GetRequiredService<ClaimsPrincipal>());
-```
-
-Claim lookup matches the SDK session identity order: `NameIdentifier`, `sub`, `UPN`, `Name`. Types are unsealed; subclass `McpTaskStoreBase` or `InMemoryMcpTaskStorePlus` to change isolation, TTL, or storage.
+No user on a client-facing call throws [`McpTaskUserRequiredException`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskUserRequiredException).
 
 ## Overloads
 
@@ -73,17 +84,9 @@ Claim lookup matches the SDK session identity order: `NameIdentifier`, `sub`, `U
 | `WithTasksPlus(() => principal)` | A principal you already hold |
 | `WithTasksPlus(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User)` | ASP.NET Core. Call `AddHttpContextAccessor()` first. |
 
-Each overload has a matching `AddInMemoryMcpTaskStorePlus` on `IServiceCollection`. Pass `McpTaskStoreOptions` as the next argument to set `DefaultTimeToLive` and `DefaultPollIntervalMs` at registration. `null` TTL keeps tasks until the store discards them.
+Each overload has a matching `AddInMemoryMcpTaskStorePlus` on `IServiceCollection`. Pass `McpTaskStoreOptions` as the next argument to set `DefaultTimeToLive` and `DefaultPollIntervalMs`. `null` TTL keeps tasks until the store discards them.
 
-## Sample
-
-[`samples/CloudNimble.McpEssentials.Samples.Web`](https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.Web) is a Streamable HTTP MCP server that uses this wiring. Fake authentication stamps `HttpContext.User` from the `X-User-Id` header. One tool, `HelloWorld`, injects `ClaimsPrincipal` and returns `Task<string>` so a task-capable client gets a trackable task.
-
-```bash
-dotnet run --project samples/CloudNimble.McpEssentials.Samples.Web -f net11.0
-```
-
-Point a harness at `http://localhost:5280/` with `X-User-Id: alice`. Call `HelloWorld` with the Tasks extension, then `tasks/get` as `alice` and as `bob`. Bob sees not found.
+Claim lookup matches the SDK session identity order: `NameIdentifier`, `sub`, `UPN`, `Name`. Types are unsealed; subclass [`McpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) to change isolation, TTL, or storage.
 
 ## Isolation rules
 
@@ -99,6 +102,79 @@ Point a harness at `http://localhost:5280/` with `X-User-Id: alice`. Call `Hello
 
 Owner comparison is ordinal. Register the store as a **singleton**. Stateless HTTP creates a fresh `McpServer` per POST; a scoped store looks empty on the next `tasks/get`.
 
-## Swap the backing store later
+<Warning>
+Do not store MCP task rows on domain tables. Tasks expire in minutes; orders and users do not.
+</Warning>
 
-`IMcpTaskStorePlus` and `McpTaskStoreBase` are the contract durable providers implement. Pick a backing store in [Stores](/guides/stores). The first durable how-to is [Entity Framework Core](/guides/stores/entity-framework-core).
+## Samples
+
+Each sample is a standalone Streamable HTTP host. Fake authentication is the `X-User-Id` header. One tool, `HelloWorld`, injects `ClaimsPrincipal` and returns `Task<string>` so a task-capable client gets a trackable task. The store is the only thing that changes.
+
+<Tabs>
+  <Tab title="Basic" icon="memory">
+    In-memory. No extra infrastructure.
+
+    ```bash
+    dotnet run --project samples/CloudNimble.McpEssentials.Samples.Basic -f net11.0
+    ```
+
+    Point a harness at `http://localhost:5280/` with `X-User-Id: alice`. Call `HelloWorld` with the Tasks extension, then `tasks/get` as `alice` and as `bob`. Bob sees not found.
+
+    [`samples/…Samples.Basic`](https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.Basic)
+  </Tab>
+  <Tab title="Entity Framework Core" icon="table">
+    SQLite file next to the app. Swap `UseSqlite` for any EF provider in a real host.
+
+    ```bash
+    dotnet run --project samples/CloudNimble.McpEssentials.Samples.EntityFrameworkCore -f net11.0
+    ```
+
+    MCP is at `http://localhost:5290/`.
+
+    [`samples/…Samples.EntityFrameworkCore`](https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.EntityFrameworkCore)
+  </Tab>
+  <Tab title="Redis" icon="bolt">
+    Requires Redis at `localhost:6379` (or the connection string in `appsettings.json`).
+
+    ```bash
+    dotnet run --project samples/CloudNimble.McpEssentials.Samples.Redis -f net11.0
+    ```
+
+    MCP is at `http://localhost:5300/`.
+
+    [`samples/…Samples.Redis`](https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.Redis)
+  </Tab>
+  <Tab title="Cosmos DB" icon="globe">
+    Requires Cosmos DB or the emulator (connection string in `appsettings.json`).
+
+    ```bash
+    dotnet run --project samples/CloudNimble.McpEssentials.Samples.Cosmos -f net11.0
+    ```
+
+    MCP is at `http://localhost:5310/`.
+
+    [`samples/…Samples.Cosmos`](https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.Cosmos)
+  </Tab>
+</Tabs>
+
+## Swap the backing store
+
+[`IMcpTaskStorePlus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) and [`McpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) are the contract durable providers implement. Pick a backing store in [Stores](/guides/stores).
+
+<CardGroup cols={2}>
+  <Card title="Entity Framework Core" icon="table" href="/guides/stores/entity-framework-core">
+    Any EF provider. Host owns the DbContext and migrations.
+  </Card>
+  <Card title="Redis" icon="bolt" href="/guides/stores/redis">
+    Native expiry and pub/sub for multi-node elicitation.
+  </Card>
+  <Card title="Cosmos DB" icon="globe" href="/guides/stores/cosmos">
+    Point reads by owner, native document TTL, index for background complete.
+  </Card>
+  <Card title="Form elicitation" icon="clipboard-list" href="/guides/form-elicitation">
+    Ask the client for a form while a task is running.
+  </Card>
+  <Card title="Analyzers" icon="wand-magic-sparkles" href="/guides/analyzers">
+    Catch broken forms at compile time.
+  </Card>
+</CardGroup>

@@ -1,6 +1,6 @@
 # Authenticated MCP Task Stores
 
-**Status:** Core in-memory store and the Entity Framework Core provider are implemented. Other provider packages are specified here and are not in this repository yet.
+**Status:** Core in-memory, Entity Framework Core, Redis, and Cosmos providers are implemented. Other provider packages are specified here and are not in this repository yet.
 
 **Audience:** Anyone adding `CloudNimble.McpEssentials.*` packages that persist MCP Tasks (SEP-2663) per logged-in user.
 
@@ -149,15 +149,19 @@ Default prefix is `mcp`. No per-user SET index: SET members do not expire with t
 
 **Use when:** the host already registered `IDistributedCache` and does not want a Redis-specific package. Prefer `McpEssentials.Redis` when the cache is Redis and you need pub/sub.
 
-### 7. `McpEssentials.Cosmos`
+### 7. `McpEssentials.Cosmos` — implemented
 
-**Engine:** Azure Cosmos DB for NoSQL.
+**Engine:** Azure Cosmos DB for NoSQL. Shipped.
 
-**Partition key:** `/ownerUserId`. Point reads are `taskId` + partition `ownerUserId`. Client-facing ops always have the user, so they are in-partition. Server-facing completion has `taskId` only: keep a second lookup document `mcp:task-index:{taskId}` → `ownerUserId`, or store `OwnerUserId` in the task id metadata the SDK already generated (do **not** encode PII in the task id). Recommended: a singleton-partition index container `McpTaskIndex` with `taskId` as partition key mapping to `ownerUserId`, written in the same transactional batch as the task document when possible (same partition only — so index container is separate and uses its own point write; `CreateTaskAsync` awaits both).
+**Partition key:** `/ownerUserId`. Point reads are `taskId` + partition `ownerUserId`. Client-facing ops always have the user, so they are in-partition. Server-facing completion has `taskId` only: index container `McpTaskIndex` partitioned by `/id` (the task id) mapping to `ownerUserId`. `CreateTaskAsync` writes the task, then the index, and rolls the task back if the index write fails. Do **not** encode PII in the task id.
 
-**Events:** change feed processor on `status == input_required` transitions and on input-request map changes. Or Azure Service Bus.
+**Events:** v1 does not subscribe to the change feed. Optional `IMcpTaskInputSignalBus` (Azure Service Bus is the usual pair) for multi-node `ElicitAsync`.
 
-**TTL:** Cosmos native TTL on the document (`DiscardAfter` as Unix seconds, or container default).
+**TTL:** Cosmos native TTL on the document from `DiscardAfter` (whole seconds from now, at least 1). The index row gets the same `ttl`. Both containers set `DefaultTimeToLive = -1` so per-document TTL applies. `AutoSweep` defaults to `false`. `SweepExpiredCoreAsync` is a no-op.
+
+**Client:** the host owns `CosmosClient` and must pass `CosmosMcpTaskStore.DefaultClientOptions()` so documents serialize with System.Text.Json. The SDK default is Newtonsoft.
+
+**Registration:** `WithCosmosTasks` / `AddMcpEssentialsCosmosTasks` / `UseCosmos`. On first use the store creates the database and containers when missing (default 400 RU/s; set `Throughput` to `null` on serverless and pre-create the containers).
 
 ### 8. `McpEssentials.MongoDB`
 
@@ -201,7 +205,7 @@ public interface IMcpTaskInputSignalBus
 }
 ```
 
-Providers that have a native bus (Redis pub/sub, Postgres NOTIFY, NATS) implement this internally. Providers that do not (EF Core, `IDistributedCache`, Azure Tables) take it as an optional constructor argument. Missing bus + multiple nodes = elicitation hangs until timeout. Document that as a host misconfiguration, not a silent fallback.
+Providers that have a native bus (Redis pub/sub, Postgres NOTIFY, NATS) implement this internally. Providers that do not (EF Core, Cosmos v1, `IDistributedCache`, Azure Tables) take it as an optional constructor argument. Missing bus + multiple nodes = elicitation hangs until timeout. Document that as a host misconfiguration, not a silent fallback.
 
 Do not put tokens, vault ids, or elicitation secrets on the bus payload. Task id + request id are enough; the store already has the response body.
 
@@ -228,7 +232,7 @@ Do not mix session id and user id in the owner key unless a host explicitly impl
 2. Entity Framework Core package + SQLite tests (this repo, done).
 3. Redis package (TTL + pub/sub) (this repo, done).
 4. PostgreSQL native package if EF + Npgsql is not enough for NOTIFY.
-5. Cosmos, MongoDB, DistributedCache, Azure Tables, NATS as demand appears.
+5. Cosmos (this repo, done). MongoDB, DistributedCache, Azure Tables, NATS as demand appears.
 
 Each package: same TFMs as Core, MSTest + FluentAssertions, `InternalsVisibleTo` the matching `*.Tests.*` project, DotNetDocs API pages generated from XML comments.
 

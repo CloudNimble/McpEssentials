@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\samples\CloudNimble.McpEssentials.Samples.Web\CloudNimble.McpEssentials.Samples.Web.csproj" />
+        <ProjectReference Include="..\..\samples\CloudNimble.McpEssentials.Samples.Basic\CloudNimble.McpEssentials.Samples.Basic.csproj" />
         <ProjectReference Include="..\CloudNimble.McpEssentials.Core\CloudNimble.McpEssentials.Core.csproj" />
     </ItemGroup>
 

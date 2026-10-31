@@ -1,0 +1,42 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace CloudNimble.McpEssentials.Samples.Basic
+{
+
+    /// <summary>
+    /// Hosts a Streamable HTTP MCP server with fake header authentication and
+    /// <c>InMemoryMcpTaskStorePlus</c>.
+    /// </summary>
+    public class Program
+    {
+
+        #region Public Methods
+
+        /// <summary>
+        /// Application entry point.
+        /// </summary>
+        /// <param name="args">Command-line arguments.</param>
+        public static void Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddHttpContextAccessor();
+
+            builder.Services.AddMcpServer()
+                .WithHttpTransport(options => options.Stateless = true)
+                .WithTools<HelloWorldTools>()
+                .WithTasksPlus(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User);
+
+            var app = builder.Build();
+            app.UseMiddleware<FakeAuthenticationMiddleware>();
+            app.MapMcp();
+            app.Run();
+        }
+
+        #endregion
+
+    }
+
+}

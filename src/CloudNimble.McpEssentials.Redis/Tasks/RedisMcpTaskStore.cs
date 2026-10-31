@@ -249,8 +249,7 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
                     return current;
                 }
 
-                var next = current.Clone();
-                return next.TryCancel(now) ? next : current;
+                return current.WithTry(next => next.TryCancel(now));
             }, cancellationToken).ConfigureAwait(false);
 
             return result.Result == ApplyResult.Updated;
@@ -269,8 +268,7 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
                     return current;
                 }
 
-                var next = current.Clone();
-                return next.TryResolveInputRequests(inputResponses, now) ? next : current;
+                return current.WithTry(next => next.TryResolveInputRequests(inputResponses, now));
             }, cancellationToken).ConfigureAwait(false);
 
             if (result.Result != ApplyResult.Updated)
@@ -291,11 +289,7 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
             cancellationToken.ThrowIfCancellationRequested();
             EnsureSubscription();
             var now = GetUtcNow();
-            await TryApplyAsync(taskId, current =>
-            {
-                var next = current.Clone();
-                return next.TryComplete(result, now) ? next : current;
-            }, cancellationToken).ConfigureAwait(false);
+            await TryApplyAsync(taskId, current => current.WithTry(next => next.TryComplete(result, now)), cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -304,11 +298,7 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
             cancellationToken.ThrowIfCancellationRequested();
             EnsureSubscription();
             var now = GetUtcNow();
-            await TryApplyAsync(taskId, current =>
-            {
-                var next = current.Clone();
-                return next.TryFail(error, now) ? next : current;
-            }, cancellationToken).ConfigureAwait(false);
+            await TryApplyAsync(taskId, current => current.WithTry(next => next.TryFail(error, now)), cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -324,8 +314,7 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
                     return current;
                 }
 
-                var next = current.Clone();
-                return next.TrySetInputRequests(inputRequests, now) ? next : current;
+                return current.WithTry(next => next.TrySetInputRequests(inputRequests, now));
             }, cancellationToken).ConfigureAwait(false);
         }
 
@@ -353,10 +342,7 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
             {
                 queue?.Unsubscribe();
             }
-            catch (ObjectDisposedException)
-            {
-            }
-            catch (RedisException)
+            catch (Exception)
             {
             }
 
@@ -366,11 +352,6 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
         #endregion
 
         #region Protected Methods
-
-        /// <summary>
-        /// Generates a unique task identifier.
-        /// </summary>
-        protected virtual string NewTaskId() => Guid.NewGuid().ToString("N");
 
         /// <summary>
         /// Returns the Redis key for <paramref name="taskId"/>.
@@ -500,21 +481,8 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
             RedisInputSignal? signal;
             try
             {
-                ReadOnlyMemory<byte> utf8 = payload;
-                if (utf8.IsEmpty)
-                {
-                    var text = (string?)payload;
-                    if (string.IsNullOrEmpty(text))
-                    {
-                        return;
-                    }
-
-                    signal = JsonSerializer.Deserialize(text, RedisMcpTasksJsonContext.Default.RedisInputSignal);
-                }
-                else
-                {
-                    signal = JsonSerializer.Deserialize(utf8.Span, RedisMcpTasksJsonContext.Default.RedisInputSignal);
-                }
+                ReadOnlyMemory<byte> buffer = payload;
+                signal = JsonSerializer.Deserialize(buffer.Span, RedisMcpTasksJsonContext.Default.RedisInputSignal);
             }
             catch (JsonException)
             {
@@ -531,7 +499,7 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
                 return;
             }
 
-            OnInputResponseReceived(signal.TaskId, signal.RequestId, InputResponse.FromElicitResult(new ElicitResult()));
+            OnInputResponseReceived(signal.TaskId, signal.RequestId, EmptyInputResponse);
         }
 
         #endregion
@@ -580,23 +548,13 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
         /// <exception cref="JsonException">Thrown when the payload is empty or invalid.</exception>
         private static StoredMcpTask Deserialize(RedisValue json)
         {
-            RedisStoredMcpTask? record;
-            ReadOnlyMemory<byte> utf8 = json;
-            if (!utf8.IsEmpty)
+            ReadOnlyMemory<byte> buffer = json;
+            if (buffer.Length == 0)
             {
-                record = JsonSerializer.Deserialize(utf8.Span, RedisMcpTasksJsonContext.Default.RedisStoredMcpTask);
-            }
-            else
-            {
-                var text = (string?)json;
-                if (string.IsNullOrEmpty(text))
-                {
-                    throw new JsonException("Redis task payload was empty.");
-                }
-
-                record = JsonSerializer.Deserialize(text, RedisMcpTasksJsonContext.Default.RedisStoredMcpTask);
+                throw new JsonException("Redis task payload was empty.");
             }
 
+            var record = JsonSerializer.Deserialize(buffer.Span, RedisMcpTasksJsonContext.Default.RedisStoredMcpTask);
             if (record is null)
             {
                 throw new JsonException("Redis task payload was empty.");

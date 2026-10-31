@@ -1,6 +1,6 @@
 using System.Net.Http;
 using CloudNimble.Breakdance.AspNetCore;
-using CloudNimble.McpEssentials.Samples.Web;
+using CloudNimble.McpEssentials.Samples.Basic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;

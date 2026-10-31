@@ -461,6 +461,37 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
             act.Should().Throw<InvalidOperationException>().WithMessage("*already registered*");
         }
 
+        [TestMethod]
+        public void WithTasksPlus_WhenConfigureDoesNotSelectStore_Throws()
+        {
+            var builder = new TestMcpServerBuilder();
+
+            Action act = () => builder.WithTasksPlus(_ => { });
+
+            act.Should().Throw<InvalidOperationException>();
+        }
+
+        [TestMethod]
+        public async Task WithTasksPlus_UseInMemoryFromServiceProvider_ResolvesUser()
+        {
+            var builder = new TestMcpServerBuilder();
+            builder.Services.AddSingleton("alice");
+            builder.WithTasksPlus(tasks => tasks.UseInMemory(sp => sp.GetRequiredService<string>()));
+
+            using var provider = builder.Services.BuildServiceProvider();
+            foreach (var configure in provider.GetServices<IConfigureOptions<McpServerOptions>>())
+            {
+                if (configure is ConfigureOptions<McpServerOptions>)
+                {
+                    configure.Configure(new McpServerOptions());
+                }
+            }
+
+            var store = provider.GetRequiredService<IMcpTaskStore>();
+            var created = await store.CreateTaskAsync();
+            created.TaskId.Should().NotBeNullOrWhiteSpace();
+        }
+
         #endregion
 
     }

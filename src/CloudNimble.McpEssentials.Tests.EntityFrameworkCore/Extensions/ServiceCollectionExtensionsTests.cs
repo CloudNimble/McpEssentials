@@ -253,6 +253,42 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Extensions
         }
 
         [TestMethod]
+        public async Task WithTasksPlus_FromUserIdFactory_CreatesTask()
+        {
+            using var sqlite = new SqliteStoreTestContext();
+            var builder = new TestMcpServerBuilder();
+            builder.Services.AddSingleton(sqlite.Connection);
+            builder.Services.AddDbContext<McpTaskDbContext>(o => o.UseSqlite(sqlite.Connection));
+
+            builder.WithTasksPlus<McpTaskDbContext>(() => "alice");
+
+            using var provider = builder.Services.BuildServiceProvider();
+            using var scope = provider.CreateScope();
+            scope.ServiceProvider.GetRequiredService<McpTaskDbContext>().Database.EnsureCreated();
+            var store = provider.GetRequiredService<IMcpTaskStore>();
+            var created = await store.CreateTaskAsync();
+            created.TaskId.Should().NotBeNullOrWhiteSpace();
+        }
+
+        [TestMethod]
+        public async Task WithTasksPlus_FromPrincipalFactory_CreatesTask()
+        {
+            using var sqlite = new SqliteStoreTestContext();
+            var builder = new TestMcpServerBuilder();
+            builder.Services.AddSingleton(sqlite.Connection);
+            builder.Services.AddDbContext<McpTaskDbContext>(o => o.UseSqlite(sqlite.Connection));
+
+            builder.WithTasksPlus<McpTaskDbContext>(() => TestUser.Authenticated("alice"));
+
+            using var provider = builder.Services.BuildServiceProvider();
+            using var scope = provider.CreateScope();
+            scope.ServiceProvider.GetRequiredService<McpTaskDbContext>().Database.EnsureCreated();
+            var store = provider.GetRequiredService<IMcpTaskStore>();
+            var created = await store.CreateTaskAsync();
+            created.TaskId.Should().NotBeNullOrWhiteSpace();
+        }
+
+        [TestMethod]
         public void AddMcpTasksTable_WhenModelBuilderIsNull_Throws()
         {
             ModelBuilder builder = null!;

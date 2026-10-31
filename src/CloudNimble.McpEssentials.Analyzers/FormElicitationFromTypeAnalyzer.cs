@@ -188,7 +188,7 @@ namespace CloudNimble.McpEssentials.Analyzers
         /// </summary>
         /// <param name="expression">The invocation expression (usually a member access).</param>
         /// <returns>The type argument location, or <see langword="null"/>.</returns>
-        private static Location? GetTypeArgumentLocation(ExpressionSyntax expression)
+        internal static Location? GetTypeArgumentLocation(ExpressionSyntax expression)
         {
             SimpleNameSyntax? name = expression switch
             {

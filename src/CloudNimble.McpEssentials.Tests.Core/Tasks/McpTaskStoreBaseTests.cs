@@ -27,6 +27,14 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
         }
 
         [TestMethod]
+        public void LastSweepTicks_RoundTrips()
+        {
+            var inspect = new InspectableStore("alice");
+            inspect.SweepTicks = 42;
+            inspect.SweepTicks.Should().Be(42);
+        }
+
+        [TestMethod]
         public void RequireCurrent_WhenMissing_Throws()
         {
             var inspect = new InspectableStore((string?)null);

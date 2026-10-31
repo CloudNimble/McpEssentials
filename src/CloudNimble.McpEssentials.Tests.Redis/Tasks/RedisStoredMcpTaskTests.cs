@@ -82,6 +82,21 @@ namespace CloudNimble.McpEssentials.Tests.Redis.Tasks
             record!.ToStored().OwnerUserId.Should().Be("alice");
         }
 
+        [TestMethod]
+        public void From_CopiesNonDictionaryInputRequests()
+        {
+            var now = DateTimeOffset.UtcNow;
+            var inner = new Dictionary<string, InputRequest>
+            {
+                ["r1"] = InputRequest.ForElicitation(new ElicitRequestParams { Message = "Need input" })
+            };
+            var stored = new StoredMcpTask("alice", "abc", now, null, 1000);
+            stored.TrySetInputRequests(inner, now);
+            stored.InputRequests = new System.Collections.ObjectModel.ReadOnlyDictionary<string, InputRequest>(inner);
+
+            RedisStoredMcpTask.From(stored).InputRequests.Should().ContainKey("r1");
+        }
+
         #endregion
 
     }

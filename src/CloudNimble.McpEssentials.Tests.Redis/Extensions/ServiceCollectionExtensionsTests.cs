@@ -249,6 +249,52 @@ namespace CloudNimble.McpEssentials.Tests.Redis.Extensions
             act.Should().Throw<ArgumentNullException>().WithParameterName("getPrincipal");
         }
 
+        [TestMethod]
+        public async Task WithRedisTasks_FromUserIdFactory_CreatesTask()
+        {
+            using var redis = new RedisStoreTestContext();
+            var builder = new TestMcpServerBuilder();
+            builder.Services.AddSingleton<IConnectionMultiplexer>(redis.Multiplexer);
+
+            builder.WithRedisTasks(() => "alice");
+
+            using var provider = builder.Services.BuildServiceProvider();
+            foreach (var configure in provider.GetServices<IConfigureOptions<McpServerOptions>>())
+            {
+                if (configure is ConfigureOptions<McpServerOptions>)
+                {
+                    configure.Configure(new McpServerOptions());
+                }
+            }
+
+            var store = provider.GetRequiredService<IMcpTaskStore>();
+            var created = await store.CreateTaskAsync();
+            created.TaskId.Should().NotBeNullOrWhiteSpace();
+        }
+
+        [TestMethod]
+        public async Task WithRedisTasks_FromPrincipalFactory_CreatesTask()
+        {
+            using var redis = new RedisStoreTestContext();
+            var builder = new TestMcpServerBuilder();
+            builder.Services.AddSingleton<IConnectionMultiplexer>(redis.Multiplexer);
+
+            builder.WithRedisTasks(() => TestUser.Authenticated("alice"));
+
+            using var provider = builder.Services.BuildServiceProvider();
+            foreach (var configure in provider.GetServices<IConfigureOptions<McpServerOptions>>())
+            {
+                if (configure is ConfigureOptions<McpServerOptions>)
+                {
+                    configure.Configure(new McpServerOptions());
+                }
+            }
+
+            var store = provider.GetRequiredService<IMcpTaskStore>();
+            var created = await store.CreateTaskAsync();
+            created.TaskId.Should().NotBeNullOrWhiteSpace();
+        }
+
         #endregion
 
         #region Private Methods

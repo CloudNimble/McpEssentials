@@ -2,7 +2,7 @@
 title: "Overview"
 description: "Pick an authenticated MCP task store by the engine you already run: database, distributed cache, or eventing."
 icon: "circle-exclamation"
-keywords: ["IMcpTaskStore", "IMcpTaskStorePlus", "EntityFrameworkCore", "Redis", "PostgreSQL"]
+keywords: ["IMcpTaskStore", "IMcpTaskStorePlus", "EntityFrameworkCore", "Redis", "Cosmos", "PostgreSQL"]
 ---
 
 Every durable store implements the same contract as the in-memory store in [Authenticated tasks](/guides/authenticated-tasks): stamp the owner on create, isolate client-facing get/cancel/resolve to that user, let the SDK complete work after the HTTP request is gone.
@@ -28,7 +28,7 @@ Relational and document engines. Entity Framework Core is the default durable pa
 | `McpEssentials.EntityFrameworkCore` | [Entity Framework Core](/guides/stores/entity-framework-core) | SQL Server, SQLite, PostgreSQL, MySQL, Cosmos via EF, and any other EF Core provider | Shipped |
 | `McpEssentials.PostgreSQL` | [PostgreSQL](/guides/stores/postgresql) | Npgsql, no EF | Specified |
 | `McpEssentials.SqlServer` | [SQL Server](/guides/stores/sql-server) | `Microsoft.Data.SqlClient`, no EF | Specified |
-| `McpEssentials.Cosmos` | [Cosmos DB](/guides/stores/cosmos) | Azure Cosmos DB for NoSQL | Specified |
+| `McpEssentials.Cosmos` | [Cosmos DB](/guides/stores/cosmos) | Azure Cosmos DB for NoSQL, `/ownerUserId` partition plus index | Shipped |
 | `McpEssentials.MongoDB` | [MongoDB](/guides/stores/mongodb) | MongoDB | Specified |
 | `McpEssentials.AzureTables` | [Azure Tables](/guides/stores/azure-tables) | Azure Table Storage | Specified |
 
@@ -96,6 +96,14 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(
 builder.Services.AddMcpServer()
     .WithHttpTransport(o => o.Stateless = true)
     .WithRedisTasks(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+
+// Production (Cosmos)
+builder.Services.AddSingleton(_ => new CosmosClient(
+    cosmosConnectionString,
+    CosmosMcpTaskStore.DefaultClientOptions()));
+builder.Services.AddMcpServer()
+    .WithHttpTransport(o => o.Stateless = true)
+    .WithCosmosTasks(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
 ```
 
 Map `McpTasks` with `AddMcpTasksTable`. See [Entity Framework Core](/guides/stores/entity-framework-core) for which overload to call (`OnModelCreating` vs `AddDbContext`).

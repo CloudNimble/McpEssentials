@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using CloudNimble.McpEssentials.Core.Tasks;
 using ModelContextProtocol.Server;
 
-namespace CloudNimble.McpEssentials.Samples.Web
+namespace CloudNimble.McpEssentials.Samples.EntityFrameworkCore
 {
 
     /// <summary>

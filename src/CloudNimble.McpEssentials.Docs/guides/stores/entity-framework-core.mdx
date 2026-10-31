@@ -108,6 +108,8 @@ builder.Services.AddMcpEssentialsEntityFrameworkTasks<AppDbContext>(
 
 Register the store as a **singleton**. The context stays scoped. Each operation opens an `IServiceScope`, resolves `TContext`, and disposes the scope.
 
+A runnable SQLite host is [`samples/CloudNimble.McpEssentials.Samples.EntityFrameworkCore`](https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.EntityFrameworkCore).
+
 ## Options
 
 Pass `Action<McpTaskStoreOptions>` as the next argument after identity.

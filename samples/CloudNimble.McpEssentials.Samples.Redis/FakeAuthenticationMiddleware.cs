@@ -2,7 +2,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace CloudNimble.McpEssentials.Samples.Web
+namespace CloudNimble.McpEssentials.Samples.Redis
 {
 
     /// <summary>

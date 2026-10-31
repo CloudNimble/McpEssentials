@@ -13,7 +13,10 @@
     <Project Path="CloudNimble.McpEssentials.Docs/CloudNimble.McpEssentials.Docs.docsproj" Type="C#" />
   </Folder>
   <Folder Name="/Samples/">
-    <Project Path="../samples/CloudNimble.McpEssentials.Samples.Web/CloudNimble.McpEssentials.Samples.Web.csproj" />
+    <Project Path="../samples/CloudNimble.McpEssentials.Samples.Basic/CloudNimble.McpEssentials.Samples.Basic.csproj" />
+    <Project Path="../samples/CloudNimble.McpEssentials.Samples.Cosmos/CloudNimble.McpEssentials.Samples.Cosmos.csproj" />
+    <Project Path="../samples/CloudNimble.McpEssentials.Samples.EntityFrameworkCore/CloudNimble.McpEssentials.Samples.EntityFrameworkCore.csproj" />
+    <Project Path="../samples/CloudNimble.McpEssentials.Samples.Redis/CloudNimble.McpEssentials.Samples.Redis.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="../LICENSE" />
@@ -26,6 +29,7 @@
     <File Path="../specs/authenticated-task-stores.md" />
   </Folder>
   <Folder Name="/Stores/">
+    <Project Path="CloudNimble.McpEssentials.Cosmos/CloudNimble.McpEssentials.Cosmos.csproj" />
     <Project Path="CloudNimble.McpEssentials.EntityFrameworkCore/CloudNimble.McpEssentials.EntityFrameworkCore.csproj" />
     <Project Path="CloudNimble.McpEssentials.Redis/CloudNimble.McpEssentials.Redis.csproj" />
   </Folder>
@@ -33,6 +37,7 @@
     <Project Path="CloudNimble.McpEssentials.Tests.Analyzers/CloudNimble.McpEssentials.Tests.Analyzers.csproj" />
     <Project Path="CloudNimble.McpEssentials.Tests.AspNetCore/CloudNimble.McpEssentials.Tests.AspNetCore.csproj" />
     <Project Path="CloudNimble.McpEssentials.Tests.Core/CloudNimble.McpEssentials.Tests.Core.csproj" />
+    <Project Path="CloudNimble.McpEssentials.Tests.Cosmos/CloudNimble.McpEssentials.Tests.Cosmos.csproj" />
     <Project Path="CloudNimble.McpEssentials.Tests.EntityFrameworkCore/CloudNimble.McpEssentials.Tests.EntityFrameworkCore.csproj" />
     <Project Path="CloudNimble.McpEssentials.Tests.Redis/CloudNimble.McpEssentials.Tests.Redis.csproj" />
   </Folder>

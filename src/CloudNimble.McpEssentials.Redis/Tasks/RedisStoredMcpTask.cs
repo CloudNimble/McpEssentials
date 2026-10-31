@@ -108,11 +108,7 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
                 StatusMessage = stored.StatusMessage,
                 Result = stored.Result,
                 Error = stored.Error,
-                InputRequests = stored.InputRequests is Dictionary<string, InputRequest> { Count: > 0 } dictionary
-                    ? dictionary
-                    : stored.InputRequests is { Count: > 0 }
-                        ? new Dictionary<string, InputRequest>(stored.InputRequests, StringComparer.Ordinal)
-                        : null
+                InputRequests = stored.ToInputRequestDictionaryOrNull()
             };
         }
 

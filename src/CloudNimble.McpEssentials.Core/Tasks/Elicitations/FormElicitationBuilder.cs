@@ -167,12 +167,13 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
             }
 
             var properties = new Dictionary<string, ElicitRequestParams.PrimitiveSchemaDefinition>(Fields.Count, StringComparer.Ordinal);
-            var required = new List<string>();
+            List<string>? required = null;
             foreach (var field in Fields)
             {
                 properties[field.Name] = field.ToSchema();
                 if (field.Required)
                 {
+                    required ??= new List<string>();
                     required.Add(field.Name);
                 }
             }
@@ -184,7 +185,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
                 RequestedSchema = new ElicitRequestParams.RequestSchema
                 {
                     Properties = properties,
-                    Required = required.Count == 0 ? null : required
+                    Required = required
                 }
             };
         }
