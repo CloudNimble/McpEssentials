@@ -4,7 +4,7 @@
         <TargetFrameworks>net11.0;net10.0;net9.0;net8.0;</TargetFrameworks>
         <DocumentationFile>$(DocumentationFile)\$(AssemblyName).xml</DocumentationFile>
         <Title>McpEssentials — Redis</Title>
-        <Description>Redis authenticated MCP task store. Native EXPIRE from DiscardAfter and pub/sub for multi-node elicitation.</Description>
+        <Description>Run MCP tasks on Redis. Keys expire on their own, and pub/sub wakes every node when a user answers an elicitation form.</Description>
         <PackageTags>mcp;modelcontextprotocol;tasks;authentication;redis;stackexchange;cloudnimble</PackageTags>
     </PropertyGroup>
 

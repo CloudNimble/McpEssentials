@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ModelContextProtocol.Protocol;
 
 namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
@@ -289,7 +288,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
                 Title = Title,
                 Description = Description,
                 Default = DefaultString,
-                Enum = Options.Select(o => o.Value).ToList()
+                Enum = CopyOptionValues()
             };
         }
 
@@ -324,7 +323,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
                 Default = DefaultStrings,
                 Items = new ElicitRequestParams.UntitledEnumItemsSchema
                 {
-                    Enum = Options.Select(o => o.Value).ToList()
+                    Enum = CopyOptionValues()
                 }
             };
         }
@@ -344,11 +343,33 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// <returns>The titled option list.</returns>
         private List<ElicitRequestParams.EnumSchemaOption> ToEnumOptions()
         {
-            return [.. Options.Select(o => new ElicitRequestParams.EnumSchemaOption
+            var options = new List<ElicitRequestParams.EnumSchemaOption>(Options.Count);
+            for (var i = 0; i < Options.Count; i++)
             {
-                Const = o.Value,
-                Title = o.Title ?? o.Value
-            })];
+                var option = Options[i];
+                options.Add(new ElicitRequestParams.EnumSchemaOption
+                {
+                    Const = option.Value,
+                    Title = option.Title ?? option.Value
+                });
+            }
+
+            return options;
+        }
+
+        /// <summary>
+        /// Copies option wire values in insertion order.
+        /// </summary>
+        /// <returns>The untitled enum list.</returns>
+        private List<string> CopyOptionValues()
+        {
+            var values = new List<string>(Options.Count);
+            for (var i = 0; i < Options.Count; i++)
+            {
+                values.Add(Options[i].Value);
+            }
+
+            return values;
         }
 
         #endregion

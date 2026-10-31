@@ -8,6 +8,7 @@
         <IsSampleProject Condition="$(MSBuildProjectName.ToLower().Contains('.samples.'))">true</IsSampleProject>
         <IsTemplateProject Condition="$(MSBuildProjectName.ToLower().Contains('.templates.'))">true</IsTemplateProject>
         <IsDocumentationProject Condition="'$(MSBuildProjectExtension)' == '.docsproj'">true</IsDocumentationProject>
+        <IsAnalyzerProject Condition="$(MSBuildProjectName.ToLower().EndsWith('.analyzers'))">true</IsAnalyzerProject>
         <IsNetCore Condition=" '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net10.0' OR '$(TargetFramework)' == 'net11.0' ">true</IsNetCore>
         <IsPrimaryProject Condition=" '$(IsBenchmarkProject)' != 'true' And '$(IsTestProject)' != 'true' And '$(IsTestAssetProject)' != 'true' And '$(IsSampleProject)' != 'true' And '$(IsTemplateProject)' != 'true' And '$(IsDocumentationProject)' != 'true' ">true</IsPrimaryProject>
         <IncludeReadmeFile Condition="Exists('$(MSBuildProjectDirectory)\readme.md')">true</IncludeReadmeFile>
@@ -44,7 +45,7 @@
         <MaintainerEmail>opensource@nimbleapps.cloud</MaintainerEmail>
 
         <Summary>
-            Useful extensions to the Model Context Protocol C# SDK that make it easier to build generic MCP servers.
+            The .NET toolkit for multi-user Model Context Protocol servers—authenticated tasks, form elicitation, and durable stores.
         </Summary>
         <Description>
             $(Summary)
@@ -103,6 +104,17 @@
         <IsPackable>true</IsPackable>
         <IsAotCompatible>true</IsAotCompatible>
         <IsTrimmable>true</IsTrimmable>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(IsAnalyzerProject)' == 'true' ">
+        <IsAotCompatible>false</IsAotCompatible>
+        <IsTrimmable>false</IsTrimmable>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <IsRoslynComponent>true</IsRoslynComponent>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <DevelopmentDependency>true</DevelopmentDependency>
+        <IncludeSymbols>false</IncludeSymbols>
+        <NoWarn>$(NoWarn);NU5128;RS2008</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(IsTemplateProject)' == 'true' And '$(IsTemplatePackageProject)' != 'true' ">

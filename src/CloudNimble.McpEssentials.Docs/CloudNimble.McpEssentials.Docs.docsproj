@@ -27,7 +27,8 @@
                             <Pages>
                                 guides/index;
                                 guides/authenticated-tasks;
-                                guides/form-elicitation
+                                guides/form-elicitation;
+                                guides/analyzers
                             </Pages>
                             <Groups>
                                 <Group Name="Stores" Icon="database" Root="guides/stores/index">
@@ -70,6 +71,7 @@
         <ProjectReference Include="..\CloudNimble.McpEssentials.Core\CloudNimble.McpEssentials.Core.csproj" />
         <ProjectReference Include="..\CloudNimble.McpEssentials.EntityFrameworkCore\CloudNimble.McpEssentials.EntityFrameworkCore.csproj" />
         <ProjectReference Include="..\CloudNimble.McpEssentials.Redis\CloudNimble.McpEssentials.Redis.csproj" />
+        <ProjectReference Include="..\CloudNimble.McpEssentials.Analyzers\CloudNimble.McpEssentials.Analyzers.csproj" />
     </ItemGroup>
 
 </Project>

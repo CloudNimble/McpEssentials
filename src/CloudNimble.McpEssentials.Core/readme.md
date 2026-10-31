@@ -43,6 +43,8 @@ var typed = await server.ElicitAsync(
 
 Keep the builder and add a field per name when the shape comes from metadata. `From<T>()` seeds a CLR type. Both work inside an MCP task: the SDK interceptor parks the form on the task when the tool `await`s `ElicitAsync`. To park yourself: `store.SetInputRequestsAsync(taskId, form)`.
 
+This package ships Roslyn analyzers (`MCPESS001`–`MCPESS005`) that warn on unmappable `From<T>()` properties, colliding wire names, and nested lambdas.
+
 `IMcpTaskStorePlus` extends `IMcpTaskStore` with `ClaimsPrincipal` overloads. `McpTaskStoreBase` takes a current-user callback and wires `InputResponseReceived`. `CreateTaskAsync` stamps the current user (NameIdentifier → `sub` → UPN → Name). `tasks/get`, `tasks/update`, and `tasks/cancel` return "not found" for another user's task. Server-side completion (`SetCompletedAsync` / `SetFailedAsync` / `SetInputRequestsAsync`) uses the owner recorded at create, because those calls run on a background DI scope after the original request is gone.
 
 ## Durable stores

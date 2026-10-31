@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using ModelContextProtocol.Protocol;
 
@@ -45,13 +44,8 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
             }
 
             var serializerOptions = options ?? DefaultOptions;
-            JsonObject obj = [];
-            foreach (var pair in result.Content)
-            {
-                obj[pair.Key] = JsonNode.Parse(pair.Value.GetRawText());
-            }
-
-            var typed = JsonSerializer.Deserialize<T>(obj, serializerOptions);
+            var utf8 = JsonSerializer.SerializeToUtf8Bytes(result.Content);
+            var typed = JsonSerializer.Deserialize<T>(utf8, serializerOptions);
             return new ElicitResult<T> { Action = result.Action, Content = typed };
         }
 

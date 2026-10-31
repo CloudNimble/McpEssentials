@@ -28,7 +28,7 @@
 // Copyright (c) 2013 Scott Kirkland
 
 using System;
-using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
@@ -70,14 +70,11 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         {
             ArgumentNullException.ThrowIfNull(input);
 
-            // if input is all capitals (e.g. an acronym) then return it without change
-            if (input.Length > 0 && input.All(char.IsUpper))
+            if (input.Length > 0 && IsAllUpper(input))
             {
                 return input;
             }
 
-            // if input contains a dash or underscore which precedes or follows a space (or both, e.g. free-standing)
-            // remove the dash/underscore and run it through FromPascalCase
             if (FreestandingSpacingCharRegex().IsMatch(input))
             {
                 return FromPascalCase(FromUnderscoreDashSeparatedWords(input));
@@ -110,19 +107,43 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
                 return humanized;
             }
 
-            var words = humanized.Split(' ');
-            for (var i = 0; i < words.Length; i++)
+            var builder = new StringBuilder(humanized.Length);
+            var changed = false;
+            var i = 0;
+            while (i < humanized.Length)
             {
-                var word = words[i];
-                if (word.Length == 0 || word.All(char.IsUpper))
+                if (humanized[i] == ' ')
                 {
+                    builder.Append(' ');
+                    i++;
                     continue;
                 }
 
-                words[i] = char.ToUpperInvariant(word[0]) + word[1..];
+                var start = i;
+                i++;
+                while (i < humanized.Length && humanized[i] != ' ')
+                {
+                    i++;
+                }
+
+                var word = humanized.AsSpan(start, i - start);
+                if (word.Length == 0 || IsAllUpper(word))
+                {
+                    builder.Append(word);
+                    continue;
+                }
+
+                var titled = char.ToUpperInvariant(word[0]);
+                if (titled != word[0])
+                {
+                    changed = true;
+                }
+
+                builder.Append(titled);
+                builder.Append(word[1..]);
             }
 
-            return string.Join(" ", words);
+            return changed ? builder.ToString() : humanized;
         }
 
         #endregion
@@ -136,7 +157,17 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// <returns>The identifier with separators replaced by spaces.</returns>
         private static string FromUnderscoreDashSeparatedWords(string input)
         {
-            return string.Join(" ", input.Split(['_', '-']));
+            return string.Create(input.Length, input, static (span, source) =>
+            {
+                source.AsSpan().CopyTo(span);
+                for (var i = 0; i < span.Length; i++)
+                {
+                    if (span[i] is '_' or '-')
+                    {
+                        span[i] = ' ';
+                    }
+                }
+            });
         }
 
         /// <summary>
@@ -147,22 +178,66 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// <returns>A space-separated phrase.</returns>
         private static string FromPascalCase(string input)
         {
-            var result = string.Join(" ", PascalCaseWordPartsRegex()
-                .Matches(input)
-                .Select(match => match.Value.All(char.IsUpper) &&
-                    (match.Value.Length > 1 || (match.Index > 0 && input[match.Index - 1] == ' ') || match.Value == "I")
-                    ? match.Value
-                    : match.Value.ToLowerInvariant()));
-
-            if (result.Replace(" ", string.Empty, StringComparison.Ordinal).All(char.IsUpper) &&
-                result.Contains(' ', StringComparison.Ordinal))
+            var builder = new StringBuilder(input.Length + 8);
+            var tokenCount = 0;
+            var allKeptUpper = true;
+            foreach (var match in PascalCaseWordPartsRegex().EnumerateMatches(input))
             {
-                result = result.ToLowerInvariant();
+                if (tokenCount > 0)
+                {
+                    builder.Append(' ');
+                }
+
+                tokenCount++;
+                var word = input.AsSpan(match.Index, match.Length);
+                var keepUpper = IsAllUpper(word) &&
+                    (word.Length > 1 || (match.Index > 0 && input[match.Index - 1] == ' ') || (word.Length == 1 && word[0] == 'I'));
+                if (keepUpper)
+                {
+                    builder.Append(word);
+                    continue;
+                }
+
+                allKeptUpper = false;
+                for (var i = 0; i < word.Length; i++)
+                {
+                    builder.Append(char.ToLowerInvariant(word[i]));
+                }
             }
 
-            return result.Length > 0
-                ? char.ToUpperInvariant(result[0]) + result[1..]
-                : result;
+            if (tokenCount == 0)
+            {
+                return input.Length == 0 ? input : string.Empty;
+            }
+
+            if (allKeptUpper && tokenCount > 1)
+            {
+                for (var i = 0; i < builder.Length; i++)
+                {
+                    builder[i] = char.ToLowerInvariant(builder[i]);
+                }
+            }
+
+            builder[0] = char.ToUpperInvariant(builder[0]);
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Gets whether every character in <paramref name="value"/> is uppercase.
+        /// </summary>
+        /// <param name="value">The characters to test.</param>
+        /// <returns><see langword="true"/> when the span is non-empty and all uppercase, or when it is empty (vacuous).</returns>
+        private static bool IsAllUpper(ReadOnlySpan<char> value)
+        {
+            for (var i = 0; i < value.Length; i++)
+            {
+                if (!char.IsUpper(value[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>

@@ -1,0 +1,67 @@
+---
+title: FormElicitationFromTypeAnalyzer
+description: "Warns when `FormElicitation.From&lt;T&gt;` or `new FormElicitationBuilder&lt;T&gt;` would skip properties, collide on a wire name, or use a built-in as T."
+icon: file-brackets-curly
+sidebarTitle: FormElicitationFromTypeAnalyzer
+keywords: ['FormElicitationFromTypeAnalyzer', 'CloudNimble.McpEssentials.Analyzers.FormElicitationFromTypeAnalyzer', 'CloudNimble.McpEssentials.Analyzers', 'class', 'Microsoft.CodeAnalysis.Diagnostics.DiagnosticAnalyzer']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Analyzers.dll
+
+**Namespace:** CloudNimble.McpEssentials.Analyzers
+
+**Inheritance:** Microsoft.CodeAnalysis.Diagnostics.DiagnosticAnalyzer
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Analyzers.FormElicitationFromTypeAnalyzer
+```
+
+## Summary
+
+Warns when `FormElicitation.From&lt;T&gt;` or `new FormElicitationBuilder&lt;T&gt;`
+would skip properties, collide on a wire name, or use a built-in as T.
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+#### Syntax
+
+```csharp
+public FormElicitationFromTypeAnalyzer()
+```
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SupportedDiagnostics <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override System.Collections.Immutable.ImmutableArray<Microsoft.CodeAnalysis.DiagnosticDescriptor> SupportedDiagnostics { get; }
+```
+
+#### Property Value
+
+Type: `System.Collections.Immutable.ImmutableArray<Microsoft.CodeAnalysis.DiagnosticDescriptor>`
+
+## Methods
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Initialize <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override void Initialize(Microsoft.CodeAnalysis.Diagnostics.AnalysisContext context)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `context` | `Microsoft.CodeAnalysis.Diagnostics.AnalysisContext` | - |
+

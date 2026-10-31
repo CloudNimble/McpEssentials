@@ -152,7 +152,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
                 throw new ArgumentException("Default must include at least one value.", nameof(values));
             }
 
-            Field.DefaultStrings = values.ToList();
+            Field.DefaultStrings = values;
             return this;
         }
 

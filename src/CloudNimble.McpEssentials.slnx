@@ -6,6 +6,7 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Core/">
+    <Project Path="CloudNimble.McpEssentials.Analyzers/CloudNimble.McpEssentials.Analyzers.csproj" />
     <Project Path="CloudNimble.McpEssentials.Core/CloudNimble.McpEssentials.Core.csproj" />
   </Folder>
   <Folder Name="/Docs/">
@@ -29,6 +30,7 @@
     <Project Path="CloudNimble.McpEssentials.Redis/CloudNimble.McpEssentials.Redis.csproj" />
   </Folder>
   <Folder Name="/Tests/">
+    <Project Path="CloudNimble.McpEssentials.Tests.Analyzers/CloudNimble.McpEssentials.Tests.Analyzers.csproj" />
     <Project Path="CloudNimble.McpEssentials.Tests.AspNetCore/CloudNimble.McpEssentials.Tests.AspNetCore.csproj" />
     <Project Path="CloudNimble.McpEssentials.Tests.Core/CloudNimble.McpEssentials.Tests.Core.csproj" />
     <Project Path="CloudNimble.McpEssentials.Tests.EntityFrameworkCore/CloudNimble.McpEssentials.Tests.EntityFrameworkCore.csproj" />

@@ -94,12 +94,6 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
         public static RedisStoredMcpTask From(StoredMcpTask stored)
         {
             ArgumentNullException.ThrowIfNull(stored);
-            Dictionary<string, InputRequest>? inputs = null;
-            if (stored.InputRequests is { Count: > 0 })
-            {
-                inputs = new Dictionary<string, InputRequest>(stored.InputRequests, StringComparer.Ordinal);
-            }
-
             return new RedisStoredMcpTask
             {
                 TaskId = stored.TaskId,
@@ -114,7 +108,11 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
                 StatusMessage = stored.StatusMessage,
                 Result = stored.Result,
                 Error = stored.Error,
-                InputRequests = inputs
+                InputRequests = stored.InputRequests is Dictionary<string, InputRequest> { Count: > 0 } dictionary
+                    ? dictionary
+                    : stored.InputRequests is { Count: > 0 }
+                        ? new Dictionary<string, InputRequest>(stored.InputRequests, StringComparer.Ordinal)
+                        : null
             };
         }
 

@@ -62,6 +62,9 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
         private ISubscriber? _subscriber;
         private ChannelMessageQueue? _subscription;
         private int _subscribed;
+        private string _keyPrefixCache = "mcp";
+        private string _taskKeyHead = "mcp:task:";
+        private RedisChannel _inputChannel = RedisChannel.Literal("mcp:task:input");
 
         #endregion
 
@@ -374,12 +377,23 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
         /// </summary>
         /// <param name="taskId">The opaque task identifier.</param>
         /// <returns>A key under <see cref="KeyPrefix"/>.</returns>
-        protected virtual RedisKey TaskKey(string taskId) => $"{KeyPrefix}:task:{taskId}";
+        protected virtual RedisKey TaskKey(string taskId)
+        {
+            RefreshPrefixCache();
+            return _taskKeyHead + taskId;
+        }
 
         /// <summary>
         /// Returns the pub/sub channel for resolved input.
         /// </summary>
-        protected virtual RedisChannel InputChannel => RedisChannel.Literal($"{KeyPrefix}:task:input");
+        protected virtual RedisChannel InputChannel
+        {
+            get
+            {
+                RefreshPrefixCache();
+                return _inputChannel;
+            }
+        }
 
         /// <summary>
         /// Compare-and-swap update of a stored snapshot using a Lua script.
@@ -447,8 +461,11 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
             cancellationToken.ThrowIfCancellationRequested();
             var token = SignalToken(taskId, requestId);
             _localPublishes.TryAdd(token, 0);
-            var payload = JsonSerializer.Serialize(new RedisInputSignal { TaskId = taskId, RequestId = requestId }, RedisMcpTasksJsonContext.Default.RedisInputSignal);
-            await Multiplexer.GetSubscriber().PublishAsync(InputChannel, payload).ConfigureAwait(false);
+            var payload = JsonSerializer.SerializeToUtf8Bytes(
+                new RedisInputSignal { TaskId = taskId, RequestId = requestId },
+                RedisMcpTasksJsonContext.Default.RedisInputSignal);
+            var subscriber = _subscriber ?? Multiplexer.GetSubscriber();
+            await subscriber.PublishAsync(InputChannel, payload).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -474,8 +491,8 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
         /// <param name="message">The channel message.</param>
         protected virtual void OnChannelMessage(ChannelMessage message)
         {
-            var json = (string?)message.Message;
-            if (string.IsNullOrWhiteSpace(json))
+            RedisValue payload = message.Message;
+            if (payload.IsNullOrEmpty)
             {
                 return;
             }
@@ -483,7 +500,21 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
             RedisInputSignal? signal;
             try
             {
-                signal = JsonSerializer.Deserialize(json, RedisMcpTasksJsonContext.Default.RedisInputSignal);
+                ReadOnlyMemory<byte> utf8 = payload;
+                if (utf8.IsEmpty)
+                {
+                    var text = (string?)payload;
+                    if (string.IsNullOrEmpty(text))
+                    {
+                        return;
+                    }
+
+                    signal = JsonSerializer.Deserialize(text, RedisMcpTasksJsonContext.Default.RedisInputSignal);
+                }
+                else
+                {
+                    signal = JsonSerializer.Deserialize(utf8.Span, RedisMcpTasksJsonContext.Default.RedisInputSignal);
+                }
             }
             catch (JsonException)
             {
@@ -508,20 +539,38 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
         #region Private Methods
 
         /// <summary>
+        /// Rebuilds cached key heads when <see cref="KeyPrefix"/> changes.
+        /// </summary>
+        private void RefreshPrefixCache()
+        {
+            var prefix = KeyPrefix;
+            if (prefix == _keyPrefixCache)
+            {
+                return;
+            }
+
+            _keyPrefixCache = prefix;
+            _taskKeyHead = prefix + ":task:";
+            _inputChannel = RedisChannel.Literal(prefix + ":task:input");
+        }
+
+        /// <summary>
         /// Builds the local-publish token used to drop this process's own pub/sub echo.
         /// </summary>
         /// <param name="taskId">The task identifier.</param>
         /// <param name="requestId">The input-request identifier.</param>
         /// <returns>A token unique to the pair.</returns>
-        private static string SignalToken(string taskId, string requestId) => taskId + "\n" + requestId;
+        private static string SignalToken(string taskId, string requestId) => string.Concat(taskId, "\n", requestId);
 
         /// <summary>
         /// Serializes <paramref name="stored"/> through <see cref="RedisStoredMcpTask"/>.
         /// </summary>
         /// <param name="stored">The in-memory snapshot.</param>
         /// <returns>Camel-case JSON for the Redis string.</returns>
-        private static string Serialize(StoredMcpTask stored)
-            => JsonSerializer.Serialize(RedisStoredMcpTask.From(stored), RedisMcpTasksJsonContext.Default.RedisStoredMcpTask);
+        private static RedisValue Serialize(StoredMcpTask stored)
+            => JsonSerializer.SerializeToUtf8Bytes(
+                RedisStoredMcpTask.From(stored),
+                RedisMcpTasksJsonContext.Default.RedisStoredMcpTask);
 
         /// <summary>
         /// Deserializes a Redis string into a <see cref="StoredMcpTask"/>.
@@ -529,9 +578,25 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
         /// <param name="json">The JSON payload.</param>
         /// <returns>A snapshot the Core <c>Try*</c> methods can mutate.</returns>
         /// <exception cref="JsonException">Thrown when the payload is empty or invalid.</exception>
-        private static StoredMcpTask Deserialize(string json)
+        private static StoredMcpTask Deserialize(RedisValue json)
         {
-            var record = JsonSerializer.Deserialize(json, RedisMcpTasksJsonContext.Default.RedisStoredMcpTask);
+            RedisStoredMcpTask? record;
+            ReadOnlyMemory<byte> utf8 = json;
+            if (!utf8.IsEmpty)
+            {
+                record = JsonSerializer.Deserialize(utf8.Span, RedisMcpTasksJsonContext.Default.RedisStoredMcpTask);
+            }
+            else
+            {
+                var text = (string?)json;
+                if (string.IsNullOrEmpty(text))
+                {
+                    throw new JsonException("Redis task payload was empty.");
+                }
+
+                record = JsonSerializer.Deserialize(text, RedisMcpTasksJsonContext.Default.RedisStoredMcpTask);
+            }
+
             if (record is null)
             {
                 throw new JsonException("Redis task payload was empty.");
@@ -544,9 +609,9 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
         /// Returns the <c>PEXPIREAT</c> argument: unix milliseconds, or empty when unlimited.
         /// </summary>
         /// <param name="discardAfter">The visibility ceiling, or <see langword="null"/>.</param>
-        /// <returns>A string Redis can pass to Lua <c>ARGV</c>.</returns>
+        /// <returns>A Redis value Lua can read as <c>ARGV</c>.</returns>
         private static RedisValue ExpireArgument(DateTimeOffset? discardAfter)
-            => discardAfter is { } deadline ? deadline.ToUnixTimeMilliseconds().ToString() : "";
+            => discardAfter is { } deadline ? deadline.ToUnixTimeMilliseconds() : RedisValue.EmptyString;
 
         /// <summary>
         /// Converts a Lua integer into <see cref="int"/>.

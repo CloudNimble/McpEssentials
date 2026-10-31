@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>$(StandardTestTfms)</TargetFrameworks>
+        <IsPackable>false</IsPackable>
+        <NoWarn>$(NoWarn);RS1035;RS1038</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\CloudNimble.McpEssentials.Analyzers\CloudNimble.McpEssentials.Analyzers.csproj" />
+        <ProjectReference Include="..\CloudNimble.McpEssentials.Core\CloudNimble.McpEssentials.Core.csproj" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.11.*" />
+    </ItemGroup>
+
+</Project>

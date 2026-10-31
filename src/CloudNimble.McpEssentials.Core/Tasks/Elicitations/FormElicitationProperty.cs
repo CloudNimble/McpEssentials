@@ -1,7 +1,6 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text.Json;
 
 namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
 {
@@ -51,7 +50,16 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         public static string WireName(string name)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
-            return JsonNamingPolicy.CamelCase.ConvertName(name);
+            if (!char.IsUpper(name[0]))
+            {
+                return name;
+            }
+
+            return string.Create(name.Length, name, static (destination, source) =>
+            {
+                source.AsSpan().CopyTo(destination);
+                destination[0] = char.ToLowerInvariant(destination[0]);
+            });
         }
 
         #endregion

@@ -364,6 +364,10 @@ These fail at the fluent call or at `Build()` / `ElicitAsync` / `SetInputRequest
 An empty property list is legal. Nested property access in `Exclude` / expression starters (`x => x.Address.City`) throws `ArgumentException`.
 </Note>
 
+## Analyzers
+
+`McpEssentials.Core` ships Roslyn analyzers so a skipped property or a nested lambda is a compiler diagnostic instead of a missing field at runtime. The full ID list, suppressions, and before/after samples live in [Analyzers](/guides/analyzers).
+
 ## API
 
 <CardGroup cols={2}>

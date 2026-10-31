@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -215,16 +214,45 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
                 return false;
             }
 
-            foreach (var candidate in EnumerateEnumerableArguments(type))
+            if (TryGetEnumArgument(type, out enumType))
             {
-                if (candidate.IsEnum)
+                return true;
+            }
+
+            var interfaces = type.GetInterfaces();
+            for (var i = 0; i < interfaces.Length; i++)
+            {
+                if (TryGetEnumArgument(interfaces[i], out enumType))
                 {
-                    enumType = candidate;
                     return true;
                 }
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Gets the enum type argument when <paramref name="type"/> is exactly <c>IEnumerable&lt;TEnum&gt;</c>.
+        /// </summary>
+        /// <param name="type">A type that may be the generic enumerable interface.</param>
+        /// <param name="enumType">The enum item type.</param>
+        /// <returns><see langword="true"/> when <paramref name="type"/> is <c>IEnumerable&lt;TEnum&gt;</c>.</returns>
+        private static bool TryGetEnumArgument(Type type, [NotNullWhen(true)] out Type? enumType)
+        {
+            enumType = null;
+            if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(IEnumerable<>))
+            {
+                return false;
+            }
+
+            var argument = type.GenericTypeArguments[0];
+            if (!argument.IsEnum)
+            {
+                return false;
+            }
+
+            enumType = argument;
+            return true;
         }
 
         /// <summary>
@@ -237,14 +265,14 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         {
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
             {
-                yield return type.GetGenericArguments()[0];
+                yield return type.GenericTypeArguments[0];
             }
 
             foreach (var implemented in type.GetInterfaces())
             {
                 if (implemented.IsGenericType && implemented.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 {
-                    yield return implemented.GetGenericArguments()[0];
+                    yield return implemented.GenericTypeArguments[0];
                 }
             }
         }

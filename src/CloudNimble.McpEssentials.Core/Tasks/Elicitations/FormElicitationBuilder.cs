@@ -12,6 +12,12 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
     public class FormElicitationBuilder : IFormElicitationSource
     {
 
+        #region Fields
+
+        private ElicitationField? _hotField;
+
+        #endregion
+
         #region Constructors
 
         /// <summary>
@@ -234,7 +240,9 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             var wire = FormElicitationProperty.WireName(name);
-            var existing = Fields.Find(f => string.Equals(f.Name, wire, StringComparison.Ordinal));
+            var existing = _hotField is not null && string.Equals(_hotField.Name, wire, StringComparison.Ordinal)
+                ? _hotField
+                : Fields.Find(f => string.Equals(f.Name, wire, StringComparison.Ordinal));
             if (existing is null)
             {
                 var created = new ElicitationField
@@ -244,6 +252,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
                     Kind = kind
                 };
                 Fields.Add(created);
+                _hotField = created;
                 return created;
             }
 
@@ -252,6 +261,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
                 existing.ResetKind(kind);
             }
 
+            _hotField = existing;
             return existing;
         }
 
@@ -263,6 +273,10 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         {
             var wire = FormElicitationProperty.WireName(name);
             Fields.RemoveAll(f => string.Equals(f.Name, wire, StringComparison.Ordinal));
+            if (_hotField is not null && string.Equals(_hotField.Name, wire, StringComparison.Ordinal))
+            {
+                _hotField = null;
+            }
         }
 
         /// <summary>

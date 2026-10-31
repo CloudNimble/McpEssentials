@@ -1,0 +1,241 @@
+---
+title: "Analyzers"
+description: "Roslyn diagnostics that catch broken MCP forms while you type—unmappable properties, colliding wire names, and invalid lambdas."
+icon: "wand-magic-sparkles"
+keywords: ["MCPESS001", "MCPESS002", "MCPESS003", "MCPESS004", "MCPESS005", "FormElicitation", "analyzers"]
+---
+
+MCP form elicitation is easy to get slightly wrong: a nested object on `From<T>()`, two properties that camelCase to the same name, a lambda that isn’t `x => x.Email`. Runtime skips or throws. The analyzers in **McpEssentials.Core** turn those mistakes into IDE squiggles and `dotnet build` diagnostics.
+
+They fire on [`FormElicitation.From<T>()`](/guides/form-elicitation) and on expression starters (`Exclude`, `String`, `Email`, …). String-named `Create()` fields are whatever you add, so they are not analyzed.
+
+<CardGroup cols={3}>
+  <Card title="Ships in Core" icon="box-open">
+    `dotnet add package McpEssentials.Core` is enough. No extra package for everyday use.
+  </Card>
+  <Card title="Five IDs" icon="list-ol">
+    MCPESS001–005. Warnings, errors, and one info. All in the Usage category.
+  </Card>
+  <Card title="Same chain" icon="link">
+    `.Exclude(x => x.Home)` on the `From` call that seeded `Home` suppresses MCPESS001 for that property.
+  </Card>
+</CardGroup>
+
+## Install
+
+<Tabs>
+  <Tab title="With Core" icon="box-open">
+    Core already packs `CloudNimble.McpEssentials.Analyzers.dll` under `analyzers/dotnet/cs`. Adding Core to a project enables the diagnostics.
+
+    ```bash
+    dotnet add package McpEssentials.Core
+    ```
+  </Tab>
+  <Tab title="Analyzers only" icon="puzzle-piece">
+    Use `McpEssentials.Analyzers` when you want the analyzer assembly without taking Core as a runtime dependency, or to pin analyzer versions separately.
+
+    ```bash
+    dotnet add package McpEssentials.Analyzers
+    ```
+  </Tab>
+</Tabs>
+
+<Tip>
+Rebuild after adding Core. Roslyn loads analyzers from the package; a running IDE may need a restart before squiggles appear.
+</Tip>
+
+## What they watch
+
+<Steps>
+  <Step title="From a type" icon="cube">
+    `FormElicitation.From<T>("…")` and `new FormElicitationBuilder<T>("…")`. Public instance properties are checked against the same mapping rules as runtime.
+  </Step>
+  <Step title="Expression starters" icon="code">
+    `Exclude`, `String`, `Email`, `Uri`, `Date`, `DateTime`, `Integer`, `Number`, `Boolean`, `Choice`, and `MultiChoice` when the first argument is a lambda.
+  </Step>
+  <Step title="The fluent chain" icon="link">
+    `Exclude` calls on the same expression as `From` are collected so skipped properties you already excluded do not warn.
+  </Step>
+</Steps>
+
+<Note>
+`FormElicitation.Create("…").String("filter")` is metadata-driven. There is no CLR property to inspect, so the analyzers stay quiet. That is the path for OData `$metadata` and other runtime catalogs.
+</Note>
+
+## Diagnostics
+
+<AccordionGroup>
+  <Accordion title="MCPESS001 — unmappable property" icon="eye-slash">
+    **Warning.** `From<T>()` skips public properties the MCP form schema cannot represent: nested objects, dictionaries, `TimeSpan`, `byte[]`, `string[]`, indexers, write-only and static members.
+
+    <CodeGroup>
+
+    ```csharp Warns
+    public class SignupForm
+    {
+        public string Name { get; set; }
+        public Address Home { get; set; } // skipped at runtime
+    }
+
+    FormElicitation.From<SignupForm>("Sign up");
+    // MCPESS001: Property 'Home' on 'SignupForm' is skipped by FormElicitation.From.
+    ```
+
+    ```csharp Fixed
+    FormElicitation.From<SignupForm>("Sign up")
+        .Exclude(x => x.Home);
+    ```
+
+    </CodeGroup>
+
+    An empty type (no public properties) is a confirm dialog and does **not** warn.
+  </Accordion>
+
+  <Accordion title="MCPESS002 — colliding wire names" icon="burst">
+    **Error.** Two properties camelCase to the same JSON name. Runtime throws `InvalidOperationException` at `From`. The analyzer fails the build instead.
+
+    <CodeGroup>
+
+    ```csharp Errors
+    public class CollisionForm
+    {
+        public string EmailAddress { get; set; }
+        public string emailAddress { get; set; } // both become emailAddress
+    }
+
+    FormElicitation.From<CollisionForm>("m");
+    // MCPESS002: Properties 'EmailAddress' and 'emailAddress' on 'CollisionForm'
+    // both map to form field 'emailAddress'.
+    ```
+
+    ```csharp Fixed
+    FormElicitation.From<CollisionForm>("m")
+        .Exclude(x => x.emailAddress);
+    ```
+
+    </CodeGroup>
+  </Accordion>
+
+  <Accordion title="MCPESS003 — nested or invalid lambda" icon="code">
+    **Error.** Expression starters and `Exclude` require a simple property access on the form type, the same rule as `FormElicitationProperty.From`. Nested members, method calls, and fields fail.
+
+    <CodeGroup>
+
+    ```csharp Errors
+    FormElicitation.From<Order>("m")
+        .Exclude(x => x.Address.City);   // nested
+
+    FormElicitation.From<Order>("m")
+        .String(x => x.Name.Trim());     // method
+    ```
+
+    ```csharp Fixed
+    FormElicitation.From<Order>("m")
+        .Exclude(x => x.Address)
+        .String(x => x.Name);
+    ```
+
+    </CodeGroup>
+  </Accordion>
+
+  <Accordion title="MCPESS004 — Exclude of something that was never a field" icon="info">
+    **Info.** `Exclude` of an unmappable property is a successful no-op at runtime. The analyzer tells you so you do not think you removed a field that was never seeded.
+
+    ```csharp
+    public class Form
+    {
+        public string Name { get; set; }
+        public Address Home { get; set; }
+    }
+
+    FormElicitation.From<Form>("m").Exclude(x => x.Home);
+    // MCPESS004: Exclude of 'Home' does nothing because the property is not a supported form field
+    // MCPESS001 is suppressed for Home on this From call.
+    ```
+  </Accordion>
+
+  <Accordion title="MCPESS005 — From on a built-in" icon="cube">
+    **Warning.** `From<T>()` expects a class or struct of public properties. `string`, primitives, enums, and arrays are not form DTOs.
+
+    <CodeGroup>
+
+    ```csharp Warns
+    FormElicitation.From<string>("m");
+    FormElicitation.From<int>("m");
+    FormElicitation.From<ColorChoice>("m");
+    ```
+
+    ```csharp Fixed
+    FormElicitation.From<SignupForm>("m");
+    FormElicitation.Create("m").String("notes");
+    ```
+
+    </CodeGroup>
+  </Accordion>
+</AccordionGroup>
+
+## Severity at a glance
+
+| Id | Severity | Default | Typical fix |
+|---|---|---|---|
+| MCPESS001 | Warning | On | `.Exclude(x => x.Prop)` or change the property type |
+| MCPESS002 | Error | On | Rename or Exclude one of the colliding properties |
+| MCPESS003 | Error | On | Use `x => x.Email`, not nested access |
+| MCPESS004 | Info | On | Drop the `Exclude`, or leave it as documentation |
+| MCPESS005 | Warning | On | Pass a form DTO, or use `Create()` |
+
+## Suppress a diagnostic
+
+Use this when the skip is deliberate and you do not want `.Exclude` on the chain.
+
+<Tabs>
+  <Tab title="Inline" icon="code">
+    ```csharp
+    #pragma warning disable MCPESS001
+    var form = FormElicitation.From<LegacyDto>("Continue");
+    #pragma warning restore MCPESS001
+    ```
+  </Tab>
+  <Tab title="EditorConfig" icon="sliders">
+    ```ini
+    [*.cs]
+    dotnet_diagnostic.MCPESS001.severity = suggestion
+    dotnet_diagnostic.MCPESS004.severity = none
+    ```
+  </Tab>
+  <Tab title="Project" icon="file-code">
+    ```xml
+    <PropertyGroup>
+      <NoWarn>$(NoWarn);MCPESS004</NoWarn>
+    </PropertyGroup>
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+Do not suppress MCPESS002 or MCPESS003. Those match runtime exceptions. A warning you understand (MCPESS001 on a DTO you do not own) is the usual candidate.
+</Warning>
+
+## What maps
+
+The analyzer uses the same rules as [`FormElicitation.From<T>()`](/guides/form-elicitation). If Core would seed a field, MCPESS001 stays quiet.
+
+<AccordionGroup>
+  <Accordion title="Seeded" icon="check">
+    `string`, `Guid`, `char`, `Uri`, `DateOnly`, `DateTime`, `DateTimeOffset`, `bool`, integer types, `float` / `double` / `decimal`, enums, `[Flags]` enums, and sequences of enums (`TEnum[]`, `List<TEnum>`, `IEnumerable<TEnum>`).
+  </Accordion>
+  <Accordion title="Skipped" icon="ban">
+    Nested objects, `Dictionary<,>`, `object`, `TimeSpan`, `byte[]`, `string[]`, `int[]`, indexers, write-only properties, static properties.
+  </Accordion>
+</AccordionGroup>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Form elicitation" icon="clipboard-list" href="/guides/form-elicitation">
+    Fluent schemas, ElicitAsync, and parking a form on a task.
+  </Card>
+  <Card title="FormElicitation API" icon="bolt" href="/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitation">
+    `Create`, `From<T>`, and `Bind<T>`.
+  </Card>
+</CardGroup>
