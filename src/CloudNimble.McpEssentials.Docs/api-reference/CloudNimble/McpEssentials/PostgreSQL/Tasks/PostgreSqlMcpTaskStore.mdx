@@ -1,0 +1,173 @@
+---
+title: PostgreSqlMcpTaskStore
+description: "An [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) that persists snapshots as PostgreSQL rows with `LISTEN` / `NOT..."
+icon: file-brackets-curly
+keywords: ['PostgreSqlMcpTaskStore', 'CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStore', 'CloudNimble.McpEssentials.PostgreSQL.Tasks', 'class', 'CloudNimble.McpEssentials.Core.Tasks.NotifyingMcpTaskStoreBase']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.PostgreSQL.dll
+
+**Namespace:** CloudNimble.McpEssentials.PostgreSQL.Tasks
+
+**Inheritance:** CloudNimble.McpEssentials.Core.Tasks.NotifyingMcpTaskStoreBase
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStore
+```
+
+## Summary
+
+An [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) that persists snapshots as PostgreSQL rows with
+`LISTEN` / `NOTIFY` fan-out for resolved input.
+
+## Remarks
+
+Register as a singleton. The host owns `NpgsqlDataSource`.
+[McpTaskStoreBase.AutoSweep](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase#autosweep) defaults to [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool). Sweep is
+`DELETE WHERE "DiscardAfter" &lt;= now`. Use Entity Framework Core with
+`UseNpgsql` when the host already has a `DbContext`; this package exists
+for Npgsql/Dapper hosts and for native notification.
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance of the [PostgreSqlMcpTaskStore](/api-reference/CloudNimble/McpEssentials/PostgreSQL/Tasks/PostgreSqlMcpTaskStore) class.
+
+#### Syntax
+
+```csharp
+public PostgreSqlMcpTaskStore(Npgsql.NpgsqlDataSource dataSource, System.Func<string> getCurrentUserId)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `dataSource` | `Npgsql.NpgsqlDataSource` | The Npgsql data source. The host owns its lifetime. |
+| `getCurrentUserId` | `System.Func<string?>` | Returns the current user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unauthenticated. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *dataSource* or *getCurrentUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance that always uses *userId*.
+
+#### Syntax
+
+```csharp
+public PostgreSqlMcpTaskStore(Npgsql.NpgsqlDataSource dataSource, string userId)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `dataSource` | `Npgsql.NpgsqlDataSource` | The Npgsql data source. The host owns its lifetime. |
+| `userId` | `string?` | The user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) to treat the process as unauthenticated. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *dataSource* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance that resolves the user from a [ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.claimsprincipal).
+
+#### Syntax
+
+```csharp
+public PostgreSqlMcpTaskStore(Npgsql.NpgsqlDataSource dataSource, System.Func<System.Security.Claims.ClaimsPrincipal> getPrincipal)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `dataSource` | `Npgsql.NpgsqlDataSource` | The Npgsql data source. The host owns its lifetime. |
+| `getPrincipal` | `System.Func<System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *dataSource* or *getPrincipal* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance with deferred factories so the MCP server builder can
+capture the store before `Build()`.
+
+#### Syntax
+
+```csharp
+public PostgreSqlMcpTaskStore(System.Func<Npgsql.NpgsqlDataSource> getDataSource, System.Func<string> getCurrentUserId)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `getDataSource` | `System.Func<Npgsql.NpgsqlDataSource>` | Returns the data source from the built provider. |
+| `getCurrentUserId` | `System.Func<string?>` | Returns the current user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unauthenticated. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *getDataSource* or *getCurrentUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ListenChannel <Badge color="orange">Virtual</Badge>
+
+Gets or sets the `LISTEN` / `NOTIFY` channel for resolved input.
+
+#### Syntax
+
+```csharp
+public virtual string ListenChannel { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Schema <Badge color="orange">Virtual</Badge>
+
+Gets or sets the schema that holds the tasks table.
+
+#### Syntax
+
+```csharp
+public virtual string Schema { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TableName <Badge color="orange">Virtual</Badge>
+
+Gets or sets the tasks table name.
+
+#### Syntax
+
+```csharp
+public virtual string TableName { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+

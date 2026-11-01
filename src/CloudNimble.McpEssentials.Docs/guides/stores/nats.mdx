@@ -2,6 +2,7 @@
 title: "NATS"
 description: "NATS JetStream KV for the task row, Core NATS for elicitation signals. Specified; not in this repository yet."
 icon: "tower-broadcast"
+tag: "Specified"
 keywords: ["NATS", "JetStream"]
 ---
 
@@ -11,19 +12,49 @@ keywords: ["NATS", "JetStream"]
 
 Edge / IoT / already-on-NATS hosts. JetStream Key/Value holds the canonical record. Core NATS subject `mcp.essentials.task.input` wakes waiting `ElicitAsync` callers.
 
-## When to use it
-
-The host already runs NATS and wants KV plus a native subject instead of a database plus a separate bus.
+<CardGroup cols={2}>
+  <Card title="When it ships" icon="circle-check">
+    The host already runs NATS and wants KV plus a native subject instead of a database plus a separate bus.
+  </Card>
+  <Card title="Until then" icon="bolt" href="/guides/stores/redis">
+    Redis pub/sub is the shipped native channel on [`NotifyingMcpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase).
+  </Card>
+</CardGroup>
 
 ## Intended how-to
 
-1. Add `McpEssentials.Nats` and a NATS connection.
-2. Put each `StoredMcpTask` in a JetStream KV bucket keyed by task id, including `OwnerUserId`.
-3. Register the store as a singleton with the same current-user factory as [Authenticated tasks](/guides/authenticated-tasks).
-4. After a successful resolve, publish task id plus request id on `mcp.essentials.task.input`. Subscribers raise `InputResponseReceived`.
+<Steps>
+  <Step title="Add the package">
+    Add `McpEssentials.Nats` and a NATS connection.
+  </Step>
+  <Step title="Put the row in KV">
+    Each `StoredMcpTask` in a JetStream KV bucket keyed by task id, including `OwnerUserId`.
+  </Step>
+  <Step title="Register the store">
+    Singleton, same current-user factory as [Authenticated tasks](/guides/authenticated-tasks).
+  </Step>
+  <Step title="Publish on resolve">
+    After a successful resolve, publish task id plus request id on `mcp.essentials.task.input`. Subscribers raise `InputResponseReceived`.
+  </Step>
+</Steps>
 
 ## TTL
 
 KV entry TTL from `DiscardAfter` (`CreatedAt + 2×TimeToLive`).
 
-See [Stores](/guides/stores).
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Redis" icon="bolt" href="/guides/stores/redis">
+    Shipped native pub/sub plus `PEXPIREAT`.
+  </Card>
+  <Card title="PostgreSQL" icon="database" href="/guides/stores/postgresql">
+    Shipped native `LISTEN` / `NOTIFY` on Npgsql.
+  </Card>
+  <Card title="Stores" icon="database" href="/guides/stores">
+    Pick a backing store by the engine you already run.
+  </Card>
+  <Card title="Authenticated tasks" icon="user-lock" href="/guides/authenticated-tasks">
+    Identity factory, isolation rules, and the in-memory store.
+  </Card>
+</CardGroup>

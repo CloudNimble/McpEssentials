@@ -2,6 +2,7 @@
 title: "SQL Server"
 description: "Native Microsoft.Data.SqlClient authenticated task store. Specified; not in this repository yet."
 icon: "server"
+tag: "Specified"
 keywords: ["SQL Server", "Azure SQL", "SqlClient"]
 ---
 
@@ -11,22 +12,45 @@ keywords: ["SQL Server", "Azure SQL", "SqlClient"]
 
 This package exists for hosts that want Azure SQL or SQL Server **without** an EF model (ADO.NET, Dapper).
 
-## When to use it
+<CardGroup cols={2}>
+  <Card title="When it ships" icon="circle-check">
+    The host already uses `Microsoft.Data.SqlClient` and wants `rowversion` CAS on `McpTasks` under its own migrations.
+  </Card>
+  <Card title="Until then" icon="table" href="/guides/stores/entity-framework-core">
+    Stay on Entity Framework Core + `UseSqlServer` when you already have a `DbContext`.
+  </Card>
+</CardGroup>
 
-- The host already uses `Microsoft.Data.SqlClient` and does not want a `DbContext`.
-- You need `rowversion` CAS on `McpTasks` under your own migrations.
-
-Stay on EF Core + SQL Server when you already have a `DbContext`. Service Broker and Query Notifications are heavy; scale-out elicitation pairs Azure SQL with Service Bus as [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus).
+Service Broker and Query Notifications are heavy; scale-out elicitation pairs Azure SQL with Service Bus as [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus).
 
 ## Intended how-to
 
-1. Add `McpEssentials.SqlServer`.
-2. Create `McpTasks` with `rowversion` for compare-and-swap, indexes on `OwnerUserId` and `DiscardAfter`.
-3. Register the store as a singleton with the same current-user factory as [Authenticated tasks](/guides/authenticated-tasks).
-4. Optional: register a signal bus for multi-node `ElicitAsync`.
+<Steps>
+  <Step title="Add the package">
+    Add `McpEssentials.SqlServer`.
+  </Step>
+  <Step title="Create the table">
+    `McpTasks` with `rowversion` for compare-and-swap, indexes on `OwnerUserId` and `DiscardAfter`.
+  </Step>
+  <Step title="Register the store">
+    Singleton, same current-user factory as [Authenticated tasks](/guides/authenticated-tasks).
+  </Step>
+  <Step title="Optional bus">
+    Register [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus) for multi-node `ElicitAsync`.
+  </Step>
+</Steps>
 
 ## TTL
 
 Call `SweepExpiredAsync` from a hosted service, or `DELETE WHERE DiscardAfter <= SYSUTCDATETIME()`. `DiscardAfter` is `CreatedAt + 2×TimeToLive`, stamped at write.
 
-See [Stores](/guides/stores).
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Entity Framework Core" icon="table" href="/guides/stores/entity-framework-core">
+    Shipped. Any EF provider, including `UseSqlServer`.
+  </Card>
+  <Card title="Stores" icon="database" href="/guides/stores">
+    Pick a backing store by the engine you already run.
+  </Card>
+</CardGroup>

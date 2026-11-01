@@ -7,7 +7,7 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
 {
 
     /// <summary>
-    /// Source-generated JSON for Redis task keys and input signals.
+    /// Source-generated JSON for Redis task keys.
     /// Status persists as the enum name.
     /// </summary>
     [JsonSourceGenerationOptions(
@@ -15,7 +15,6 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         UseStringEnumConverter = true)]
     [JsonSerializable(typeof(RedisStoredMcpTask))]
-    [JsonSerializable(typeof(RedisInputSignal))]
     [JsonSerializable(typeof(Dictionary<string, InputRequest>))]
     [JsonSerializable(typeof(InputRequest))]
     public partial class RedisMcpTasksJsonContext : JsonSerializerContext

@@ -13,7 +13,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
     /// <summary>
     /// Selects an <see cref="IMcpTaskStorePlus"/> provider for <c>WithTasksPlus</c> and OData
     /// <c>WithTasks</c>. Core ships <see cref="UseInMemory(string, Action{McpTaskStoreOptions}?)"/>.
-    /// Provider packages add <c>UseEntityFramework</c>, <c>UseRedis</c>, and so on.
+    /// Provider packages add <c>UseEntityFramework</c>, <c>UseRedis</c>, <c>UsePostgreSql</c>, and so on.
     /// </summary>
     public sealed class McpTaskStoreBuilder
     {

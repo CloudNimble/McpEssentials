@@ -1,0 +1,407 @@
+---
+title: PostgreSqlStoredMcpTask
+description: "One `McpTasks` row. Maps to [StoredMcpTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask) at the store boundary and adds [PostgreSqlStor..."
+icon: file-brackets-curly
+keywords: ['PostgreSqlStoredMcpTask', 'CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlStoredMcpTask', 'CloudNimble.McpEssentials.PostgreSQL.Tasks', 'class', 'System.Object']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.PostgreSQL.dll
+
+**Namespace:** CloudNimble.McpEssentials.PostgreSQL.Tasks
+
+**Inheritance:** System.Object
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlStoredMcpTask
+```
+
+## Summary
+
+One `McpTasks` row. Maps to [StoredMcpTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask) at the store boundary
+and adds [PostgreSqlStoredMcpTask.RowVersion](/api-reference/CloudNimble/McpEssentials/PostgreSQL/Tasks/PostgreSqlStoredMcpTask#rowversion) for compare-and-swap.
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+#### Syntax
+
+```csharp
+public PostgreSqlStoredMcpTask()
+```
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public Object()
+```
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> CreatedAt
+
+Gets or sets when the task was created, UTC.
+
+#### Syntax
+
+```csharp
+public System.DateTimeOffset CreatedAt { get; set; }
+```
+
+#### Property Value
+
+Type: `System.DateTimeOffset?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DiscardAfter
+
+Gets or sets when the row should be discarded.
+
+#### Syntax
+
+```csharp
+public System.Nullable<System.DateTimeOffset> DiscardAfter { get; set; }
+```
+
+#### Property Value
+
+Type: `System.Nullable<System.DateTimeOffset?>?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ErrorJson
+
+Gets or sets the JSON-RPC error as JSON.
+
+#### Syntax
+
+```csharp
+public string ErrorJson { get; set; }
+```
+
+#### Property Value
+
+Type: `string?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ExpiresAt
+
+Gets or sets the work-window end.
+
+#### Syntax
+
+```csharp
+public System.Nullable<System.DateTimeOffset> ExpiresAt { get; set; }
+```
+
+#### Property Value
+
+Type: `System.Nullable<System.DateTimeOffset?>?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> InputRequestsJson
+
+Gets or sets the outstanding input-request map as JSON.
+
+#### Syntax
+
+```csharp
+public string InputRequestsJson { get; set; }
+```
+
+#### Property Value
+
+Type: `string?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> LastUpdatedAt
+
+Gets or sets when the task last changed, UTC.
+
+#### Syntax
+
+```csharp
+public System.DateTimeOffset LastUpdatedAt { get; set; }
+```
+
+#### Property Value
+
+Type: `System.DateTimeOffset?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> OwnerUserId
+
+Gets or sets the user recorded when the task was created.
+
+#### Syntax
+
+```csharp
+public string OwnerUserId { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> PollIntervalMs
+
+Gets or sets the client poll interval in milliseconds.
+
+#### Syntax
+
+```csharp
+public System.Nullable<long> PollIntervalMs { get; set; }
+```
+
+#### Property Value
+
+Type: `System.Nullable<long>?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ResultJson
+
+Gets or sets the terminal result as JSON.
+
+#### Syntax
+
+```csharp
+public string ResultJson { get; set; }
+```
+
+#### Property Value
+
+Type: `string?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> RowVersion
+
+Gets or sets the compare-and-swap token. Incremented on every write.
+
+#### Syntax
+
+```csharp
+public long RowVersion { get; set; }
+```
+
+#### Property Value
+
+Type: `long`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Status
+
+Gets or sets the protocol status (enum name).
+
+#### Syntax
+
+```csharp
+public ModelContextProtocol.Extensions.Tasks.McpTaskStatus Status { get; set; }
+```
+
+#### Property Value
+
+Type: `ModelContextProtocol.Extensions.Tasks.McpTaskStatus?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> StatusMessage
+
+Gets or sets an optional status message.
+
+#### Syntax
+
+```csharp
+public string StatusMessage { get; set; }
+```
+
+#### Property Value
+
+Type: `string?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TaskId
+
+Gets or sets the opaque task identifier.
+
+#### Syntax
+
+```csharp
+public string TaskId { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TimeToLive
+
+Gets or sets the time-to-live from create, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) for unlimited.
+
+#### Syntax
+
+```csharp
+public System.Nullable<System.TimeSpan> TimeToLive { get; set; }
+```
+
+#### Property Value
+
+Type: `System.Nullable<System.TimeSpan?>?`
+
+## Methods
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual bool Equals(object obj)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `obj` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool Equals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> From
+
+Copies *stored* into a row. [PostgreSqlStoredMcpTask.RowVersion](/api-reference/CloudNimble/McpEssentials/PostgreSQL/Tasks/PostgreSqlStoredMcpTask#rowversion) stays at 1
+for inserts; callers bump it on update.
+
+#### Syntax
+
+```csharp
+public static CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlStoredMcpTask From(CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask stored)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `stored` | `CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask` | The in-memory snapshot. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlStoredMcpTask`
+A row with the same engine fields.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *stored* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetHashCode <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual int GetHashCode()
+```
+
+#### Returns
+
+Type: `int`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetType <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public System.Type GetType()
+```
+
+#### Returns
+
+Type: `System.Type`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MemberwiseClone <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+protected internal object MemberwiseClone()
+```
+
+#### Returns
+
+Type: `object`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ReferenceEquals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool ReferenceEquals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToStored <Badge color="orange">Virtual</Badge>
+
+Builds a [StoredMcpTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask) from this row.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask ToStored()
+```
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask`
+A snapshot the Core `Try*` methods can mutate.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToString <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual string ToString()
+```
+
+#### Returns
+
+Type: `string?`
+

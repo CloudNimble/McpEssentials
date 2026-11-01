@@ -368,7 +368,7 @@ An empty property list is legal. Nested property access in `Exclude` / expressio
 
 `McpEssentials.Core` ships Roslyn analyzers so a skipped property or a nested lambda is a compiler diagnostic instead of a missing field at runtime. The full ID list, suppressions, and before/after samples live in [Analyzers](/guides/analyzers).
 
-## API
+## Related
 
 <CardGroup cols={2}>
   <Card title="FormElicitation" icon="bolt" href="/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitation">
@@ -382,5 +382,11 @@ An empty property list is legal. Nested property access in `Exclude` / expressio
   </Card>
   <Card title="IMcpTaskStore" icon="box-archive" href="/api-reference/ModelContextProtocol/Extensions/Tasks/IMcpTaskStore">
     `SetInputRequestsAsync(taskId, form)` when you park the form yourself.
+  </Card>
+  <Card title="Analyzers" icon="wand-magic-sparkles" href="/guides/analyzers">
+    Compiler diagnostics for `From<T>`, colliding names, and invalid lambdas.
+  </Card>
+  <Card title="Authenticated tasks" icon="user-lock" href="/guides/authenticated-tasks">
+    Park a form on a task. Isolation, identity, and samples.
   </Card>
 </CardGroup>

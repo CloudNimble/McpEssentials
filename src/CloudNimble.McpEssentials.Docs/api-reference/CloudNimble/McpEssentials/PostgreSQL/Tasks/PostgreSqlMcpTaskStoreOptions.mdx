@@ -1,0 +1,98 @@
+---
+title: PostgreSqlMcpTaskStoreOptions
+description: "Registration knobs for [PostgreSqlMcpTaskStore](/api-reference/CloudNimble/McpEssentials/PostgreSQL/Tasks/PostgreSqlMcpTaskStore)."
+icon: file-brackets-curly
+keywords: ['PostgreSqlMcpTaskStoreOptions', 'CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions', 'CloudNimble.McpEssentials.PostgreSQL.Tasks', 'class', 'CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.PostgreSQL.dll
+
+**Namespace:** CloudNimble.McpEssentials.PostgreSQL.Tasks
+
+**Inheritance:** CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions
+```
+
+## Summary
+
+Registration knobs for [PostgreSqlMcpTaskStore](/api-reference/CloudNimble/McpEssentials/PostgreSQL/Tasks/PostgreSqlMcpTaskStore).
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+#### Syntax
+
+```csharp
+public PostgreSqlMcpTaskStoreOptions()
+```
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ListenChannel
+
+Gets or sets the `LISTEN` / `NOTIFY` channel for resolved input.
+
+#### Syntax
+
+```csharp
+public string ListenChannel { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+The default is `mcp_essentials_tasks`.
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Schema
+
+Gets or sets the schema that holds the tasks table.
+
+#### Syntax
+
+```csharp
+public string Schema { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+The default is `public`.
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TableName
+
+Gets or sets the tasks table name.
+
+#### Syntax
+
+```csharp
+public string TableName { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+The default is `McpTasks`.
+
+## Methods
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ApplyTo <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override void ApplyTo(CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase store)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `store` | `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase` | - |
+

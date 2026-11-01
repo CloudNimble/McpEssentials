@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Json;
@@ -25,7 +24,7 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
     /// <see cref="WaitReplicas"/> is positive. Eventually-consistent Redis without wait
     /// is not SEP-2663 durable across nodes.
     /// </remarks>
-    public class RedisMcpTaskStore : McpTaskStoreBase, IDisposable
+    public class RedisMcpTaskStore : NotifyingMcpTaskStoreBase
     {
 
         #region Fields
@@ -57,11 +56,9 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
             """;
 
         private readonly Func<IConnectionMultiplexer> _getMultiplexer;
-        private readonly ConcurrentDictionary<string, byte> _localPublishes = new(StringComparer.Ordinal);
         private IDatabase? _database;
         private ISubscriber? _subscriber;
         private ChannelMessageQueue? _subscription;
-        private int _subscribed;
         private string _keyPrefixCache = "mcp";
         private string _taskKeyHead = "mcp:task:";
         private RedisChannel _inputChannel = RedisChannel.Literal("mcp:task:input");
@@ -112,6 +109,26 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
                 database = Database >= 0 ? multiplexer.GetDatabase(Database) : multiplexer.GetDatabase();
                 _database = database;
                 return database;
+            }
+        }
+
+        /// <summary>
+        /// Gets the subscriber for resolved-input pub/sub.
+        /// </summary>
+        protected ISubscriber Subscriber
+        {
+            get
+            {
+                var multiplexer = Multiplexer;
+                var subscriber = _subscriber;
+                if (subscriber is not null && ReferenceEquals(subscriber.Multiplexer, multiplexer))
+                {
+                    return subscriber;
+                }
+
+                subscriber = multiplexer.GetSubscriber();
+                _subscriber = subscriber;
+                return subscriber;
             }
         }
 
@@ -252,7 +269,7 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
                 return current.WithTry(next => next.TryCancel(now));
             }, cancellationToken).ConfigureAwait(false);
 
-            return result.Result == ApplyResult.Updated;
+            return result == ApplyResult.Updated;
         }
 
         /// <inheritdoc />
@@ -271,16 +288,12 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
                 return current.WithTry(next => next.TryResolveInputRequests(inputResponses, now));
             }, cancellationToken).ConfigureAwait(false);
 
-            if (result.Result != ApplyResult.Updated)
+            if (result != ApplyResult.Updated)
             {
                 return;
             }
 
-            foreach (var pair in inputResponses)
-            {
-                OnInputResponseReceived(taskId, pair.Key, pair.Value);
-                await PublishInputAsync(taskId, pair.Key, cancellationToken).ConfigureAwait(false);
-            }
+            await NotifyResolvedInputAsync(taskId, inputResponses, cancellationToken).ConfigureAwait(false);
         }
 
         /// <inheritdoc />
@@ -332,25 +345,6 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
 
         #endregion
 
-        #region Public Methods
-
-        /// <inheritdoc />
-        public virtual void Dispose()
-        {
-            var queue = Interlocked.Exchange(ref _subscription, null);
-            try
-            {
-                queue?.Unsubscribe();
-            }
-            catch (Exception)
-            {
-            }
-
-            GC.SuppressFinalize(this);
-        }
-
-        #endregion
-
         #region Protected Methods
 
         /// <summary>
@@ -386,7 +380,7 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
         /// </param>
         /// <param name="cancellationToken">Observed before each read so a cancelled caller does not commit.</param>
         /// <returns>Whether the snapshot was missing, left unchanged, or replaced.</returns>
-        protected virtual async Task<(ApplyResult Result, StoredMcpTask? Applied)> TryApplyAsync(
+        protected virtual async Task<ApplyResult> TryApplyAsync(
             string taskId,
             Func<StoredMcpTask, StoredMcpTask?> updater,
             CancellationToken cancellationToken)
@@ -400,20 +394,20 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
                 var json = await Redis.StringGetAsync(key).ConfigureAwait(false);
                 if (json.IsNull)
                 {
-                    return (ApplyResult.Missing, null);
+                    return ApplyResult.Missing;
                 }
 
                 var current = Deserialize(json!);
                 if (ShouldDiscard(current, now))
                 {
                     await Redis.KeyDeleteAsync(key).ConfigureAwait(false);
-                    return (ApplyResult.Missing, null);
+                    return ApplyResult.Missing;
                 }
 
                 var next = updater(current) ?? current;
                 if (ReferenceEquals(next, current))
                 {
-                    return (ApplyResult.Unchanged, current);
+                    return ApplyResult.Unchanged;
                 }
 
                 var swapped = ScriptInt(await Redis.ScriptEvaluateAsync(
@@ -424,53 +418,43 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
 
                 if (swapped == 1)
                 {
-                    return (ApplyResult.Updated, next);
+                    return ApplyResult.Updated;
                 }
 
                 if (swapped == 0)
                 {
-                    return (ApplyResult.Missing, null);
+                    return ApplyResult.Missing;
                 }
             }
         }
 
-        /// <summary>
-        /// Publishes that <paramref name="requestId"/> on <paramref name="taskId"/> was resolved.
-        /// </summary>
-        protected virtual async Task PublishInputAsync(string taskId, string requestId, CancellationToken cancellationToken)
+        /// <inheritdoc />
+        protected override Task PublishInputNotificationAsync(string payload, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var token = SignalToken(taskId, requestId);
-            _localPublishes.TryAdd(token, 0);
-            var payload = JsonSerializer.SerializeToUtf8Bytes(
-                new RedisInputSignal { TaskId = taskId, RequestId = requestId },
-                RedisMcpTasksJsonContext.Default.RedisInputSignal);
-            var subscriber = _subscriber ?? Multiplexer.GetSubscriber();
-            await subscriber.PublishAsync(InputChannel, payload).ConfigureAwait(false);
+            return Subscriber.PublishAsync(InputChannel, payload);
         }
 
-        /// <summary>
-        /// Subscribes to the input channel once so other nodes can wake this process.
-        /// </summary>
-        protected virtual void EnsureSubscription()
+        /// <inheritdoc />
+        protected override void SubscribeToInputNotifications()
         {
-            if (Interlocked.Exchange(ref _subscribed, 1) == 1)
-            {
-                return;
-            }
-
-            _subscriber = Multiplexer.GetSubscriber();
-            var queue = _subscriber.Subscribe(InputChannel);
+            var queue = Subscriber.Subscribe(InputChannel);
             queue.OnMessage(OnChannelMessage);
             _subscription = queue;
         }
 
+        /// <inheritdoc />
+        protected override void UnsubscribeFromInputNotifications()
+        {
+            var queue = Interlocked.Exchange(ref _subscription, null);
+            queue?.Unsubscribe();
+        }
+
         /// <summary>
-        /// Raises <see cref="McpTaskStoreBase.InputResponseReceived"/> from a pub/sub payload
-        /// that another node published. Echoes of this process's own publish are dropped.
+        /// Forwards a pub/sub payload to <see cref="NotifyingMcpTaskStoreBase.OnRemoteInputNotification"/>.
         /// </summary>
         /// <param name="message">The channel message.</param>
-        protected virtual void OnChannelMessage(ChannelMessage message)
+        private void OnChannelMessage(ChannelMessage message)
         {
             RedisValue payload = message.Message;
             if (payload.IsNullOrEmpty)
@@ -478,28 +462,7 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
                 return;
             }
 
-            RedisInputSignal? signal;
-            try
-            {
-                ReadOnlyMemory<byte> buffer = payload;
-                signal = JsonSerializer.Deserialize(buffer.Span, RedisMcpTasksJsonContext.Default.RedisInputSignal);
-            }
-            catch (JsonException)
-            {
-                return;
-            }
-
-            if (signal is null || string.IsNullOrWhiteSpace(signal.TaskId) || string.IsNullOrWhiteSpace(signal.RequestId))
-            {
-                return;
-            }
-
-            if (_localPublishes.TryRemove(SignalToken(signal.TaskId, signal.RequestId), out _))
-            {
-                return;
-            }
-
-            OnInputResponseReceived(signal.TaskId, signal.RequestId, EmptyInputResponse);
+            OnRemoteInputNotification((string?)payload);
         }
 
         #endregion
@@ -521,14 +484,6 @@ namespace CloudNimble.McpEssentials.Redis.Tasks
             _taskKeyHead = prefix + ":task:";
             _inputChannel = RedisChannel.Literal(prefix + ":task:input");
         }
-
-        /// <summary>
-        /// Builds the local-publish token used to drop this process's own pub/sub echo.
-        /// </summary>
-        /// <param name="taskId">The task identifier.</param>
-        /// <param name="requestId">The input-request identifier.</param>
-        /// <returns>A token unique to the pair.</returns>
-        private static string SignalToken(string taskId, string requestId) => string.Concat(taskId, "\n", requestId);
 
         /// <summary>
         /// Serializes <paramref name="stored"/> through <see cref="RedisStoredMcpTask"/>.

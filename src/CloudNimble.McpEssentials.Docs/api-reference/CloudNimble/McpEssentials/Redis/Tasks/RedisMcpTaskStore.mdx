@@ -2,7 +2,7 @@
 title: RedisMcpTaskStore
 description: "An [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) that persists snapshots as Redis strings with `PEXPIREAT` from ..."
 icon: file-brackets-curly
-keywords: ['RedisMcpTaskStore', 'CloudNimble.McpEssentials.Redis.Tasks.RedisMcpTaskStore', 'CloudNimble.McpEssentials.Redis.Tasks', 'class', 'CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase', 'System.IDisposable']
+keywords: ['RedisMcpTaskStore', 'CloudNimble.McpEssentials.Redis.Tasks.RedisMcpTaskStore', 'CloudNimble.McpEssentials.Redis.Tasks', 'class', 'CloudNimble.McpEssentials.Core.Tasks.NotifyingMcpTaskStoreBase']
 ---
 
 ## Definition
@@ -11,7 +11,7 @@ keywords: ['RedisMcpTaskStore', 'CloudNimble.McpEssentials.Redis.Tasks.RedisMcpT
 
 **Namespace:** CloudNimble.McpEssentials.Redis.Tasks
 
-**Inheritance:** CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase
+**Inheritance:** CloudNimble.McpEssentials.Core.Tasks.NotifyingMcpTaskStoreBase
 
 ## Syntax
 
@@ -185,18 +185,4 @@ public virtual System.TimeSpan WaitTimeout { get; set; }
 #### Property Value
 
 Type: `System.TimeSpan`
-
-## Methods
-
-### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Dispose <Badge color="orange">Virtual</Badge>
-
-#### Syntax
-
-```csharp
-public virtual void Dispose()
-```
-
-## Related APIs
-
-- System.IDisposable
 

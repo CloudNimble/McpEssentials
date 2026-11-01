@@ -95,11 +95,13 @@
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryMcpTaskStorePlus",
+                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskInputSignal",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTasksJsonContext",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBuilder",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreOptions",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskUserRequiredException",
+                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask",
                           {
                             "group": "Elicitations",
@@ -169,6 +171,22 @@
                     ]
                   },
                   {
+                    "group": "PostgreSQL",
+                    "icon": "folder-tree",
+                    "pages": [
+                      {
+                        "group": "Tasks",
+                        "icon": "folder-tree",
+                        "pages": [
+                          "api-reference/CloudNimble/McpEssentials/PostgreSQL/Tasks/index",
+                          "api-reference/CloudNimble/McpEssentials/PostgreSQL/Tasks/PostgreSqlMcpTaskStore",
+                          "api-reference/CloudNimble/McpEssentials/PostgreSQL/Tasks/PostgreSqlMcpTaskStoreOptions",
+                          "api-reference/CloudNimble/McpEssentials/PostgreSQL/Tasks/PostgreSqlStoredMcpTask"
+                        ]
+                      }
+                    ]
+                  },
+                  {
                     "group": "Redis",
                     "icon": "folder-tree",
                     "pages": [
@@ -177,7 +195,6 @@
                         "icon": "folder-tree",
                         "pages": [
                           "api-reference/CloudNimble/McpEssentials/Redis/Tasks/index",
-                          "api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisInputSignal",
                           "api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTasksJsonContext",
                           "api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTaskStore",
                           "api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTaskStoreOptions",

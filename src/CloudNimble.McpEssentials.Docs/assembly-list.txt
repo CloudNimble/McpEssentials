@@ -2,4 +2,5 @@ D:\GitHub\McpEssentials\src\CloudNimble.McpEssentials.Analyzers\bin\Debug\netsta
 D:\GitHub\McpEssentials\src\CloudNimble.McpEssentials.Core\bin\Debug\net11.0\CloudNimble.McpEssentials.Core.dll
 D:\GitHub\McpEssentials\src\CloudNimble.McpEssentials.Cosmos\bin\Debug\net11.0\CloudNimble.McpEssentials.Cosmos.dll
 D:\GitHub\McpEssentials\src\CloudNimble.McpEssentials.EntityFrameworkCore\bin\Debug\net11.0\CloudNimble.McpEssentials.EntityFrameworkCore.dll
+D:\GitHub\McpEssentials\src\CloudNimble.McpEssentials.PostgreSQL\bin\Debug\net11.0\CloudNimble.McpEssentials.PostgreSQL.dll
 D:\GitHub\McpEssentials\src\CloudNimble.McpEssentials.Redis\bin\Debug\net11.0\CloudNimble.McpEssentials.Redis.dll

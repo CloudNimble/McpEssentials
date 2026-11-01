@@ -3,7 +3,7 @@ title: Overview
 description: "Summary of the CloudNimble.McpEssentials.Core.Tasks Namespace"
 icon: folder-tree
 mode: wide
-keywords: ['CloudNimble.McpEssentials.Core.Tasks', 'namespace', 'ApplyResult', 'IMcpTaskInputSignalBus', 'IMcpTaskStorePlus', 'InMemoryMcpTaskStorePlus', 'McpTasksJsonContext', 'McpTaskStoreBase', 'McpTaskStoreBuilder', 'McpTaskStoreOptions', 'McpTaskUserRequiredException', 'StoredMcpTask']
+keywords: ['CloudNimble.McpEssentials.Core.Tasks', 'namespace', 'ApplyResult', 'IMcpTaskInputSignalBus', 'IMcpTaskStorePlus', 'InMemoryMcpTaskStorePlus', 'McpTaskInputSignal', 'McpTasksJsonContext', 'McpTaskStoreBase', 'McpTaskStoreBuilder', 'McpTaskStoreOptions', 'McpTaskUserRequiredException']
 ---
 
 ## Types
@@ -14,11 +14,13 @@ keywords: ['CloudNimble.McpEssentials.Core.Tasks', 'namespace', 'ApplyResult', '
 | ---- | ------- |
 | [ApplyResult](/api-reference/CloudNimble/McpEssentials/Core/Tasks/ApplyResult) | Result of `CancellationToken)`. |
 | [InMemoryMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryMcpTaskStorePlus) | An in-memory [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) that records the user who created each task  and isolates later client-facing operations to that user. |
+| [McpTaskInputSignal](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskInputSignal) | Wire payload for a resolved-input notification: task id, a newline, then request id.  Native channels (Redis pub/sub, Postgres `NOTIFY`) publish this string as-is. |
 | [McpTasksJsonContext](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTasksJsonContext) | Source-generated JSON for persisting [McpTasksJsonContext.InputRequest](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTasksJsonContext#inputrequest) maps on [StoredMcpTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask). |
 | [McpTaskStoreBase](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) | Base type for authenticated MCP task stores. Wires the current-user callback, fail-closed  identity, [McpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase#inputresponsereceived), flush pulses, and the mapping from  [IMcpTaskStore](/api-reference/ModelContextProtocol/Extensions/Tasks/IMcpTaskStore) / [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) into per-user core methods. |
-| [McpTaskStoreBuilder](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBuilder) | Selects an [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) provider for `WithTasksPlus` and OData  `WithTasks`. Core ships `McpTaskStoreOptions})`.  Provider packages add `UseEntityFramework`, `UseRedis`, and so on. |
+| [McpTaskStoreBuilder](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBuilder) | Selects an [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) provider for `WithTasksPlus` and OData  `WithTasks`. Core ships `McpTaskStoreOptions})`.  Provider packages add `UseEntityFramework`, `UseRedis`, `UsePostgreSql`, and so on. |
 | [McpTaskStoreOptions](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreOptions) | Registration knobs for authenticated MCP task stores. Passed to  `AddInMemoryMcpTaskStorePlus`, `WithTasksPlus`,  and the Entity Framework equivalents. |
 | [McpTaskUserRequiredException](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskUserRequiredException) | The exception that is thrown when an authenticated task store is used without a current user. |
+| [NotifyingMcpTaskStoreBase](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase) | [McpTaskStoreBase](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) for engines that fan resolved input over a native  notification channel (Redis pub/sub, Postgres `NOTIFY`, NATS). Subclasses  implement publish, subscribe, and unsubscribe. This type skips this process's  own echo and raises [McpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase#inputresponsereceived) for remote payloads. |
 | [StoredMcpTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask) | Persistence foundation for an MCP task. Protocol fields plus owner and expiry.  Construct from `McpTaskInfo`, mutate with `Try*`, and emit the SDK record  with `InputRequest})`. Durable providers subclass this type (for example  `McpTaskEntity`) and add only engine-specific columns. |
 
 ### <Icon icon="plug" iconType="duotone" color="#419AC5" size={24} style={{ paddingRight: '8px' }} /> Interfaces

@@ -1,6 +1,6 @@
 # Authenticated MCP Task Stores
 
-**Status:** Core in-memory, Entity Framework Core, Redis, and Cosmos providers are implemented. Other provider packages are specified here and are not in this repository yet.
+**Status:** Core in-memory, Entity Framework Core, Redis, Cosmos, and native PostgreSQL providers are implemented. Other provider packages are specified here and are not in this repository yet.
 
 **Audience:** Anyone adding `CloudNimble.McpEssentials.*` packages that persist MCP Tasks (SEP-2663) per logged-in user.
 
@@ -96,17 +96,17 @@ Use for tests, local MCP, and single-instance remote MCP.
 
 **Why this package first:** one implementation covers most CloudNimble hosts already on EF Core. Native PostgreSQL / SQL Server packages are only for hosts that do not want EF.
 
-### 3. `McpEssentials.PostgreSQL`
+### 3. `McpEssentials.PostgreSQL` — implemented
 
-**Engine:** Npgsql, no EF.
+**Engine:** Npgsql, no EF. Shipped.
 
-**Storage:** one table created by an embedded script the host can run (`EnsureCreatedAsync`).
+**Storage:** one `McpTasks` table created on first use (`CREATE TABLE IF NOT EXISTS`). Integer `RowVersion` for CAS.
 
-**Events:** `LISTEN mcp_essentials_tasks` / `NOTIFY` with payload `{ "taskId", "requestId" }`. Each process that holds a waiting `ElicitAsync` subscribes and raises `InputResponseReceived` locally. This is the reason a native Postgres package exists alongside EF Core.
+**Events:** `LISTEN mcp_essentials_tasks` / `pg_notify` with `McpTaskInputSignal` (`taskId` + newline + `requestId`). `PostgreSqlMcpTaskStore` subclasses `NotifyingMcpTaskStoreBase` (same as Redis): publish / subscribe / unsubscribe are the engine methods; this process's own echo is dropped. This native channel is the reason a Postgres package exists alongside EF Core.
 
-**Durability:** `INSERT ... RETURNING` inside a transaction; `CreateTaskAsync` awaits commit.
+**Durability:** `CreateTaskAsync` awaits `INSERT` commit so a later get on any node can see the row.
 
-**TTL:** `DiscardAfter timestamptz` plus `pg_cron` or a hosted service `DELETE WHERE "DiscardAfter" < now()`.
+**TTL:** `DiscardAfter timestamptz` (`CreatedAt + 2×TimeToLive`). `AutoSweep` defaults to true. Sweep is `DELETE WHERE "DiscardAfter" <= now`. Hosts can also call `SweepExpiredAsync` from `pg_cron`.
 
 ### 4. `McpEssentials.SqlServer`
 
@@ -126,14 +126,14 @@ Use for tests, local MCP, and single-instance remote MCP.
 
 ```
 {prefix}:task:{taskId}   JSON string  (RedisStoredMcpTask, including OwnerUserId)
-{prefix}:task:input      pub/sub      (RedisInputSignal: taskId + requestId)
+{prefix}:task:input      pub/sub      (McpTaskInputSignal: taskId + newline + requestId)
 ```
 
 Default prefix is `mcp`. No per-user SET index: SET members do not expire with the task key.
 
 **TTL:** `PEXPIREAT` on the task key from `DiscardAfter` (`CreatedAt + 2×TimeToLive`). Native, no sweeper required. `AutoSweep` defaults to `false`. `SweepExpiredCoreAsync` is a no-op. Per-row get still honors `ShouldDiscard` so a custom clock can drop a key before Redis does. Unlimited TTL leaves the key until a terminal owner get (`ServeAndDrop`) or an explicit delete. `GetTaskAsync` treats a missing key as not found and does not distinguish expiry from isolation.
 
-**Events:** native pub/sub. After a successful `ResolveInputRequests`, the publishing node raises `InputResponseReceived` locally, then `PUBLISH` JSON `{ taskId, requestId }`. Subscribers skip their own echo (token dictionary) and raise a stub `InputResponse` so `ElicitAsync` waiters on other nodes wake.
+**Events:** native pub/sub. After a successful `ResolveInputRequests`, the publishing node raises `InputResponseReceived` locally, then `PUBLISH` `taskId` + newline + `requestId`. Subscribers skip their own echo (token dictionary keyed by that payload) and raise a stub `InputResponse` so `ElicitAsync` waiters on other nodes wake.
 
 **Consistency:** `CreateTaskAsync` Lua `EXISTS` then `SET` + `PEXPIREAT`, then `WAIT` when `WaitReplicas` is positive. Standalone Redis leaves wait at 0. Eventually-consistent Redis without wait is not SEP-2663 durable across nodes.
 
@@ -231,7 +231,7 @@ Do not mix session id and user id in the owner key unless a host explicitly impl
 1. Core in-memory store (this repo, done).
 2. Entity Framework Core package + SQLite tests (this repo, done).
 3. Redis package (TTL + pub/sub) (this repo, done).
-4. PostgreSQL native package if EF + Npgsql is not enough for NOTIFY.
+4. PostgreSQL native package (this repo, done).
 5. Cosmos (this repo, done). MongoDB, DistributedCache, Azure Tables, NATS as demand appears.
 
 Each package: same TFMs as Core, MSTest + FluentAssertions, `InternalsVisibleTo` the matching `*.Tests.*` project, DotNetDocs API pages generated from XML comments.

@@ -35,4 +35,4 @@ The SDK `InMemoryMcpTaskStore` is process-wide. Under stateless Streamable HTTP 
 
 Core owns the snapshots and keeps an owner on each one. HTTP hosts call `AddHttpContextAccessor()` and pass `sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User` into `WithTasksPlus`. Stdio hosts pass a constant user id. Client-facing code that already has a principal calls `IMcpTaskStorePlus` overloads directly.
 
-The in-memory Streamable HTTP sample is [`samples/CloudNimble.McpEssentials.Samples.Basic`](https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.Basic). EF Core, Redis, and Cosmos each have their own sample in the same folder.
+The in-memory Streamable HTTP sample is [`samples/CloudNimble.McpEssentials.Samples.Basic`](https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.Basic). Entity Framework Core, Redis, Cosmos DB, and PostgreSQL each have their own sample in the same folder. See [Authenticated tasks](/guides/authenticated-tasks) for run commands.

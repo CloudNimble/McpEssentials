@@ -5,59 +5,87 @@ icon: "bolt"
 keywords: ["Redis", "StackExchange.Redis", "WithRedisTasks", "RedisMcpTaskStore", "PEXPIREAT"]
 ---
 
-`McpEssentials.Redis` is the authenticated task store for hosts that already run Redis. It subclasses [`McpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) and persists [`StoredMcpTask`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask) snapshots as JSON strings.
+`McpEssentials.Redis` is the authenticated task store for hosts that already run Redis. It subclasses [`NotifyingMcpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase) and persists [`StoredMcpTask`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask) snapshots as JSON strings.
 
 Prefer this over [`IDistributedCache`](/guides/stores/distributed-cache) when the cache is Redis and several nodes wait on `ElicitAsync`. Redis expires keys; the request-path sweep is off by default.
+
+<CardGroup cols={3}>
+  <Card title="JSON strings" icon="key">
+    One key per task. `OwnerUserId` lives on the snapshot.
+  </Card>
+  <Card title="Native expiry" icon="clock">
+    `PEXPIREAT` from `DiscardAfter`. `AutoSweep` stays off.
+  </Card>
+  <Card title="Pub/sub fan-out" icon="tower-broadcast">
+    Resolved input publishes on `{prefix}:task:input`. Echoes of this process are dropped.
+  </Card>
+</CardGroup>
 
 The host owns [`IConnectionMultiplexer`](https://stackexchange.github.io/StackExchange.Redis/Configuration). This package ships the store and registration. Register the multiplexer as a singleton.
 
 ## Install
 
-```bash
-dotnet add package McpEssentials.Redis
-```
-
-```csharp
-builder.Services.AddSingleton<IConnectionMultiplexer>(
-    _ => ConnectionMultiplexer.Connect(connectionString));
-```
+<Steps>
+  <Step title="Add the package">
+    ```bash
+    dotnet add package McpEssentials.Redis
+    ```
+  </Step>
+  <Step title="Register the multiplexer">
+    ```csharp
+    builder.Services.AddSingleton<IConnectionMultiplexer>(
+        _ => ConnectionMultiplexer.Connect(connectionString));
+    ```
+  </Step>
+</Steps>
 
 ## Wire the store
 
 Same identity factory as [Authenticated tasks](/guides/authenticated-tasks). Redis has no generic context type, so the MCP builder method is [`WithRedisTasks`](/api-reference/Microsoft/Extensions/DependencyInjection/IMcpServerBuilder) rather than `WithTasksPlus<TContext>`.
 
-```csharp
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddSingleton<IConnectionMultiplexer>(
-    _ => ConnectionMultiplexer.Connect(connectionString));
+<Tabs>
+  <Tab title="HTTP" icon="globe">
+    ```csharp
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddSingleton<IConnectionMultiplexer>(
+        _ => ConnectionMultiplexer.Connect(connectionString));
 
-builder.Services.AddMcpServer()
-    .WithHttpTransport(o => o.Stateless = true)
-    .WithTools<MyTools>()
-    .WithRedisTasks(
+    builder.Services.AddMcpServer()
+        .WithHttpTransport(o => o.Stateless = true)
+        .WithTools<MyTools>()
+        .WithRedisTasks(
+            sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
+            o =>
+            {
+                o.DefaultTimeToLive = TimeSpan.FromMinutes(5);
+                o.KeyPrefix = "mcp";
+                o.WaitReplicas = 1;
+            });
+    ```
+  </Tab>
+  <Tab title="Stdio" icon="terminal">
+    ```csharp
+    builder.Services.AddSingleton<IConnectionMultiplexer>(
+        _ => ConnectionMultiplexer.Connect(connectionString));
+
+    builder.Services.AddMcpServer()
+        .WithRedisTasks("local-user");
+    ```
+  </Tab>
+  <Tab title="Store only" icon="database">
+    Same factory, without `IMcpServerBuilder`:
+
+    ```csharp
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddSingleton<IConnectionMultiplexer>(
+        _ => ConnectionMultiplexer.Connect(connectionString));
+
+    builder.Services.AddMcpEssentialsRedisTasks(
         sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
-        o =>
-        {
-            o.DefaultTimeToLive = TimeSpan.FromMinutes(5);
-            o.KeyPrefix = "mcp";
-            o.WaitReplicas = 1;
-        });
-```
-
-**Stdio / single user**
-
-```csharp
-builder.Services.AddMcpServer()
-    .WithRedisTasks("local-user");
-```
-
-**Store only**, without `IMcpServerBuilder`:
-
-```csharp
-builder.Services.AddMcpEssentialsRedisTasks(
-    sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
-    o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
-```
+        o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+    ```
+  </Tab>
+</Tabs>
 
 ## Keys and TTL
 
@@ -70,9 +98,9 @@ builder.Services.AddMcpEssentialsRedisTasks(
 
 `AutoSweep` defaults to `false`. [`SweepExpiredAsync`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) is a no-op; Redis owns expiry. Per-row get still honors `ShouldDiscard` so a custom clock can drop a key before Redis does. A custom `ShouldDiscard` that disagrees with `DiscardAfter` should also override `SweepExpiredCoreAsync` and skip native expiry.
 
-Replica sets: set `WaitReplicas` so `CreateTaskAsync` does not return until a later get on another node can see the key. Standalone Redis leaves this at 0. Eventually-consistent Redis without wait is not SEP-2663 durable across nodes.
-
-A runnable host is [`samples/CloudNimble.McpEssentials.Samples.Redis`](https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.Redis). It expects Redis at `localhost:6379`.
+<Note>
+Replica sets: set `WaitReplicas` so `CreateTaskAsync` does not return until a later get on another node can see the key. Standalone Redis leaves this at 0.
+</Note>
 
 ## Isolation
 
@@ -82,6 +110,25 @@ Creates use a Lua `EXISTS` then `SET`. Updates compare the expected JSON then `S
 
 ## Events
 
-After a successful resolve, the publishing node raises `InputResponseReceived` locally, then publishes JSON `{ taskId, requestId }` on `{prefix}:task:input`. Other nodes subscribe and raise a stub response so `ElicitAsync` waiters wake. The publisher drops its own pub/sub echo.
+After a successful resolve, the publishing node raises `InputResponseReceived` locally, then publishes `taskId` + newline + `requestId` on `{prefix}:task:input`. Other nodes subscribe and raise a stub response so `ElicitAsync` waiters wake. The publisher drops its own pub/sub echo.
 
-See [Stores](/guides/stores).
+<Tip>
+Redis **is** the bus. Elicitation fan-out is pub/sub on `{prefix}:task:input`.
+</Tip>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Sample" icon="play" href="https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.Redis">
+    Runnable host. Expects Redis at `localhost:6379`.
+  </Card>
+  <Card title="Stores" icon="database" href="/guides/stores">
+    Pick a backing store by the engine you already run.
+  </Card>
+  <Card title="PostgreSQL" icon="database" href="/guides/stores/postgresql">
+    The other native channel: `LISTEN` / `NOTIFY` on Npgsql.
+  </Card>
+  <Card title="IDistributedCache" icon="box-archive" href="/guides/stores/distributed-cache">
+    Specified abstraction over whatever cache you already registered.
+  </Card>
+</CardGroup>

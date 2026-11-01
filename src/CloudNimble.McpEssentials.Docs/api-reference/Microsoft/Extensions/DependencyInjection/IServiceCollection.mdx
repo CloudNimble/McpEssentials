@@ -379,6 +379,104 @@ The service collection.
 |-----------|-------------|
 | `ArgumentNullException` | Thrown when *services* or *getPrincipal* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
 
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddMcpEssentialsPostgreSqlTasks <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_PostgreSQL_ServiceCollectionExtensions`</Note>
+
+Registers [PostgreSqlMcpTaskStore](/api-reference/CloudNimble/McpEssentials/PostgreSQL/Tasks/PostgreSqlMcpTaskStore) as the singleton
+[IMcpTaskStore](/api-reference/ModelContextProtocol/Extensions/Tasks/IMcpTaskStore) and [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) for a single user.
+
+#### Syntax
+
+```csharp
+public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcpEssentialsPostgreSqlTasks(Microsoft.Extensions.DependencyInjection.IServiceCollection services, string userId, System.Action<CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions> configure = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
+| `userId` | `string` | The owner stamped on every task this process creates. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions>?` | Optional store options (TTL, table, listen channel). |
+
+#### Returns
+
+Type: `Microsoft.Extensions.DependencyInjection.IServiceCollection`
+The service collection.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *services* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `ArgumentException` | Thrown when *userId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or whitespace. |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddMcpEssentialsPostgreSqlTasks <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_PostgreSQL_ServiceCollectionExtensions`</Note>
+
+Registers [PostgreSqlMcpTaskStore](/api-reference/CloudNimble/McpEssentials/PostgreSQL/Tasks/PostgreSqlMcpTaskStore) as the singleton
+[IMcpTaskStore](/api-reference/ModelContextProtocol/Extensions/Tasks/IMcpTaskStore) and [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus).
+
+#### Syntax
+
+```csharp
+public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcpEssentialsPostgreSqlTasks(Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Func<string> getCurrentUserId, System.Action<CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions> configure = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
+| `getCurrentUserId` | `System.Func<string?>` | Returns the current user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unauthenticated. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions>?` | Optional store options (TTL, table, listen channel). |
+
+#### Returns
+
+Type: `Microsoft.Extensions.DependencyInjection.IServiceCollection`
+The service collection.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *services* or *getCurrentUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddMcpEssentialsPostgreSqlTasks <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_PostgreSQL_ServiceCollectionExtensions`</Note>
+
+Registers [PostgreSqlMcpTaskStore](/api-reference/CloudNimble/McpEssentials/PostgreSQL/Tasks/PostgreSqlMcpTaskStore) using a
+[ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.claimsprincipal) factory resolved from the built provider.
+
+#### Syntax
+
+```csharp
+public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcpEssentialsPostgreSqlTasks(Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal> getPrincipal, System.Action<CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions> configure = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
+| `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. Hosts typically pass
+`sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions>?` | Optional store options (TTL, table, listen channel). |
+
+#### Returns
+
+Type: `Microsoft.Extensions.DependencyInjection.IServiceCollection`
+The service collection.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *services* or *getPrincipal* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
 ### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AddMcpEssentialsRedisTasks <Badge color="green">Extension</Badge>
 
 <Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Redis_ServiceCollectionExtensions`</Note>

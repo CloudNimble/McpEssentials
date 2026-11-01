@@ -8,5 +8,6 @@ Each sample is a standalone Streamable HTTP MCP host. Same fake `X-User-Id` auth
 | [Entity Framework Core](CloudNimble.McpEssentials.Samples.EntityFrameworkCore) | SQLite via EF | `http://localhost:5290/` |
 | [Redis](CloudNimble.McpEssentials.Samples.Redis) | Redis | `http://localhost:5300/` |
 | [Cosmos](CloudNimble.McpEssentials.Samples.Cosmos) | Azure Cosmos DB | `http://localhost:5310/` |
+| [PostgreSQL](CloudNimble.McpEssentials.Samples.PostgreSQL) | Native PostgreSQL | `http://localhost:5320/` |
 
 Send `X-User-Id: alice` on every request. Clients that opt into MCP Tasks get a trackable task owned by that user.

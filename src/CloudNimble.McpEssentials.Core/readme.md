@@ -49,7 +49,7 @@ This package ships Roslyn analyzers (`MCPESS001`–`MCPESS005`) that warn on unm
 
 ## Durable stores
 
-Core is the in-memory, single-process store. `McpEssentials.EntityFrameworkCore`, `McpEssentials.Redis`, and `McpEssentials.Cosmos` are the durable providers in this repo. Other packages (PostgreSQL, MongoDB, …) subclass `McpTaskStoreBase` the same way. See [Authenticated Task Stores](../../specs/authenticated-task-stores.md).
+Core is the in-memory, single-process store. Durable providers in this repo: Entity Framework Core, Redis, Cosmos, and native PostgreSQL (`LISTEN`/`NOTIFY`). Redis and Postgres subclass `NotifyingMcpTaskStoreBase`. See [Authenticated Task Stores](../../specs/authenticated-task-stores.md).
 
 ## Documentation
 

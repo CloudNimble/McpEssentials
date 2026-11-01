@@ -13,47 +13,87 @@ The design lives in [`specs/authenticated-task-stores.md`](https://github.com/Cl
 
 ## In-process
 
-| Package | How-to | When |
-|---|---|---|
-| `McpEssentials.Core` | [Authenticated tasks](/guides/authenticated-tasks) | Tests, local MCP, a single process |
+<CardGroup cols={2}>
+  <Card title="Authenticated tasks" icon="memory" href="/guides/authenticated-tasks">
+    <Badge color="green">Shipped</Badge>
 
-`InMemoryMcpTaskStorePlus` keeps snapshots in a `ConcurrentDictionary`. Fan-out is an in-process event. Tasks die with the process.
+    `McpEssentials.Core`. `InMemoryMcpTaskStorePlus` keeps snapshots in a `ConcurrentDictionary`. Fan-out is an in-process event. Tasks die with the process. Tests, local MCP, a single process.
+  </Card>
+</CardGroup>
 
 ## Database
 
 Relational and document engines. Entity Framework Core is the default durable package: **one implementation, any EF Core provider**.
 
-| Package | How-to | Engine | Status |
-|---|---|---|---|
-| `McpEssentials.EntityFrameworkCore` | [Entity Framework Core](/guides/stores/entity-framework-core) | SQL Server, SQLite, PostgreSQL, MySQL, Cosmos via EF, and any other EF Core provider | Shipped |
-| `McpEssentials.PostgreSQL` | [PostgreSQL](/guides/stores/postgresql) | Npgsql, no EF | Specified |
-| `McpEssentials.SqlServer` | [SQL Server](/guides/stores/sql-server) | `Microsoft.Data.SqlClient`, no EF | Specified |
-| `McpEssentials.Cosmos` | [Cosmos DB](/guides/stores/cosmos) | Azure Cosmos DB for NoSQL, `/ownerUserId` partition plus index | Shipped |
-| `McpEssentials.MongoDB` | [MongoDB](/guides/stores/mongodb) | MongoDB | Specified |
-| `McpEssentials.AzureTables` | [Azure Tables](/guides/stores/azure-tables) | Azure Table Storage | Specified |
+<CardGroup cols={2}>
+  <Card title="Entity Framework Core" icon="table" href="/guides/stores/entity-framework-core">
+    <Badge color="green">Shipped</Badge>
 
-Use EF Core when the host already has a `DbContext`. Native PostgreSQL and SQL Server packages exist for hosts that want ADO.NET (and, for Postgres, `LISTEN` / `NOTIFY`) without an EF model.
+    `McpEssentials.EntityFrameworkCore`. SQL Server, SQLite, PostgreSQL, MySQL, Cosmos via EF, and any other EF Core provider. Host owns the `DbContext` and migrations.
+  </Card>
+  <Card title="PostgreSQL" icon="database" href="/guides/stores/postgresql">
+    <Badge color="green">Shipped</Badge>
+
+    `McpEssentials.PostgreSQL`. Npgsql, no EF. `LISTEN` / `NOTIFY` wakes elicitation on other nodes.
+  </Card>
+  <Card title="Cosmos DB" icon="globe" href="/guides/stores/cosmos">
+    <Badge color="green">Shipped</Badge>
+
+    `McpEssentials.Cosmos`. Azure Cosmos DB for NoSQL, `/ownerUserId` partition plus an index for background complete.
+  </Card>
+  <Card title="SQL Server" icon="server" href="/guides/stores/sql-server">
+    <Badge color="gray">Specified</Badge>
+
+    `McpEssentials.SqlServer`. `Microsoft.Data.SqlClient`, no EF. Use Entity Framework Core with `UseSqlServer` until it ships.
+  </Card>
+  <Card title="MongoDB" icon="leaf" href="/guides/stores/mongodb">
+    <Badge color="gray">Specified</Badge>
+
+    `McpEssentials.MongoDB`. Native collection and change streams.
+  </Card>
+  <Card title="Azure Tables" icon="grid-2" href="/guides/stores/azure-tables">
+    <Badge color="gray">Specified</Badge>
+
+    `McpEssentials.AzureTables`. `PartitionKey = OwnerUserId`, `RowKey = TaskId`.
+  </Card>
+</CardGroup>
+
+<Tip>
+Use EF Core when the host already has a `DbContext`. Native PostgreSQL exists for hosts that want Npgsql/Dapper **and** `LISTEN` / `NOTIFY` without an EF model.
+</Tip>
 
 ## Distributed cache
 
 Low-latency handles with native or host-owned expiry.
 
-| Package | How-to | Engine | Status |
-|---|---|---|---|
-| `McpEssentials.Redis` | [Redis](/guides/stores/redis) | StackExchange.Redis, `PEXPIREAT` plus pub/sub | Shipped |
-| `McpEssentials.DistributedCache` | [IDistributedCache](/guides/stores/distributed-cache) | Whatever you already registered as `IDistributedCache` | Specified |
+<CardGroup cols={2}>
+  <Card title="Redis" icon="bolt" href="/guides/stores/redis">
+    <Badge color="green">Shipped</Badge>
 
-Prefer Redis when you need pub/sub for elicitation across nodes. Use `IDistributedCache` when that abstraction is already in DI and a host-supplied bus covers fan-out.
+    `McpEssentials.Redis`. StackExchange.Redis, `PEXPIREAT` plus pub/sub for multi-node elicitation.
+  </Card>
+  <Card title="IDistributedCache" icon="box-archive" href="/guides/stores/distributed-cache">
+    <Badge color="gray">Specified</Badge>
+
+    `McpEssentials.DistributedCache`. Whatever you already registered as `IDistributedCache`. Prefer Redis when the cache is Redis and you need pub/sub.
+  </Card>
+</CardGroup>
 
 ## Eventing
 
 Stores whose native bus is the reason the package exists.
 
-| Package | How-to | Engine | Status |
-|---|---|---|---|
-| `McpEssentials.Nats` | [NATS](/guides/stores/nats) | JetStream KV for the row, Core NATS for signals | Specified |
+<CardGroup cols={2}>
+  <Card title="NATS" icon="tower-broadcast" href="/guides/stores/nats">
+    <Badge color="gray">Specified</Badge>
 
-Providers without a native bus (EF Core, `IDistributedCache`, Azure Tables) take an optional [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus). Missing bus plus multiple nodes means `ElicitAsync` waits until timeout.
+    `McpEssentials.Nats`. JetStream KV for the row, Core NATS for signals.
+  </Card>
+</CardGroup>
+
+<Note>
+Redis and native PostgreSQL implement [`NotifyingMcpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase). Providers without a native bus (EF Core, Cosmos v1, `IDistributedCache`, Azure Tables) take an optional [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus). Missing bus plus multiple nodes means `ElicitAsync` waits until timeout.
+</Note>
 
 ## Shared row
 
@@ -73,31 +113,50 @@ Providers without a native bus (EF Core, `IDistributedCache`, Azure Tables) take
 
 HTTP identity stays on the platform accessor. Development uses Core. Production registers a durable store with the same factory.
 
-```csharp
+<CodeGroup>
+
+```csharp Basic
 builder.Services.AddHttpContextAccessor();
 
 Func<IServiceProvider, ClaimsPrincipal?> currentUser =
     sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User;
 
-// Development
 builder.Services.AddMcpServer()
     .WithHttpTransport(o => o.Stateless = true)
     .WithTasksPlus(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+```
 
-// Production (any EF Core provider on AppDbContext)
+```csharp Entity Framework Core
+builder.Services.AddHttpContextAccessor();
+
+Func<IServiceProvider, ClaimsPrincipal?> currentUser =
+    sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User;
+
 builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(connectionString));
 builder.Services.AddMcpServer()
     .WithHttpTransport(o => o.Stateless = true)
     .WithTasksPlus<AppDbContext>(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+```
 
-// Production (Redis)
+```csharp Redis
+builder.Services.AddHttpContextAccessor();
+
+Func<IServiceProvider, ClaimsPrincipal?> currentUser =
+    sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User;
+
 builder.Services.AddSingleton<IConnectionMultiplexer>(
     _ => ConnectionMultiplexer.Connect(redisConnectionString));
 builder.Services.AddMcpServer()
     .WithHttpTransport(o => o.Stateless = true)
     .WithRedisTasks(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+```
 
-// Production (Cosmos)
+```csharp Cosmos DB
+builder.Services.AddHttpContextAccessor();
+
+Func<IServiceProvider, ClaimsPrincipal?> currentUser =
+    sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User;
+
 builder.Services.AddSingleton(_ => new CosmosClient(
     cosmosConnectionString,
     CosmosMcpTaskStore.DefaultClientOptions()));
@@ -105,6 +164,20 @@ builder.Services.AddMcpServer()
     .WithHttpTransport(o => o.Stateless = true)
     .WithCosmosTasks(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
 ```
+
+```csharp PostgreSQL
+builder.Services.AddHttpContextAccessor();
+
+Func<IServiceProvider, ClaimsPrincipal?> currentUser =
+    sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User;
+
+builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(postgresConnectionString));
+builder.Services.AddMcpServer()
+    .WithHttpTransport(o => o.Stateless = true)
+    .WithPostgreSqlTasks(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+```
+
+</CodeGroup>
 
 Map `McpTasks` with `AddMcpTasksTable`. See [Entity Framework Core](/guides/stores/entity-framework-core) for which overload to call (`OnModelCreating` vs `AddDbContext`).
 

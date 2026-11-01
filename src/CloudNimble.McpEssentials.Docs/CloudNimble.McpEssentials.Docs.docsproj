@@ -72,6 +72,7 @@
         <ProjectReference Include="..\CloudNimble.McpEssentials.Core\CloudNimble.McpEssentials.Core.csproj" />
         <ProjectReference Include="..\CloudNimble.McpEssentials.Cosmos\CloudNimble.McpEssentials.Cosmos.csproj" />
         <ProjectReference Include="..\CloudNimble.McpEssentials.EntityFrameworkCore\CloudNimble.McpEssentials.EntityFrameworkCore.csproj" />
+        <ProjectReference Include="..\CloudNimble.McpEssentials.PostgreSQL\CloudNimble.McpEssentials.PostgreSQL.csproj" />
         <ProjectReference Include="..\CloudNimble.McpEssentials.Redis\CloudNimble.McpEssentials.Redis.csproj" />
     </ItemGroup>
 

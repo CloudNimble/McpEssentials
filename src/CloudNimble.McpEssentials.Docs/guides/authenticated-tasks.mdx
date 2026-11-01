@@ -155,11 +155,22 @@ Each sample is a standalone Streamable HTTP host. Fake authentication is the `X-
 
     [`samples/…Samples.Cosmos`](https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.Cosmos)
   </Tab>
+  <Tab title="PostgreSQL" icon="database">
+    Native Npgsql (not EF). Requires Postgres at the connection string in `appsettings.json`. `LISTEN`/`NOTIFY` wakes other nodes.
+
+    ```bash
+    dotnet run --project samples/CloudNimble.McpEssentials.Samples.PostgreSQL -f net11.0
+    ```
+
+    MCP is at `http://localhost:5320/`.
+
+    [`samples/…Samples.PostgreSQL`](https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.PostgreSQL)
+  </Tab>
 </Tabs>
 
 ## Swap the backing store
 
-[`IMcpTaskStorePlus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) and [`McpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) are the contract durable providers implement. Pick a backing store in [Stores](/guides/stores).
+[`IMcpTaskStorePlus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) and [`McpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) are the contract durable providers implement. Pick a backing store in [Stores](/guides/stores). HTTP, Stdio, and Store only tabs on each store page match the wiring tabs above.
 
 <CardGroup cols={2}>
   <Card title="Entity Framework Core" icon="table" href="/guides/stores/entity-framework-core">
@@ -171,6 +182,14 @@ Each sample is a standalone Streamable HTTP host. Fake authentication is the `X-
   <Card title="Cosmos DB" icon="globe" href="/guides/stores/cosmos">
     Point reads by owner, native document TTL, index for background complete.
   </Card>
+  <Card title="PostgreSQL" icon="database" href="/guides/stores/postgresql">
+    Npgsql without EF. LISTEN/NOTIFY wakes elicitation on other nodes.
+  </Card>
+</CardGroup>
+
+## Related
+
+<CardGroup cols={2}>
   <Card title="Form elicitation" icon="clipboard-list" href="/guides/form-elicitation">
     Ask the client for a form while a task is running.
   </Card>

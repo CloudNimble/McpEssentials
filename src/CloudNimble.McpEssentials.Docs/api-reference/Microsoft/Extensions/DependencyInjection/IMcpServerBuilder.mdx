@@ -155,6 +155,140 @@ The server builder.
 |-----------|-------------|
 | `ArgumentNullException` | Thrown when *builder* or *getPrincipal* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
 
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> WithPostgreSqlTasks <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_PostgreSQL_McpServerBuilderExtensions`</Note>
+
+Enables MCP Tasks backed by [PostgreSqlMcpTaskStore](/api-reference/CloudNimble/McpEssentials/PostgreSQL/Tasks/PostgreSqlMcpTaskStore) for a single user.
+
+#### Syntax
+
+```csharp
+public static Microsoft.Extensions.DependencyInjection.IMcpServerBuilder WithPostgreSqlTasks(Microsoft.Extensions.DependencyInjection.IMcpServerBuilder builder, string userId, System.Action<CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions> configure = null, System.Action<ModelContextProtocol.Extensions.Tasks.McpTasksOptions> configureTasks = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `builder` | `Microsoft.Extensions.DependencyInjection.IMcpServerBuilder` | The MCP server builder. |
+| `userId` | `string` | The owner stamped on every task this process creates. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions>?` | Optional store options (TTL, table, listen channel). |
+| `configureTasks` | `System.Action<ModelContextProtocol.Extensions.Tasks.McpTasksOptions>?` | Optional SDK Tasks options. |
+
+#### Returns
+
+Type: `Microsoft.Extensions.DependencyInjection.IMcpServerBuilder`
+The server builder.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *builder* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `ArgumentException` | Thrown when *userId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or whitespace. |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> WithPostgreSqlTasks <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_PostgreSQL_McpServerBuilderExtensions`</Note>
+
+Enables MCP Tasks backed by [PostgreSqlMcpTaskStore](/api-reference/CloudNimble/McpEssentials/PostgreSQL/Tasks/PostgreSqlMcpTaskStore).
+
+#### Syntax
+
+```csharp
+public static Microsoft.Extensions.DependencyInjection.IMcpServerBuilder WithPostgreSqlTasks(Microsoft.Extensions.DependencyInjection.IMcpServerBuilder builder, System.Func<string> getCurrentUserId, System.Action<CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions> configure = null, System.Action<ModelContextProtocol.Extensions.Tasks.McpTasksOptions> configureTasks = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `builder` | `Microsoft.Extensions.DependencyInjection.IMcpServerBuilder` | The MCP server builder. |
+| `getCurrentUserId` | `System.Func<string?>` | Returns the current user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unauthenticated. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions>?` | Optional store options (TTL, table, listen channel). |
+| `configureTasks` | `System.Action<ModelContextProtocol.Extensions.Tasks.McpTasksOptions>?` | Optional SDK Tasks options. |
+
+#### Returns
+
+Type: `Microsoft.Extensions.DependencyInjection.IMcpServerBuilder`
+The server builder.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *builder* or *getCurrentUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> WithPostgreSqlTasks <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_PostgreSQL_McpServerBuilderExtensions`</Note>
+
+Enables MCP Tasks backed by [PostgreSqlMcpTaskStore](/api-reference/CloudNimble/McpEssentials/PostgreSQL/Tasks/PostgreSqlMcpTaskStore),
+resolving the user from a [ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.claimsprincipal).
+
+#### Syntax
+
+```csharp
+public static Microsoft.Extensions.DependencyInjection.IMcpServerBuilder WithPostgreSqlTasks(Microsoft.Extensions.DependencyInjection.IMcpServerBuilder builder, System.Func<System.Security.Claims.ClaimsPrincipal> getPrincipal, System.Action<CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions> configure = null, System.Action<ModelContextProtocol.Extensions.Tasks.McpTasksOptions> configureTasks = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `builder` | `Microsoft.Extensions.DependencyInjection.IMcpServerBuilder` | The MCP server builder. |
+| `getPrincipal` | `System.Func<System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions>?` | Optional store options (TTL, table, listen channel). |
+| `configureTasks` | `System.Action<ModelContextProtocol.Extensions.Tasks.McpTasksOptions>?` | Optional SDK Tasks options. |
+
+#### Returns
+
+Type: `Microsoft.Extensions.DependencyInjection.IMcpServerBuilder`
+The server builder.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *builder* or *getPrincipal* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> WithPostgreSqlTasks <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_PostgreSQL_McpServerBuilderExtensions`</Note>
+
+Enables MCP Tasks backed by [PostgreSqlMcpTaskStore](/api-reference/CloudNimble/McpEssentials/PostgreSQL/Tasks/PostgreSqlMcpTaskStore),
+resolving the user from services already registered in the built [IServiceProvider](https://learn.microsoft.com/dotnet/api/system.iserviceprovider).
+Register `NpgsqlDataSource` as a singleton first.
+
+#### Syntax
+
+```csharp
+public static Microsoft.Extensions.DependencyInjection.IMcpServerBuilder WithPostgreSqlTasks(Microsoft.Extensions.DependencyInjection.IMcpServerBuilder builder, System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal> getPrincipal, System.Action<CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions> configure = null, System.Action<ModelContextProtocol.Extensions.Tasks.McpTasksOptions> configureTasks = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `builder` | `Microsoft.Extensions.DependencyInjection.IMcpServerBuilder` | The MCP server builder. |
+| `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. ASP.NET Core hosts call
+`AddHttpContextAccessor()` and pass
+`sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`. |
+| `configure` | `System.Action<CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions>?` | Optional store options (TTL, table, listen channel). |
+| `configureTasks` | `System.Action<ModelContextProtocol.Extensions.Tasks.McpTasksOptions>?` | Optional SDK Tasks options. |
+
+#### Returns
+
+Type: `Microsoft.Extensions.DependencyInjection.IMcpServerBuilder`
+The server builder.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *builder* or *getPrincipal* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
 ### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> WithRedisTasks <Badge color="green">Extension</Badge>
 
 <Note>Extension method from `Microsoft.Extensions.DependencyInjection.McpEssentials_Redis_McpServerBuilderExtensions`</Note>
