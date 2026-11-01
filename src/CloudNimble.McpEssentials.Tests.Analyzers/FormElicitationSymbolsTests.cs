@@ -479,6 +479,34 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
         }
 
         [TestMethod]
+        public void IsSealingAndFieldAddingHelpers_MatchBuilderMethods()
+        {
+            var compilation = AnalyzerCompilation.Compile("""
+                public class Use
+                {
+                    public void Go()
+                    {
+                        FormElicitation.Create("m").String("a").Build();
+                    }
+                }
+                """);
+            var type = compilation.GetTypeByMetadataName("CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder");
+            var build = type!.GetMembers("Build").OfType<IMethodSymbol>().First(m => m.Parameters.Length == 0);
+            var toXml = type.GetMembers("ToXml").OfType<IMethodSymbol>().First();
+            var stringMethod = type.GetMembers("String").OfType<IMethodSymbol>().First(m => m.Parameters.Length == 1);
+
+            FormElicitationSymbols.IsSealingMethod(build).Should().BeTrue();
+            FormElicitationSymbols.IsSealingMethod(toXml).Should().BeTrue();
+            FormElicitationSymbols.IsSealingMethod(stringMethod).Should().BeFalse();
+            FormElicitationSymbols.IsFieldAddingMethod(stringMethod).Should().BeTrue();
+            FormElicitationSymbols.IsFieldAddingMethod(build).Should().BeFalse();
+            FormElicitationSymbols.IsSealingName("ToJson").Should().BeTrue();
+            FormElicitationSymbols.IsSealingName("Title").Should().BeFalse();
+            FormElicitationSymbols.IsFieldAddingName("Exclude").Should().BeTrue();
+            FormElicitationSymbols.IsFieldAddingName("Build").Should().BeFalse();
+        }
+
+        [TestMethod]
         public void GetInvokedName_WhenNotMemberOrSimple_ReturnsNull()
         {
             var tree = Microsoft.CodeAnalysis.CSharp.CSharpSyntaxTree.ParseText("class C { void M() { ((System.Action)(() => {}))(); } }");

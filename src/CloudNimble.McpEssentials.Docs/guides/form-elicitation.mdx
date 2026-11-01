@@ -111,7 +111,7 @@ var result = await server.ElicitAsync(
 
 ## Compact XML
 
-`Build()` materializes SDK `ElicitRequestParams`. `ToInputRequest()` projects that graph as JSON. `ToXml()` writes a compact `<Form>` island for hosts that publish the schema (OData `$metadata` wraps it in `Mcp.ElicitForm`).
+`Build()` materializes SDK `ElicitRequestParams` and seals the field list. `ToInputRequest()` wraps that graph; `ToJson()` returns the JSON already on `InputRequest.Params`. `ToXml()` writes a compact `<Form>` island and caches it on the builder (named DI forms reuse that string). OData `$metadata` wraps the island in `Mcp.ElicitForm`. Adding a field after `Build` / `ToXml` / `ToJson` throws; the analyzer reports **MCPESS006**.
 
 ```csharp
 var form = FormElicitation.Create("Ship this order")

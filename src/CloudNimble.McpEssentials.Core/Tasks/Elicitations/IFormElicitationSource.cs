@@ -1,3 +1,4 @@
+using System.Text.Json;
 using ModelContextProtocol.Protocol;
 
 namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
@@ -34,6 +35,12 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// <param name="xmlNamespace">Optional xmlns on the <c>Form</c> element.</param>
         /// <returns>The island text, with no XML declaration.</returns>
         string ToXml(string? xmlNamespace = null);
+
+        /// <summary>
+        /// Returns the elicitation JSON already stored on <see cref="InputRequest.Params"/>.
+        /// </summary>
+        /// <returns>The cached request parameters as JSON.</returns>
+        JsonElement? ToJson();
 
     }
 

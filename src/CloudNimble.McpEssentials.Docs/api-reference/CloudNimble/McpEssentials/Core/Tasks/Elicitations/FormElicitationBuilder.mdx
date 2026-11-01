@@ -98,6 +98,22 @@ internal System.Collections.Generic.List<CloudNimble.McpEssentials.Core.Tasks.El
 
 Type: `System.Collections.Generic.List<CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationField>`
 
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> IsSealed <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`</Note>
+
+Gets whether field changes are refused because an output method has already run.
+
+#### Syntax
+
+```csharp
+internal bool IsSealed { get; }
+```
+
+#### Property Value
+
+Type: `bool`
+
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Message <Badge color="gray">Inherited</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`</Note>
@@ -971,6 +987,24 @@ public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuil
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder`
 The string field facade.
 
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ThrowIfSealed <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`</Note>
+
+Throws when an output method has already materialized this form.
+
+#### Syntax
+
+```csharp
+internal void ThrowIfSealed()
+```
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `InvalidOperationException` | Thrown when the form is sealed. |
+
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToDefinition <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`</Note>
@@ -1062,6 +1096,23 @@ public virtual ModelContextProtocol.Protocol.InputRequest ToInputRequest()
 
 Type: `ModelContextProtocol.Protocol.InputRequest`
 An elicitation input request for task attachment.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToJson <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`</Note>
+
+Returns the elicitation JSON already stored on `Params`.
+
+#### Syntax
+
+```csharp
+public virtual System.Nullable<System.Text.Json.JsonElement> ToJson()
+```
+
+#### Returns
+
+Type: `System.Nullable<System.Text.Json.JsonElement>`
+The cached request parameters as JSON.
 
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToString <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
 

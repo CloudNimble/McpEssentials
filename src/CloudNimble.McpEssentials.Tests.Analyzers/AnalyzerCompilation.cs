@@ -81,7 +81,8 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
 
             var analyzers = ImmutableArray.Create<DiagnosticAnalyzer>(
                 new FormElicitationFromTypeAnalyzer(),
-                new FormElicitationExpressionAnalyzer());
+                new FormElicitationExpressionAnalyzer(),
+                new FormElicitationSealedAnalyzer());
 
             var withAnalyzers = compilation.WithAnalyzers(analyzers);
             return await withAnalyzers.GetAnalyzerDiagnosticsAsync(CancellationToken.None).ConfigureAwait(false);

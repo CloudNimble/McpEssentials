@@ -2,7 +2,7 @@
 title: "Analyzers"
 description: "Roslyn diagnostics that catch broken MCP forms while you type—unmappable properties, colliding wire names, and invalid lambdas."
 icon: "wand-magic-sparkles"
-keywords: ["MCPESS001", "MCPESS002", "MCPESS003", "MCPESS004", "MCPESS005", "FormElicitation", "analyzers"]
+keywords: ["MCPESS001", "MCPESS002", "MCPESS003", "MCPESS004", "MCPESS005", "MCPESS006", "FormElicitation", "analyzers"]
 ---
 
 MCP form elicitation is easy to get slightly wrong: a nested object on `From<T>()`, two properties that camelCase to the same name, a lambda that isn’t `x => x.Email`. Runtime skips or throws. The analyzers in **McpEssentials.Core** turn those mistakes into IDE squiggles and `dotnet build` diagnostics.
@@ -13,8 +13,8 @@ They fire on [`FormElicitation.From<T>()`](/guides/form-elicitation) and on expr
   <Card title="Ships in Core" icon="box-open">
     `dotnet add package McpEssentials.Core` is enough. No extra package for everyday use.
   </Card>
-  <Card title="Five IDs" icon="list-ol">
-    MCPESS001–005. Warnings, errors, and one info. All in the Usage category.
+  <Card title="Six IDs" icon="list-ol">
+    MCPESS001–006. Warnings, errors, and one info. All in the Usage category.
   </Card>
   <Card title="Same chain" icon="link">
     `.Exclude(x => x.Home)` on the `From` call that seeded `Home` suppresses MCPESS001 for that property.
@@ -172,6 +172,27 @@ Rebuild after adding Core. Roslyn loads analyzers from the package; a running ID
 
     </CodeGroup>
   </Accordion>
+
+  <Accordion title="MCPESS006 — field added after Build" icon="lock">
+    **Warning.** `Build`, `ToXml`, `ToJson`, `ToDefinition`, and `ToInputRequest` seal the form. A later starter or `Exclude` on that local would throw at runtime.
+
+    <CodeGroup>
+
+    ```csharp Warns
+    var form = FormElicitation.Create("m").String("trackingNumber");
+    form.Build();
+    form.Integer("quantity"); // MCPESS006
+    ```
+
+    ```csharp Fixed
+    var form = FormElicitation.Create("m")
+        .String("trackingNumber")
+        .Integer("quantity");
+    form.Build();
+    ```
+
+    </CodeGroup>
+  </Accordion>
 </AccordionGroup>
 
 ## Severity at a glance
@@ -183,6 +204,7 @@ Rebuild after adding Core. Roslyn loads analyzers from the package; a running ID
 | MCPESS003 | Error | On | Use `x => x.Email`, not nested access |
 | MCPESS004 | Info | On | Drop the `Exclude`, or leave it as documentation |
 | MCPESS005 | Warning | On | Pass a form DTO, or use `Create()` |
+| MCPESS006 | Warning | On | Add every field before `Build` / `ToXml` / `ToJson` |
 
 ## Suppress a diagnostic
 

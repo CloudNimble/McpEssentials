@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using ModelContextProtocol.Protocol;
 
 namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
@@ -14,7 +15,13 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
 
         #region Fields
 
+        private ElicitRequestParams? _built;
+        private FormDefinition? _definition;
         private ElicitationField? _hotField;
+        private InputRequest? _inputRequest;
+        private string? _name;
+        private bool _sealed;
+        private string? _xml;
 
         #endregion
 
@@ -43,7 +50,20 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// <summary>
         /// Gets or sets the optional keyed-DI name published on the XML island.
         /// </summary>
-        public string? Name { get; set; }
+        public string? Name
+        {
+            get => _name;
+            set
+            {
+                ThrowIfSealed();
+                _name = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets whether field changes are refused because an output method has already run.
+        /// </summary>
+        internal bool IsSealed => _sealed;
 
         /// <summary>
         /// Gets the fields accumulated so far, in insertion order.
@@ -161,6 +181,11 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// <exception cref="InvalidOperationException">Thrown when the message is blank or a field is invalid.</exception>
         public virtual ElicitRequestParams Build()
         {
+            if (_built is not null)
+            {
+                return _built;
+            }
+
             if (string.IsNullOrWhiteSpace(Message))
             {
                 throw new InvalidOperationException("Form elicitation message cannot be empty.");
@@ -178,7 +203,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
                 }
             }
 
-            return new ElicitRequestParams
+            _built = new ElicitRequestParams
             {
                 Mode = "form",
                 Message = Message,
@@ -188,13 +213,15 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
                     Required = required
                 }
             };
+            Seal();
+            return _built;
         }
 
         /// <summary>
         /// Builds an <see cref="InputRequest"/> wrapping <see cref="Build"/>.
         /// </summary>
         /// <returns>An elicitation input request for task attachment.</returns>
-        public virtual InputRequest ToInputRequest() => InputRequest.ForElicitation(Build());
+        public virtual InputRequest ToInputRequest() => _inputRequest ??= InputRequest.ForElicitation(Build());
 
         /// <summary>
         /// Snapshots this form as an immutable definition.
@@ -203,6 +230,11 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// <exception cref="InvalidOperationException">Thrown when the message is blank or a field is invalid.</exception>
         public virtual FormDefinition ToDefinition()
         {
+            if (_definition is not null)
+            {
+                return _definition;
+            }
+
             if (string.IsNullOrWhiteSpace(Message))
             {
                 throw new InvalidOperationException("Form elicitation message cannot be empty.");
@@ -215,7 +247,9 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
                 fields.Add(ToFieldDefinition(field));
             }
 
-            return new FormDefinition(Message, fields, Name);
+            _definition = new FormDefinition(Message, fields, Name);
+            Seal();
+            return _definition;
         }
 
         /// <summary>
@@ -223,7 +257,14 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// </summary>
         /// <param name="xmlNamespace">Optional xmlns on the <c>Form</c> element.</param>
         /// <returns>The island text, with no XML declaration.</returns>
-        public virtual string ToXml(string? xmlNamespace = null) => FormXml.Serialize(ToDefinition(), xmlNamespace);
+        public virtual string ToXml(string? xmlNamespace = null)
+            => _xml ??= FormXml.Serialize(ToDefinition(), xmlNamespace);
+
+        /// <summary>
+        /// Returns the elicitation JSON already stored on <see cref="InputRequest.Params"/>.
+        /// </summary>
+        /// <returns>The cached request parameters as JSON.</returns>
+        public virtual JsonElement? ToJson() => ToInputRequest().Params;
 
         #endregion
 
@@ -239,6 +280,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// <exception cref="ArgumentException">Thrown when <paramref name="name"/> is empty.</exception>
         internal ElicitationField GetOrAdd(string name, ElicitationFieldKind kind)
         {
+            ThrowIfSealed();
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             var wire = FormElicitationProperty.WireName(name);
             var existing = _hotField is not null && string.Equals(_hotField.Name, wire, StringComparison.Ordinal)
@@ -272,6 +314,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// <param name="name">The field identifier.</param>
         internal void Remove(string name)
         {
+            ThrowIfSealed();
             var wire = FormElicitationProperty.WireName(name);
             Fields.RemoveAll(f => string.Equals(f.Name, wire, StringComparison.Ordinal));
             if (_hotField is not null && string.Equals(_hotField.Name, wire, StringComparison.Ordinal))
@@ -399,6 +442,23 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         #endregion
 
         #region Private Methods
+
+        /// <summary>
+        /// Throws when an output method has already materialized this form.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Thrown when the form is sealed.</exception>
+        internal void ThrowIfSealed()
+        {
+            if (_sealed)
+            {
+                throw new InvalidOperationException("This form has already been built. Create a new builder to change fields.");
+            }
+        }
+
+        /// <summary>
+        /// Freezes the field list so later starters and facades throw.
+        /// </summary>
+        private void Seal() => _sealed = true;
 
         /// <summary>
         /// Applies a boolean snapshot field.

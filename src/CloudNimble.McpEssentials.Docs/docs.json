@@ -78,7 +78,8 @@
                     "pages": [
                       "api-reference/CloudNimble/McpEssentials/Analyzers/index",
                       "api-reference/CloudNimble/McpEssentials/Analyzers/FormElicitationExpressionAnalyzer",
-                      "api-reference/CloudNimble/McpEssentials/Analyzers/FormElicitationFromTypeAnalyzer"
+                      "api-reference/CloudNimble/McpEssentials/Analyzers/FormElicitationFromTypeAnalyzer",
+                      "api-reference/CloudNimble/McpEssentials/Analyzers/FormElicitationSealedAnalyzer"
                     ]
                   },
                   {

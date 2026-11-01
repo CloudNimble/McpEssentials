@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
+using System.Text.Json;
 using ModelContextProtocol.Protocol;
 
 namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
@@ -174,6 +175,9 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
 
         /// <inheritdoc cref="FormElicitationBuilder.ToXml"/>
         public new string ToXml(string? xmlNamespace = null) => TypedForm.ToXml(xmlNamespace);
+
+        /// <inheritdoc cref="FormElicitationBuilder.ToJson"/>
+        public new JsonElement? ToJson() => TypedForm.ToJson();
 
     }
 

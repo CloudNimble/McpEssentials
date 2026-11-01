@@ -9,6 +9,7 @@ Roslyn analyzers for MCP form elicitation. Docs: [Analyzers](https://easyaf.dev/
 | MCPESS003 | Error | Expression is not a simple property access (`x => x.Address.City`) |
 | MCPESS004 | Info | `Exclude` of a property that was never going to be a field |
 | MCPESS005 | Warning | `From<T>()` on a built-in or enum instead of a form type |
+| MCPESS006 | Warning | A field starter or `Exclude` after `Build` / `ToXml` / `ToJson` |
 
 ## License
 

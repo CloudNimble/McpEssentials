@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 using ModelContextProtocol.Protocol;
 
 namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
@@ -162,6 +163,9 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
 
         /// <inheritdoc cref="FormElicitationBuilder.ToXml"/>
         public virtual string ToXml(string? xmlNamespace = null) => Form.ToXml(xmlNamespace);
+
+        /// <inheritdoc cref="FormElicitationBuilder.ToJson"/>
+        public virtual JsonElement? ToJson() => Form.ToJson();
 
         #endregion
 

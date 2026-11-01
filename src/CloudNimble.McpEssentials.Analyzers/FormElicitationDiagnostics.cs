@@ -85,6 +85,18 @@ namespace CloudNimble.McpEssentials.Analyzers
             isEnabledByDefault: true,
             helpLinkUri: HelpLink);
 
+        /// <summary>
+        /// A field starter runs after the form was materialized.
+        /// </summary>
+        public static readonly DiagnosticDescriptor MutationAfterBuild = new(
+            id: "MCPESS006",
+            title: "Do not add form fields after the form is built",
+            messageFormat: "'{0}' adds a field after the form was materialized. Build, ToXml, ToJson, ToDefinition, and ToInputRequest seal the form.",
+            category: Category,
+            defaultSeverity: DiagnosticSeverity.Warning,
+            isEnabledByDefault: true,
+            helpLinkUri: HelpLink);
+
         #endregion
 
     }

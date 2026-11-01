@@ -64,7 +64,41 @@ namespace CloudNimble.McpEssentials.Analyzers
                 return false;
             }
 
-            var name = method.Name;
+            return IsFieldAddingName(method.Name);
+        }
+
+        /// <summary>
+        /// Gets whether <paramref name="method"/> materializes the form and seals further field changes.
+        /// </summary>
+        /// <param name="method">A method symbol.</param>
+        /// <returns><see langword="true"/> for Build, ToXml, ToJson, ToDefinition, and ToInputRequest.</returns>
+        public static bool IsSealingMethod(IMethodSymbol method)
+        {
+            if (!IsFormBuilder(method.ContainingType))
+            {
+                return false;
+            }
+
+            return method.Name is "Build" or "ToXml" or "ToJson" or "ToDefinition" or "ToInputRequest";
+        }
+
+        /// <summary>
+        /// Gets whether <paramref name="method"/> adds or removes a field on a fluent form.
+        /// </summary>
+        /// <param name="method">A method symbol.</param>
+        /// <returns><see langword="true"/> for starters and Exclude.</returns>
+        public static bool IsFieldAddingMethod(IMethodSymbol method)
+        {
+            return IsFormBuilder(method.ContainingType) && IsFieldAddingName(method.Name);
+        }
+
+        /// <summary>
+        /// Gets whether <paramref name="name"/> is a starter or <c>Exclude</c>.
+        /// </summary>
+        /// <param name="name">A method name.</param>
+        /// <returns><see langword="true"/> for field-mutating fluent methods.</returns>
+        public static bool IsFieldAddingName(string? name)
+        {
             return name is "Exclude"
                 or "String"
                 or "Email"
@@ -76,6 +110,16 @@ namespace CloudNimble.McpEssentials.Analyzers
                 or "Boolean"
                 or "Choice"
                 or "MultiChoice";
+        }
+
+        /// <summary>
+        /// Gets whether <paramref name="name"/> is a materializing method.
+        /// </summary>
+        /// <param name="name">A method name.</param>
+        /// <returns><see langword="true"/> for Build and the output methods.</returns>
+        public static bool IsSealingName(string? name)
+        {
+            return name is "Build" or "ToXml" or "ToJson" or "ToDefinition" or "ToInputRequest";
         }
 
         #endregion
@@ -165,6 +209,7 @@ namespace CloudNimble.McpEssentials.Analyzers
             return invocation.Expression switch
             {
                 MemberAccessExpressionSyntax member => member.Name,
+                MemberBindingExpressionSyntax binding => binding.Name,
                 SimpleNameSyntax simple => simple,
                 _ => null
             };

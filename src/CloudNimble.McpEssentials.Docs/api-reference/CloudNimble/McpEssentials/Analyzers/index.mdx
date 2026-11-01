@@ -3,7 +3,7 @@ title: Overview
 description: "Summary of the CloudNimble.McpEssentials.Analyzers Namespace"
 icon: folder-tree
 mode: wide
-keywords: ['CloudNimble.McpEssentials.Analyzers', 'namespace', 'FormElicitationExpressionAnalyzer', 'FormElicitationFromTypeAnalyzer']
+keywords: ['CloudNimble.McpEssentials.Analyzers', 'namespace', 'FormElicitationExpressionAnalyzer', 'FormElicitationFromTypeAnalyzer', 'FormElicitationSealedAnalyzer']
 ---
 
 ## Types
@@ -14,4 +14,5 @@ keywords: ['CloudNimble.McpEssentials.Analyzers', 'namespace', 'FormElicitationE
 | ---- | ------- |
 | [FormElicitationExpressionAnalyzer](/api-reference/CloudNimble/McpEssentials/Analyzers/FormElicitationExpressionAnalyzer) | Flags nested or invalid property lambdas, and `Exclude` of a member that would never be seeded. |
 | [FormElicitationFromTypeAnalyzer](/api-reference/CloudNimble/McpEssentials/Analyzers/FormElicitationFromTypeAnalyzer) | Warns when `FormElicitation.From&lt;T&gt;` or `new FormElicitationBuilder&lt;T&gt;`  would skip properties, collide on a wire name, or use a built-in as T. |
+| [FormElicitationSealedAnalyzer](/api-reference/CloudNimble/McpEssentials/Analyzers/FormElicitationSealedAnalyzer) | Warns when a field starter or `Exclude` runs after the same form was materialized. |
 
