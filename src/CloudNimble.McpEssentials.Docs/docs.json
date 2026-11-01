@@ -11,7 +11,9 @@
         "group": "Getting Started",
         "icon": "stars",
         "pages": [
-          "index"
+          "index",
+          "quickstart",
+          "why-mcpessentials"
         ]
       },
       {

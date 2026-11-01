@@ -1,0 +1,97 @@
+---
+title: Why MCP Essentials?
+sidebarTitle: Why MCP Essentials?
+description: The official MCP C# SDK speaks the protocol. McpEssentials is the layer a real-world generic server still needs.
+icon: square-question
+keywords: ["Why MCP Essentials", "IMcpTaskStore", "InMemoryMcpTaskStorePlus", "FormElicitation", "WithTasksPlus"]
+---
+
+The official [MCP C# SDK](https://csharp.sdk.modelcontextprotocol.io/) is the right foundation: tools, resources, prompts, Streamable HTTP, stdio, and MCP Tasks (SEP-2663). McpEssentials is a **companion**, not a fork. It sits on `AddMcpServer()` and fills the gaps that show up the moment the server is **generic** — more than one user, more than one node, more than a demo.
+
+## What the SDK already does well
+
+A single-purpose server on one process can live on the SDK alone. `InMemoryMcpTaskStore` is process-wide by design. `ElicitAsync` sends whatever schema you hand it. Stateless HTTP is the right default for a tool that does not care who called it.
+
+A production MCP server cares. Tasks are long-running. Clients poll `tasks/get`. Users share a host. Nodes share a database. Forms have fields that skip or collide. That is the surface McpEssentials owns.
+
+## What a real-world server still needs
+
+<CardGroup cols={2}>
+  <Card title="Per-user isolation" icon="user-lock" href="/guides/authenticated-tasks">
+    The user who started a task is the only one who can poll, update, or cancel it. A guessed task id is not found.
+  </Card>
+  <Card title="Durable stores" icon="database" href="/guides/stores">
+    Tasks survive process death and scale-out. Same contract on EF Core, Redis, Cosmos, and native Postgres.
+  </Card>
+  <Card title="Fluent forms" icon="clipboard-list" href="/guides/form-elicitation">
+    `FormElicitation.Create` and `From<T>()`. `await server.ElicitAsync(form)` parks the form on the task.
+  </Card>
+  <Card title="Compile-time forms" icon="wand-magic-sparkles" href="/guides/analyzers">
+    MCPESS001–006. A nested `From<T>()` property or a colliding wire name fails the build.
+  </Card>
+</CardGroup>
+
+## Isolation is the first rule
+
+The SDK `InMemoryMcpTaskStore` treats a task id as enough. Under Streamable HTTP that is correct for a single-purpose server. A generic remote server needs one more rule: **the owner is recorded on create, and client-facing get / cancel / resolve require that owner.**
+
+[`InMemoryMcpTaskStorePlus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryMcpTaskStorePlus) is our own in-memory store. It does not wrap the SDK store. [`McpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) is the contract every durable provider implements.
+
+Server-side complete, fail, and set-input skip the live-user check. The SDK finishes work after the HTTP request is gone, from a background DI scope. The owner on the snapshot is enough.
+
+Identity stays a host concern. Core takes a factory (`ClaimsPrincipal`, user id, or `IServiceProvider`). HTTP hosts call `AddHttpContextAccessor()` and pass `HttpContext.User`. Core never takes `IHttpContextAccessor`.
+
+## Persistence on the engine you already run
+
+In-memory dies with the process. A real host already has a database, a cache, or a document store. McpEssentials persists the same `StoredMcpTask` snapshot there.
+
+| Package | Engine | Extra the engine gives you |
+|---|---|---|
+| `McpEssentials.EntityFrameworkCore` | Any EF Core provider | Your `DbContext`, your migrations |
+| `McpEssentials.Redis` | StackExchange.Redis | `PEXPIREAT` and pub/sub |
+| `McpEssentials.Cosmos` | Azure Cosmos DB | Partition by owner, native document TTL |
+| `McpEssentials.PostgreSQL` | Npgsql | `LISTEN` / `NOTIFY` without an EF model |
+
+The identity factory stays the same when you swap. TTL, sweep, and `ServeAndDrop` are Core knobs. Redis and native Postgres **are** the elicitation bus (`NotifyingMcpTaskStoreBase`). EF and Cosmos take an optional [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus) so several nodes waiting on `ElicitAsync` still wake.
+
+## Forms a compiler can see
+
+MCP elicitation is a flat object of primitives. Hand-rolled JSON schema is easy to get slightly wrong. [`FormElicitation`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitation) is a fluent builder: field by field, `From<T>()`, or a loop over metadata.
+
+Inside a task, `await server.ElicitAsync(form)` is enough. The SDK interceptor parks the form. Analyzers in Core turn a nested lambda or a colliding camelCase name into `dotnet build` diagnostics.
+
+## How it sits on the SDK
+
+```csharp
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddMcpServer()
+    .WithHttpTransport(o => o.Stateless = true)
+    .WithTools<MyTools>()
+    .WithTasksPlus(
+        sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
+        o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+```
+
+`AddMcpServer`, `WithHttpTransport`, and `WithTools` are the SDK. [`WithTasksPlus`](/api-reference/Microsoft/Extensions/DependencyInjection/IMcpServerBuilder) is McpEssentials. Stdio is `.WithTasksPlus("local-user")`. Durable packages add `WithRedisTasks`, `WithCosmosTasks`, `WithPostgreSqlTasks`, or `WithTasksPlus<TContext>`.
+
+## What you keep
+
+You keep the official SDK. You keep your auth, your `DbContext`, your Redis multiplexer, your Cosmos client, your `NpgsqlDataSource`. McpEssentials ships the store, the form builder, and the analyzers. The host owns the connection.
+
+## Start here
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="play" href="/quickstart">
+    Isolate a task, elicit a form, swap the store.
+  </Card>
+  <Card title="Authenticated tasks" icon="user-lock" href="/guides/authenticated-tasks">
+    Isolation rules, overloads, and the samples.
+  </Card>
+  <Card title="Form elicitation" icon="clipboard-list" href="/guides/form-elicitation">
+    Field-by-field, `From<T>()`, and parking a form on a task.
+  </Card>
+  <Card title="Choose a store" icon="database" href="/guides/stores">
+    EF Core, Redis, Cosmos, native Postgres, and the specified family.
+  </Card>
+</CardGroup>

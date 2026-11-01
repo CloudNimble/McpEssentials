@@ -1,0 +1,260 @@
+---
+title: Getting Started with McpEssentials
+sidebarTitle: Quickstart
+description: An authenticated MCP server in a few steps: isolate tasks per user, elicit a form, swap the store.
+icon: play
+keywords: ["quickstart", "WithTasksPlus", "FormElicitation", "McpEssentials.Core", "authenticated tasks"]
+---
+
+Get an MCP server that stamps the logged-in user on every task, asks the client for a form, and persists work in the engine you already run.
+
+<CardGroup cols={3}>
+  <Card title="Isolate" icon="user-lock">
+    `WithTasksPlus` records the owner. Another user sees not found.
+  </Card>
+  <Card title="Elicit" icon="clipboard-list">
+    `await server.ElicitAsync(form)` parks the form on the task. The SDK interceptor resumes when the client answers.
+  </Card>
+  <Card title="Swap" icon="database">
+    Same identity factory. EF, Redis, Cosmos, or native Postgres.
+  </Card>
+</CardGroup>
+
+<Steps>
+  <Step title="Install" icon="download">
+    Core is enough for a single process. HTTP hosts also take the ASP.NET Core MCP package.
+
+    <CodeGroup>
+
+    ```bash HTTP
+    dotnet add package ModelContextProtocol.AspNetCore
+    dotnet add package McpEssentials.Core
+    ```
+
+    ```bash Stdio
+    dotnet add package ModelContextProtocol
+    dotnet add package McpEssentials.Core
+    ```
+
+    </CodeGroup>
+
+    Analyzers ship in Core. A rebuild (and sometimes an IDE restart) is enough for squiggles.
+  </Step>
+
+  <Step title="Wire the server" icon="plug">
+    Same identity factory on every host. HTTP reads `HttpContext.User`. Stdio uses a constant user id.
+
+    <Tabs>
+      <Tab title="HTTP" icon="globe">
+        ```csharp
+        builder.Services.AddHttpContextAccessor();
+
+        builder.Services.AddMcpServer()
+            .WithHttpTransport(o => o.Stateless = true)
+            .WithTools<HelloWorldTools>()
+            .WithTasksPlus(
+                sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
+                o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+
+        var app = builder.Build();
+        app.UseAuthentication(); // stamp HttpContext.User however you already authenticate
+        app.MapMcp();
+        app.Run();
+        ```
+
+        Register the store as a **singleton**. Stateless HTTP creates a fresh `McpServer` per POST; a scoped store looks empty on the next `tasks/get`.
+      </Tab>
+      <Tab title="Stdio" icon="terminal">
+        ```csharp
+        builder.Services.AddMcpServer()
+            .WithTools<HelloWorldTools>()
+            .WithTasksPlus("local-user");
+        ```
+      </Tab>
+    </Tabs>
+
+    <Tip>
+    Async `[McpServerTool]` methods that return `Task` / `Task<T>` automatically advertise task support. A client that opts into `io.modelcontextprotocol/tasks` gets a task id owned by the user on that request.
+    </Tip>
+  </Step>
+
+  <Step title="Write a task tool" icon="wrench">
+    Return `Task<string>` so a task-capable client can poll. Read the user from the principal the host already stamped.
+
+    ```csharp
+    using System.ComponentModel;
+    using System.Security.Claims;
+    using CloudNimble.McpEssentials.Core.Tasks;
+    using ModelContextProtocol.Server;
+
+    [McpServerToolType]
+    public class HelloWorldTools
+    {
+        [McpServerTool(Name = "HelloWorld"), Description("Says hello to the authenticated user.")]
+        public static async Task<string> HelloWorld(ClaimsPrincipal user, CancellationToken cancellationToken)
+        {
+            var userId = McpTaskStoreBase.GetUserId(user);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return "Unauthenticated.";
+            }
+
+            await Task.Delay(2000, cancellationToken);
+            return $"Hello, {userId}.";
+        }
+    }
+    ```
+
+    Claim lookup is `NameIdentifier`, then `sub`, `UPN`, `Name`. No user on a client-facing call throws [`McpTaskUserRequiredException`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskUserRequiredException).
+  </Step>
+
+  <Step title="Ask the client for a form" icon="clipboard-list">
+    `await server.ElicitAsync(form)` is enough inside a task. The SDK interceptor parks the form and resumes when the client answers.
+
+    ```csharp
+    using CloudNimble.McpEssentials.Core.Tasks.Elicitations;
+    using ModelContextProtocol.Server;
+
+    [McpServerTool(Name = "ShipOrder"), Description("Asks for a tracking number, then ships.")]
+    public static async Task<string> ShipOrder(McpServer server, CancellationToken cancellationToken)
+    {
+        var result = await server.ElicitAsync(
+            FormElicitation.Create("Need a tracking number")
+                .String("trackingNumber").Required().MinLength(1),
+            cancellationToken);
+
+        if (!result.IsAccepted)
+        {
+            return "cancelled";
+        }
+
+        return $"Shipped as {result.Content!["trackingNumber"].GetString()}.";
+    }
+    ```
+
+    Field-by-field `Create`, `From<T>()`, and metadata-driven builders are in [Form elicitation](/guides/form-elicitation). Broken `From<T>()` shapes are compiler diagnostics in [Analyzers](/guides/analyzers).
+  </Step>
+
+  <Step title="Run it" icon="play">
+    The in-memory sample is a complete Streamable HTTP host. Fake auth is the `X-User-Id` header.
+
+    ```bash
+    dotnet run --project samples/CloudNimble.McpEssentials.Samples.Basic -f net11.0
+    ```
+
+    MCP is at `http://localhost:5280/`. Send `X-User-Id: alice`.
+
+    <AccordionGroup>
+      <Accordion title="Prove isolation" icon="lock">
+        1. Call `HelloWorld` as `alice` with the Tasks extension. Keep the task id.
+        2. `tasks/get` as `alice` returns the task.
+        3. `tasks/get` as `bob` returns not found.
+        4. Omit `X-User-Id` and client-facing task operations throw `McpTaskUserRequiredException`.
+      </Accordion>
+      <Accordion title="Runnable samples" icon="folder-tree">
+        [`samples/CloudNimble.McpEssentials.Samples.Basic`](https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.Basic) is in-memory.
+
+        Entity Framework Core (`localhost:5290`), Redis (`5300`), Cosmos DB (`5310`), and PostgreSQL (`5320`) each have a host in the same folder. The store is the only thing that changes.
+      </Accordion>
+    </AccordionGroup>
+  </Step>
+
+  <Step title="Swap the store" icon="database">
+    Identity stays on the platform accessor. Production registers a durable store with the same factory.
+
+    <CodeGroup>
+
+    ```csharp Basic
+    builder.Services.AddHttpContextAccessor();
+
+    Func<IServiceProvider, ClaimsPrincipal?> currentUser =
+        sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User;
+
+    builder.Services.AddMcpServer()
+        .WithHttpTransport(o => o.Stateless = true)
+        .WithTools<HelloWorldTools>()
+        .WithTasksPlus(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+    ```
+
+    ```csharp Entity Framework Core
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(connectionString));
+
+    Func<IServiceProvider, ClaimsPrincipal?> currentUser =
+        sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User;
+
+    builder.Services.AddMcpServer()
+        .WithHttpTransport(o => o.Stateless = true)
+        .WithTools<HelloWorldTools>()
+        .WithTasksPlus<AppDbContext>(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+    ```
+
+    ```csharp Redis
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddSingleton<IConnectionMultiplexer>(
+        _ => ConnectionMultiplexer.Connect(redisConnectionString));
+
+    Func<IServiceProvider, ClaimsPrincipal?> currentUser =
+        sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User;
+
+    builder.Services.AddMcpServer()
+        .WithHttpTransport(o => o.Stateless = true)
+        .WithTools<HelloWorldTools>()
+        .WithRedisTasks(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+    ```
+
+    ```csharp Cosmos DB
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddSingleton(_ => new CosmosClient(
+        cosmosConnectionString,
+        CosmosMcpTaskStore.DefaultClientOptions()));
+
+    Func<IServiceProvider, ClaimsPrincipal?> currentUser =
+        sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User;
+
+    builder.Services.AddMcpServer()
+        .WithHttpTransport(o => o.Stateless = true)
+        .WithTools<HelloWorldTools>()
+        .WithCosmosTasks(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+    ```
+
+    ```csharp PostgreSQL
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(postgresConnectionString));
+
+    Func<IServiceProvider, ClaimsPrincipal?> currentUser =
+        sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User;
+
+    builder.Services.AddMcpServer()
+        .WithHttpTransport(o => o.Stateless = true)
+        .WithTools<HelloWorldTools>()
+        .WithPostgreSqlTasks(currentUser, o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+    ```
+
+    </CodeGroup>
+
+    <Note>
+    Map `McpTasks` with `AddMcpTasksTable` when you stay on Entity Framework Core. Redis and native Postgres are the buses for multi-node `ElicitAsync`. EF and Cosmos take an optional [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus).
+    </Note>
+  </Step>
+</Steps>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Why MCP Essentials?" icon="square-question" href="/why-mcpessentials">
+    How this layer extends the official SDK for real-world servers.
+  </Card>
+  <Card title="Authenticated tasks" icon="user-lock" href="/guides/authenticated-tasks">
+    Isolation rules, overloads, and every sample.
+  </Card>
+  <Card title="Form elicitation" icon="clipboard-list" href="/guides/form-elicitation">
+    Field-by-field, `From<T>()`, and parking a form on a task.
+  </Card>
+  <Card title="Analyzers" icon="wand-magic-sparkles" href="/guides/analyzers">
+    MCPESS001–006 so a broken form fails the build.
+  </Card>
+  <Card title="Choose a store" icon="database" href="/guides/stores">
+    EF Core, Redis, Cosmos, native Postgres, and the specified family.
+  </Card>
+</CardGroup>
