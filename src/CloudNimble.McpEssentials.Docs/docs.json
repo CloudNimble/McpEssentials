@@ -18,7 +18,6 @@
       },
       {
         "group": "Guides",
-        "root": "guides/index",
         "icon": "dog-leashed",
         "pages": [
           "guides/index",
@@ -27,7 +26,6 @@
           "guides/analyzers",
           {
             "group": "Stores",
-            "root": "guides/stores/index",
             "icon": "database",
             "pages": [
               "guides/stores/index",
@@ -98,7 +96,6 @@
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryMcpTaskStorePlus",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskInputSignal",
-                          "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTasksJsonContext",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBuilder",
                           "api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreOptions",
@@ -145,7 +142,6 @@
                         "icon": "folder-tree",
                         "pages": [
                           "api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/index",
-                          "api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosMcpTasksJsonContext",
                           "api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosMcpTaskStore",
                           "api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosMcpTaskStoreOptions",
                           "api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosStoredMcpTask",
@@ -197,7 +193,6 @@
                         "icon": "folder-tree",
                         "pages": [
                           "api-reference/CloudNimble/McpEssentials/Redis/Tasks/index",
-                          "api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTasksJsonContext",
                           "api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTaskStore",
                           "api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTaskStoreOptions",
                           "api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisStoredMcpTask"
