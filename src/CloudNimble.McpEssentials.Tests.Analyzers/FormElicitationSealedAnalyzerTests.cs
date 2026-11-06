@@ -24,7 +24,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        var form = FormElicitation.Create("m").String("a");
+                        var form = FormElicitationBuilder.Create("m").String("a");
                         form.Build();
                         form.Integer("b");
                     }
@@ -42,7 +42,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        var form = FormElicitation.Create("m");
+                        var form = FormElicitationBuilder.Create("m");
                         form.ToXml();
                         form.Email("e");
                     }
@@ -60,7 +60,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.Create("m").String("a").Build();
+                        FormElicitationBuilder.Create("m").String("a").Build();
                     }
                 }
                 """);
@@ -76,9 +76,9 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        var a = FormElicitation.Create("m");
+                        var a = FormElicitationBuilder.Create("m");
                         a.Build();
-                        var b = FormElicitation.Create("n");
+                        var b = FormElicitationBuilder.Create("n");
                         b.String("x");
                     }
                 }
@@ -97,7 +97,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                     {
                         void Inner()
                         {
-                            var form = FormElicitation.Create("m");
+                            var form = FormElicitationBuilder.Create("m");
                             form.ToInputRequest();
                             form.String("a");
                         }
@@ -116,11 +116,11 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        var form = FormElicitation.Create("m");
+                        var form = FormElicitationBuilder.Create("m");
                         form.Build();
                         System.Action inner = () =>
                         {
-                            var other = FormElicitation.Create("n");
+                            var other = FormElicitationBuilder.Create("n");
                             other.String("a");
                         };
                     }
@@ -141,7 +141,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                     public void Go()
                     {
                         Build();
-                        var form = FormElicitation.Create("m");
+                        var form = FormElicitationBuilder.Create("m");
                         form.String("a");
                     }
                 }
@@ -180,7 +180,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                         System.Action Build = () => { };
                         Build();
                         ((System.Action)(() => { }))();
-                        var form = FormElicitation.Create("m");
+                        var form = FormElicitationBuilder.Create("m");
                         form.String("a");
                     }
                 }
@@ -197,7 +197,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        var form = FormElicitation.Create("m");
+                        var form = FormElicitationBuilder.Create("m");
                         (form?.String("a")).Build();
                         form.Integer("b");
                     }
@@ -215,7 +215,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        var form = FormElicitation.Create("m");
+                        var form = FormElicitationBuilder.Create("m");
                         (form).Build();
                         form.String("a");
                     }
@@ -233,7 +233,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public Use()
                     {
-                        var form = FormElicitation.Create("m");
+                        var form = FormElicitationBuilder.Create("m");
                         form.ToDefinition();
                         form.String("a");
                     }
@@ -251,8 +251,8 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        new FormElicitationBuilder("m").String("a").Build();
-                        new FormElicitationBuilder("m").String("b");
+                        FormElicitationBuilder.Create("m").String("a").Build();
+                        FormElicitationBuilder.Create("m").String("b");
                     }
                 }
                 """);
@@ -268,7 +268,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitationBuilder form = FormElicitation.Create("m");
+                        FormElicitationBuilder form = FormElicitationBuilder.Create("m");
                         form?.ToJson();
                         form.String("a");
                     }

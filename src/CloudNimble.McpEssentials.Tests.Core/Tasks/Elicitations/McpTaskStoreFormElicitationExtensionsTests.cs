@@ -25,7 +25,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         {
             var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
-            var form = FormElicitation.Create("Filter?")
+            var form = FormElicitationBuilder.Create("Filter?")
                 .String("filter").Title("$filter")
                 .Integer("top").Default(20);
 
@@ -49,7 +49,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         {
             var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
-            var form = FormElicitation.From<EmptyForm>("Confirm?");
+            var form = FormElicitationBuilder.From<EmptyForm>("Confirm?");
 
             await store.SetInputRequestsAsync(created.TaskId, "odata-confirm", form);
 
@@ -65,7 +65,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         {
             var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
-            var request = FormElicitation.Create("Need a name").String("name").Required().ToInputRequest();
+            var request = FormElicitationBuilder.Create("Need a name").String("name").Required().ToInputRequest();
 
             await store.SetInputRequestsAsync(created.TaskId, request);
 
@@ -81,7 +81,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         {
             var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
-            var request = FormElicitation.Create("Need a name").String("name").ToInputRequest();
+            var request = FormElicitationBuilder.Create("Need a name").String("name").ToInputRequest();
 
             await store.SetInputRequestsAsync(created.TaskId, "name-field", request);
 
@@ -102,7 +102,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         {
             var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
-            var form = FormElicitation.Create("m");
+            var form = FormElicitationBuilder.Create("m");
             var act = () => store.SetInputRequestsAsync(created.TaskId, "  ", form);
             await act.Should().ThrowAsync<ArgumentException>();
         }
@@ -111,7 +111,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         public async Task SetInputRequests_NullStore_Throws()
         {
             IMcpTaskStore store = null!;
-            var act = () => store.SetInputRequestsAsync("id", FormElicitation.Create("m").ToInputRequest());
+            var act = () => store.SetInputRequestsAsync("id", FormElicitationBuilder.Create("m").ToInputRequest());
             await act.Should().ThrowAsync<ArgumentNullException>().WithParameterName("store");
         }
 
@@ -120,7 +120,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         {
             var store = new InMemoryMcpTaskStorePlus("alice");
             var created = await store.CreateTaskAsync();
-            var form = FormElicitation.Create("m").Choice("color");
+            var form = FormElicitationBuilder.Create("m").Choice("color");
             var act = () => store.SetInputRequestsAsync(created.TaskId, form);
             await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*no options*");
         }

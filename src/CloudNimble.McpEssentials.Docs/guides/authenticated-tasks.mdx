@@ -86,7 +86,7 @@ No user on a client-facing call throws [`McpTaskUserRequiredException`](/api-ref
 
 Each overload has a matching `AddInMemoryMcpTaskStorePlus` on `IServiceCollection`. Pass `McpTaskStoreOptions` as the next argument to set `DefaultTimeToLive` and `DefaultPollIntervalMs`. `null` TTL keeps tasks until the store discards them.
 
-Claim lookup matches the SDK session identity order: `NameIdentifier`, `sub`, `UPN`, `Name`. Types are unsealed; subclass [`McpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) to change isolation, TTL, or storage.
+Claim lookup order: `NameIdentifier`, `sub`, `UPN`, `Name`. Types are unsealed; subclass [`McpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) to change isolation, TTL, or storage.
 
 ## Isolation rules
 

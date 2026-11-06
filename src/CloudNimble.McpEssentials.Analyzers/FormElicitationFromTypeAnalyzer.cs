@@ -9,7 +9,7 @@ namespace CloudNimble.McpEssentials.Analyzers
 {
 
     /// <summary>
-    /// Warns when <c>FormElicitation.From&lt;T&gt;</c> or <c>new FormElicitationBuilder&lt;T&gt;</c>
+    /// Warns when <c>FormElicitationBuilder.From&lt;T&gt;</c> or <c>FormElicitationBuilder&lt;T&gt;.From</c>
     /// would skip properties, collide on a wire name, or use a built-in as T.
     /// </summary>
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
@@ -42,7 +42,7 @@ namespace CloudNimble.McpEssentials.Analyzers
         #region Private Methods
 
         /// <summary>
-        /// Analyzes <c>FormElicitation.From&lt;T&gt;(...)</c>.
+        /// Analyzes <c>FormElicitationBuilder.From&lt;T&gt;(...)</c> and <c>FormElicitationBuilder&lt;T&gt;.From(...)</c>.
         /// </summary>
         /// <param name="context">The syntax context.</param>
         private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
@@ -55,13 +55,12 @@ namespace CloudNimble.McpEssentials.Analyzers
 
             if (context.SemanticModel.GetSymbolInfo(invocation, context.CancellationToken).Symbol is not IMethodSymbol method
                 || method.Name != "From"
-                || !FormElicitationSymbols.IsFormElicitation(method.ContainingType)
-                || method.TypeArguments.Length != 1)
+                || !TryGetFromTypeArgument(method, out var typeArgument)
+                || typeArgument is null)
             {
                 return;
             }
 
-            var typeArgument = method.TypeArguments[0];
             var location = GetTypeArgumentLocation(invocation.Expression) ?? invocation.GetLocation();
             AnalyzeFormType(context, typeArgument, location, invocation);
         }
@@ -90,6 +89,32 @@ namespace CloudNimble.McpEssentials.Analyzers
 
             var location = creation.Type.GetLocation();
             AnalyzeFormType(context, containing.TypeArguments[0], location, creation);
+        }
+
+        /// <summary>
+        /// Gets the form type from <c>From&lt;T&gt;</c> on the untyped builder or <c>From</c> on <c>FormElicitationBuilder&lt;T&gt;</c>.
+        /// </summary>
+        /// <param name="method">The resolved From method.</param>
+        /// <param name="typeArgument">The form type when this is a Core From factory.</param>
+        /// <returns><see langword="true"/> when <paramref name="method"/> is a Core From factory.</returns>
+        private static bool TryGetFromTypeArgument(IMethodSymbol method, out ITypeSymbol? typeArgument)
+        {
+            typeArgument = null;
+            if (FormElicitationSymbols.IsFormElicitation(method.ContainingType) && method.TypeArguments.Length == 1)
+            {
+                typeArgument = method.TypeArguments[0];
+                return true;
+            }
+
+            if (FormElicitationSymbols.IsFormBuilder(method.ContainingType)
+                && method.ContainingType.TypeArguments.Length == 1
+                && method.TypeArguments.Length == 0)
+            {
+                typeArgument = method.ContainingType.TypeArguments[0];
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

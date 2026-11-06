@@ -38,14 +38,14 @@ Initializes a facade for *field* on *form*.
 #### Syntax
 
 ```csharp
-internal MultiChoiceFieldBuilder(CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder form, CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationField field)
+internal MultiChoiceFieldBuilder(CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase form, CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationField field)
 ```
 
 #### Parameters
 
 | Name | Type | Description |
 |------|------|-------------|
-| `form` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder` | The parent form. |
+| `form` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase` | The parent form. |
 | `field` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationField` | The current field. |
 
 ### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
@@ -85,21 +85,21 @@ Gets the parent form.
 #### Syntax
 
 ```csharp
-protected CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder Form { get; }
+protected internal CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase Form { get; }
 ```
 
 #### Property Value
 
-Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder`
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`
 
 ## Methods
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Boolean
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Boolean <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.BooleanFieldBuilder<T> Boolean(string name)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.BooleanFieldBuilder<T> Boolean(string name)
 ```
 
 #### Parameters
@@ -150,12 +150,12 @@ public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.BooleanFieldBui
 
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.BooleanFieldBuilder`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Build
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Build <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public ModelContextProtocol.Protocol.ElicitRequestParams Build()
+public override ModelContextProtocol.Protocol.ElicitRequestParams Build()
 ```
 
 #### Returns
@@ -176,12 +176,12 @@ public virtual ModelContextProtocol.Protocol.ElicitRequestParams Build()
 
 Type: `ModelContextProtocol.Protocol.ElicitRequestParams`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Choice
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Choice <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.ChoiceFieldBuilder<T> Choice(string name)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.ChoiceFieldBuilder<T> Choice(string name)
 ```
 
 #### Parameters
@@ -232,12 +232,12 @@ public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.ChoiceFieldBuil
 
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.ChoiceFieldBuilder`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Date
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Date <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> Date(string name)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> Date(string name)
 ```
 
 #### Parameters
@@ -288,12 +288,12 @@ public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuil
 
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DateTime
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DateTime <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> DateTime(string name)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> DateTime(string name)
 ```
 
 #### Parameters
@@ -344,12 +344,12 @@ public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuil
 
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Default
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Default <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> Default(params string[] values)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> Default(params string[] values)
 ```
 
 #### Parameters
@@ -362,12 +362,12 @@ public CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder
 
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T>`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Default
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Default <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> Default(System.Collections.Generic.IEnumerable<string> values)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> Default(System.Collections.Generic.IEnumerable<string> values)
 ```
 
 #### Parameters
@@ -433,12 +433,12 @@ public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFiel
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder`
 This facade.
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Description
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Description <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> Description(string description)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> Description(string description)
 ```
 
 #### Parameters
@@ -474,12 +474,12 @@ public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFiel
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder`
 This facade.
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Email
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Email <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> Email(string name)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> Email(string name)
 ```
 
 #### Parameters
@@ -617,12 +617,12 @@ public System.Type GetType()
 
 Type: `System.Type`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Integer
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Integer <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder<T> Integer(string name)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder<T> Integer(string name)
 ```
 
 #### Parameters
@@ -673,12 +673,12 @@ public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuil
 
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MaxItems
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MaxItems <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> MaxItems(int count)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> MaxItems(int count)
 ```
 
 #### Parameters
@@ -734,12 +734,12 @@ protected internal object MemberwiseClone()
 
 Type: `object`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MinItems
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MinItems <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> MinItems(int count)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> MinItems(int count)
 ```
 
 #### Parameters
@@ -781,12 +781,12 @@ This facade.
 |-----------|-------------|
 | `ArgumentOutOfRangeException` | Thrown when *count* is negative. |
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MultiChoice
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MultiChoice <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> MultiChoice(string name)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> MultiChoice(string name)
 ```
 
 #### Parameters
@@ -837,12 +837,12 @@ public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFiel
 
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Number
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Number <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder<T> Number(string name)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder<T> Number(string name)
 ```
 
 #### Parameters
@@ -893,12 +893,12 @@ public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuil
 
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Option
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Option <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> Option(string value)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> Option(string value)
 ```
 
 #### Parameters
@@ -911,12 +911,12 @@ public CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder
 
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T>`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Option
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Option <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> Option(string value, string title)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> Option(string value, string title)
 ```
 
 #### Parameters
@@ -977,12 +977,12 @@ public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFiel
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder`
 This facade.
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Optional
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Optional <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> Optional()
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> Optional()
 ```
 
 #### Returns
@@ -1027,12 +1027,12 @@ public static bool ReferenceEquals(object objA, object objB)
 
 Type: `bool`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Required
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Required <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> Required()
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> Required()
 ```
 
 #### Returns
@@ -1056,12 +1056,12 @@ public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFiel
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder`
 This facade.
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> String
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> String <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> String(string name)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> String(string name)
 ```
 
 #### Parameters
@@ -1112,12 +1112,12 @@ public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuil
 
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Title
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Title <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> Title(string title)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> Title(string title)
 ```
 
 #### Parameters
@@ -1153,12 +1153,12 @@ public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFiel
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder`
 This facade.
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToDefinition
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToDefinition <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormDefinition ToDefinition()
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormDefinition ToDefinition()
 ```
 
 #### Returns
@@ -1179,12 +1179,12 @@ public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormDefinition 
 
 Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormDefinition`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToInputRequest
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToInputRequest <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public ModelContextProtocol.Protocol.InputRequest ToInputRequest()
+public override ModelContextProtocol.Protocol.InputRequest ToInputRequest()
 ```
 
 #### Returns
@@ -1205,12 +1205,12 @@ public virtual ModelContextProtocol.Protocol.InputRequest ToInputRequest()
 
 Type: `ModelContextProtocol.Protocol.InputRequest`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToJson
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToJson <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public System.Nullable<System.Text.Json.JsonElement> ToJson()
+public override System.Nullable<System.Text.Json.JsonElement> ToJson()
 ```
 
 #### Returns
@@ -1245,12 +1245,12 @@ public virtual string ToString()
 
 Type: `string?`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToXml
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToXml <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public string ToXml(string xmlNamespace = null)
+public override string ToXml(string xmlNamespace = null)
 ```
 
 #### Parameters
@@ -1283,12 +1283,12 @@ public virtual string ToXml(string xmlNamespace = null)
 
 Type: `string`
 
-### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Uri
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Uri <Badge color="blue">Override</Badge>
 
 #### Syntax
 
 ```csharp
-public CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> Uri(string name)
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> Uri(string name)
 ```
 
 #### Parameters

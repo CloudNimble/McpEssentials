@@ -5,7 +5,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
 {
 
     /// <summary>
-    /// A form that can be sent through <c>ElicitAsync</c> or parked on an MCP task.
+    /// A form that can be sent through <c>RequireForm</c> or parked on an MCP task.
     /// The untyped builder, the typed builder, and every field facade implement this.
     /// </summary>
     public interface IFormElicitationSource

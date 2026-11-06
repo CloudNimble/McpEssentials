@@ -42,10 +42,10 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(FormElicitation).Assembly.Location)
+                MetadataReference.CreateFromFile(typeof(FormElicitationBuilder).Assembly.Location)
             };
 
-            foreach (var assembly in typeof(FormElicitation).Assembly.GetReferencedAssemblies())
+            foreach (var assembly in typeof(FormElicitationBuilder).Assembly.GetReferencedAssemblies())
             {
                 try
                 {
@@ -108,10 +108,10 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location),
                 MetadataReference.CreateFromFile(typeof(Uri).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(FormElicitation).Assembly.Location)
+                MetadataReference.CreateFromFile(typeof(FormElicitationBuilder).Assembly.Location)
             };
 
-            foreach (var assembly in typeof(FormElicitation).Assembly.GetReferencedAssemblies())
+            foreach (var assembly in typeof(FormElicitationBuilder).Assembly.GetReferencedAssemblies())
             {
                 try
                 {

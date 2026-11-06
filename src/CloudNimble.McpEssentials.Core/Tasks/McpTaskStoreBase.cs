@@ -428,11 +428,11 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         /// </summary>
         /// <param name="principal">The principal for the current request.</param>
         /// <returns>
-        /// The first non-whitespace claim in SDK session-identity order, or <see langword="null"/>
+        /// The first non-whitespace claim in lookup order, or <see langword="null"/>
         /// when the principal is missing or unauthenticated.
         /// </returns>
         /// <remarks>
-        /// Claim lookup matches the MCP C# SDK session identity order:
+        /// Claim lookup order:
         /// <see cref="ClaimTypes.NameIdentifier"/>, <c>sub</c>, <see cref="ClaimTypes.Upn"/>,
         /// <see cref="ClaimTypes.Name"/>, then <see cref="IIdentity.Name"/>.
         /// The principal must be authenticated.

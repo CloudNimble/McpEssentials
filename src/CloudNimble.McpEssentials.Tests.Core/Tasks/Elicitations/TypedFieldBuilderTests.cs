@@ -20,7 +20,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void TypedStringFacade_HitsEveryMember()
         {
-            var facade = FormElicitation.From<KitchenSinkForm>("m").String(x => x.Name)
+            var facade = FormElicitationBuilder.From<KitchenSinkForm>("m").String(x => x.Name)
                 .Title("N")
                 .Description("d")
                 .Required()
@@ -32,7 +32,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             facade.Should().BeOfType<StringFieldBuilder<KitchenSinkForm>>();
             facade.Exclude(x => x.Nickname).Should().BeOfType<FormElicitationBuilder<KitchenSinkForm>>();
 
-            facade = FormElicitation.From<KitchenSinkForm>("m").String(x => x.Name);
+            facade = FormElicitationBuilder.From<KitchenSinkForm>("m").String(x => x.Name);
             facade.String("extra").Should().BeOfType<StringFieldBuilder<KitchenSinkForm>>();
             facade.String(x => x.Nickname).Should().BeOfType<StringFieldBuilder<KitchenSinkForm>>();
             facade.Email("e").Should().BeOfType<StringFieldBuilder<KitchenSinkForm>>();
@@ -62,7 +62,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void TypedNumberFacade_HitsEveryMember()
         {
-            var facade = FormElicitation.From<KitchenSinkForm>("m").Integer(x => x.Age)
+            var facade = FormElicitationBuilder.From<KitchenSinkForm>("m").Integer(x => x.Age)
                 .Title("Age")
                 .Description("Years")
                 .Required()
@@ -76,7 +76,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             facade.Field.Minimum.Should().Be(1);
             facade.Exclude(x => x.FloatValue).Should().BeOfType<FormElicitationBuilder<KitchenSinkForm>>();
 
-            facade = FormElicitation.From<KitchenSinkForm>("m").Number(x => x.Price);
+            facade = FormElicitationBuilder.From<KitchenSinkForm>("m").Number(x => x.Price);
             facade.String("s").Should().BeOfType<StringFieldBuilder<KitchenSinkForm>>();
             facade.String(x => x.Name);
             facade.Email("e");
@@ -106,7 +106,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void TypedBooleanFacade_HitsEveryMember()
         {
-            var facade = FormElicitation.From<KitchenSinkForm>("m").Boolean(x => x.Active)
+            var facade = FormElicitationBuilder.From<KitchenSinkForm>("m").Boolean(x => x.Active)
                 .Title("On")
                 .Description("Switch")
                 .Required()
@@ -116,7 +116,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             facade.Should().BeOfType<BooleanFieldBuilder<KitchenSinkForm>>();
             facade.Exclude(x => x.Name).Should().BeOfType<FormElicitationBuilder<KitchenSinkForm>>();
 
-            facade = FormElicitation.From<KitchenSinkForm>("m").Boolean(x => x.Active);
+            facade = FormElicitationBuilder.From<KitchenSinkForm>("m").Boolean(x => x.Active);
             facade.String("s");
             facade.String(x => x.Name);
             facade.Email("e");
@@ -146,7 +146,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void TypedChoiceFacade_HitsEveryMember()
         {
-            var facade = FormElicitation.From<KitchenSinkForm>("m").Choice(x => x.Color)
+            var facade = FormElicitationBuilder.From<KitchenSinkForm>("m").Choice(x => x.Color)
                 .Title("Color")
                 .Description("Pick")
                 .Required()
@@ -158,7 +158,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             facade.Should().BeOfType<ChoiceFieldBuilder<KitchenSinkForm>>();
             facade.Exclude(x => x.Access).Should().BeOfType<FormElicitationBuilder<KitchenSinkForm>>();
 
-            facade = FormElicitation.From<KitchenSinkForm>("m").Choice(x => x.Color);
+            facade = FormElicitationBuilder.From<KitchenSinkForm>("m").Choice(x => x.Color);
             facade.String("s");
             facade.String(x => x.Name);
             facade.Email("e");
@@ -188,7 +188,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void TypedMultiChoiceFacade_HitsEveryMember()
         {
-            var facade = FormElicitation.From<KitchenSinkForm>("m").MultiChoice(x => x.Access)
+            var facade = FormElicitationBuilder.From<KitchenSinkForm>("m").MultiChoice(x => x.Access)
                 .Title("Access")
                 .Description("Pick")
                 .Required()
@@ -203,7 +203,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             facade.Should().BeOfType<MultiChoiceFieldBuilder<KitchenSinkForm>>();
             facade.Exclude(x => x.Colors).Should().BeOfType<FormElicitationBuilder<KitchenSinkForm>>();
 
-            facade = FormElicitation.From<KitchenSinkForm>("m").MultiChoice(x => x.Access);
+            facade = FormElicitationBuilder.From<KitchenSinkForm>("m").MultiChoice(x => x.Access);
             facade.String("s");
             facade.String(x => x.Name);
             facade.Email("e");
@@ -233,7 +233,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void TypedChoice_AddingOptionToSeededEnum_KeepsExisting()
         {
-            var built = FormElicitation.From<KitchenSinkForm>("m")
+            var built = FormElicitationBuilder.From<KitchenSinkForm>("m")
                 .Choice(x => x.Color).Option("Custom", "Custom color")
                 .Build();
 

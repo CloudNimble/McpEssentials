@@ -18,7 +18,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// </summary>
         /// <param name="form">The parent form.</param>
         /// <param name="field">The current field.</param>
-        internal BooleanFieldBuilder(FormElicitationBuilder form, ElicitationField field)
+        internal BooleanFieldBuilder(FormElicitationBuilderBase form, ElicitationField field)
         {
             Form = form;
             Field = field;
@@ -31,7 +31,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// <summary>
         /// Gets the parent form.
         /// </summary>
-        protected FormElicitationBuilder Form { get; }
+        protected internal FormElicitationBuilderBase Form { get; }
 
         /// <summary>
         /// Gets the current field.
@@ -97,49 +97,49 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
             return this;
         }
 
-        /// <inheritdoc cref="FormElicitationBuilder.String(string)"/>
+        /// <inheritdoc cref="FormElicitationBuilderBase.String(string)"/>
         public virtual StringFieldBuilder String(string name) => Form.String(name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.Email(string)"/>
+        /// <inheritdoc cref="FormElicitationBuilderBase.Email(string)"/>
         public virtual StringFieldBuilder Email(string name) => Form.Email(name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.Uri(string)"/>
+        /// <inheritdoc cref="FormElicitationBuilderBase.Uri(string)"/>
         public virtual StringFieldBuilder Uri(string name) => Form.Uri(name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.Date(string)"/>
+        /// <inheritdoc cref="FormElicitationBuilderBase.Date(string)"/>
         public virtual StringFieldBuilder Date(string name) => Form.Date(name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.DateTime(string)"/>
+        /// <inheritdoc cref="FormElicitationBuilderBase.DateTime(string)"/>
         public virtual StringFieldBuilder DateTime(string name) => Form.DateTime(name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.Integer(string)"/>
+        /// <inheritdoc cref="FormElicitationBuilderBase.Integer(string)"/>
         public virtual NumberFieldBuilder Integer(string name) => Form.Integer(name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.Number(string)"/>
+        /// <inheritdoc cref="FormElicitationBuilderBase.Number(string)"/>
         public virtual NumberFieldBuilder Number(string name) => Form.Number(name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.Boolean(string)"/>
+        /// <inheritdoc cref="FormElicitationBuilderBase.Boolean(string)"/>
         public virtual BooleanFieldBuilder Boolean(string name) => Form.Boolean(name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.Choice(string)"/>
+        /// <inheritdoc cref="FormElicitationBuilderBase.Choice(string)"/>
         public virtual ChoiceFieldBuilder Choice(string name) => Form.Choice(name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.MultiChoice(string)"/>
+        /// <inheritdoc cref="FormElicitationBuilderBase.MultiChoice(string)"/>
         public virtual MultiChoiceFieldBuilder MultiChoice(string name) => Form.MultiChoice(name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.Build"/>
+        /// <inheritdoc cref="FormElicitationBuilderBase.Build"/>
         public virtual ElicitRequestParams Build() => Form.Build();
 
-        /// <inheritdoc cref="FormElicitationBuilder.ToInputRequest"/>
+        /// <inheritdoc cref="FormElicitationBuilderBase.ToInputRequest"/>
         public virtual InputRequest ToInputRequest() => Form.ToInputRequest();
 
-        /// <inheritdoc cref="FormElicitationBuilder.ToDefinition"/>
+        /// <inheritdoc cref="FormElicitationBuilderBase.ToDefinition"/>
         public virtual FormDefinition ToDefinition() => Form.ToDefinition();
 
-        /// <inheritdoc cref="FormElicitationBuilder.ToXml"/>
+        /// <inheritdoc cref="FormElicitationBuilderBase.ToXml"/>
         public virtual string ToXml(string? xmlNamespace = null) => Form.ToXml(xmlNamespace);
 
-        /// <inheritdoc cref="FormElicitationBuilder.ToJson"/>
+        /// <inheritdoc cref="FormElicitationBuilderBase.ToJson"/>
         public virtual JsonElement? ToJson() => Form.ToJson();
 
         #endregion

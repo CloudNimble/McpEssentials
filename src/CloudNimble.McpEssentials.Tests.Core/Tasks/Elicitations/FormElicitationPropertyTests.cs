@@ -106,7 +106,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Exclude_NestedExpression_ThrowsBeforeRemove()
         {
-            var act = () => FormElicitation.From<UnmappableForm>("m").Exclude(x => x.Home.City);
+            var act = () => FormElicitationBuilder.From<UnmappableForm>("m").Exclude(x => x.Home.City);
             act.Should().Throw<ArgumentException>().WithParameterName("expression");
         }
 

@@ -5,7 +5,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
 {
 
     /// <summary>
-    /// Small DTO used to prove <see cref="CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitation.Bind{T}"/>.
+    /// Small DTO used to prove typed <c>ElicitResult&lt;T&gt;.Content</c>.
     /// </summary>
     public class BindTargetForm
     {

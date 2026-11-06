@@ -27,6 +27,53 @@ This type is defined in ModelContextProtocol.Core.
 
 <Note>Extension method from `ModelContextProtocol.Server.McpEssentials_Core_McpServerExtensions`</Note>
 
+Resolves the named form from `Services` and elicits it from the client.
+
+#### Syntax
+
+```csharp
+public static System.Threading.Tasks.ValueTask<ModelContextProtocol.Protocol.ElicitResult> ElicitAsync(ModelContextProtocol.Server.McpServer server, string name, System.Threading.CancellationToken cancellationToken = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `server` | `ModelContextProtocol.Server.McpServer` | The MCP server. |
+| `name` | `string` | The name passed to `AddFormElicitation`. |
+| `cancellationToken` | `System.Threading.CancellationToken` | The cancellation token. |
+
+#### Returns
+
+Type: `System.Threading.Tasks.ValueTask<ModelContextProtocol.Protocol.ElicitResult>`
+The untyped elicitation result.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *server* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `ArgumentException` | Thrown when *name* is empty. |
+| `InvalidOperationException` | Thrown when the server has no service provider, or no form is registered under *name*. |
+
+#### Examples
+
+```csharp
+services.AddFormElicitation("ship",
+    FormElicitationBuilder.Create("Ship this order")
+        .String("trackingNumber").Required());
+var result = await server.ElicitAsync("ship", cancellationToken);
+```
+
+#### Remarks
+
+Bind accepted content with `FormElicitationBuilder&lt;T&gt;.Bind`. The SDK instance
+method `ElicitAsync&lt;T&gt;(string)` is URL-mode elicitation, not a named form.
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ElicitAsync <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `ModelContextProtocol.Server.McpEssentials_Core_McpServerExtensions`</Note>
+
 Builds *form* and elicits it from the client.
 
 #### Syntax
@@ -56,11 +103,8 @@ The untyped elicitation result.
 
 #### Examples
 
-Metadata-driven tools keep the builder and add a field per property name:
+Register the form at startup, then pass it or its name:
 ```csharp
-var form = FormElicitation.Create($"How should we query {entitySet}?");
-form.String("filter").Title("$filter");
-form.Integer("top").Title("$top").Min(1).Max(1000).Default(20);
 var result = await server.ElicitAsync(form, cancellationToken);
 ```
 
@@ -103,7 +147,7 @@ The typed elicitation result.
 
 ```csharp
 var result = await server.ElicitAsync(
-    FormElicitation.From&lt;ProductQuery&gt;("Query products").Exclude(x =&gt; x.Skip),
+    FormElicitationBuilder.From&lt;ProductQuery&gt;("Query products").Exclude(x =&gt; x.Skip),
     cancellationToken);
 if (result.IsAccepted) { Use(result.Content); }
 ```

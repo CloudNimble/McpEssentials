@@ -43,7 +43,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
         public async Task From_StaticImport_BindsTypeArgumentLocation()
         {
             var diags = await AnalyzerCompilation.GetDiagnosticsAsync("""
-                using static CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitation;
+                using static CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder;
 
                 public class SignupForm { public string Name { get; set; } }
 
@@ -69,7 +69,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        _ = new CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder<SignupForm>("m");
+                        _ = CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder<SignupForm>.From("m");
                     }
                 }
                 """);
@@ -85,7 +85,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<int[]>("m");
+                        FormElicitationBuilder.From<int[]>("m");
                     }
                 }
                 """);
@@ -96,7 +96,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<System.Action>("m");
+                        FormElicitationBuilder.From<System.Action>("m");
                     }
                 }
                 """);
@@ -113,7 +113,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<Form>("m").Exclude((x => x.Name));
+                        FormElicitationBuilder.From<Form>("m").Exclude((x => x.Name));
                     }
                 }
                 """);
@@ -130,7 +130,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<Form>("m").Exclude(x => x.Name);
+                        FormElicitationBuilder.From<Form>("m").Exclude(x => x.Name);
                     }
                 }
                 """);
@@ -159,7 +159,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<DerivedForm>("m");
+                        FormElicitationBuilder.From<DerivedForm>("m");
                     }
                 }
                 """);
@@ -178,7 +178,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<Form>("m");
+                        FormElicitationBuilder.From<Form>("m");
                     }
                 }
                 """);
@@ -196,7 +196,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<Form>("m").Exclude(((x => x.Name)));
+                        FormElicitationBuilder.From<Form>("m").Exclude(((x => x.Name)));
                     }
                 }
                 """);
@@ -233,7 +233,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        _ = new FormElicitationBuilder("m");
+                        _ = FormElicitationBuilder.Create("m");
                     }
                 }
                 """);
@@ -257,7 +257,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<Form>("m");
+                        FormElicitationBuilder.From<Form>("m");
                     }
                 }
                 """);
@@ -275,7 +275,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<Form>("m").Exclude(x => (x.Name));
+                        FormElicitationBuilder.From<Form>("m").Exclude(x => (x.Name));
                     }
                 }
                 """);
@@ -293,7 +293,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<Form>("m").Exclude(x => (string)x.Name);
+                        FormElicitationBuilder.From<Form>("m").Exclude(x => (string)x.Name);
                     }
                 }
                 """);
@@ -327,7 +327,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
             var diags = await AnalyzerCompilation.GetDiagnosticsAsync("""
                 namespace Elicitations
                 {
-                    public static class FormElicitation
+                    public static class FormElicitationBuilder
                     {
                         public static void From<T>(string m) { }
                     }
@@ -335,7 +335,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
 
                 namespace Tasks.Elicitations
                 {
-                    public static class FormElicitation
+                    public static class FormElicitationBuilder
                     {
                         public static void From<T>(string m) { }
                     }
@@ -343,7 +343,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
 
                 namespace Core.Tasks.Elicitations
                 {
-                    public static class FormElicitation
+                    public static class FormElicitationBuilder
                     {
                         public static void From<T>(string m) { }
                     }
@@ -351,7 +351,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
 
                 namespace McpEssentials.Core.Tasks.Elicitations
                 {
-                    public static class FormElicitation
+                    public static class FormElicitationBuilder
                     {
                         public static void From<T>(string m) { }
                     }
@@ -359,7 +359,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
 
                 namespace Other.CloudNimble.McpEssentials.Core.Tasks.Elicitations
                 {
-                    public static class FormElicitation
+                    public static class FormElicitationBuilder
                     {
                         public static void From<T>(string m) { }
                     }
@@ -369,11 +369,11 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        Elicitations.FormElicitation.From<int>("m");
-                        Tasks.Elicitations.FormElicitation.From<int>("m");
-                        Core.Tasks.Elicitations.FormElicitation.From<int>("m");
-                        McpEssentials.Core.Tasks.Elicitations.FormElicitation.From<int>("m");
-                        Other.CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitation.From<int>("m");
+                        Elicitations.FormElicitationBuilder.From<int>("m");
+                        Tasks.Elicitations.FormElicitationBuilder.From<int>("m");
+                        Core.Tasks.Elicitations.FormElicitationBuilder.From<int>("m");
+                        McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder.From<int>("m");
+                        Other.CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder.From<int>("m");
                     }
                 }
                 """);
@@ -411,7 +411,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
             var diags = await AnalyzerCompilation.GetDiagnosticsAsync("""
                 namespace CloudNimble
                 {
-                    public static class FormElicitation
+                    public static class FormElicitationBuilder
                     {
                         public static void From<T>(string m) { }
                     }
@@ -421,7 +421,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        CloudNimble.FormElicitation.From<int>("m");
+                        CloudNimble.FormElicitationBuilder.From<int>("m");
                     }
                 }
                 """);
@@ -437,11 +437,11 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.Create("m").Build();
+                        FormElicitationBuilder.Create("m").Build();
                     }
                 }
                 """);
-            var type = compilation.GetTypeByMetadataName("CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder");
+            var type = compilation.GetTypeByMetadataName("CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase");
             var build = type!.GetMembers("Build").OfType<Microsoft.CodeAnalysis.IMethodSymbol>().First(m => m.Parameters.Length == 0);
             FormElicitationSymbols.IsPropertyExpressionMethod(build).Should().BeFalse();
         }
@@ -486,11 +486,11 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.Create("m").String("a").Build();
+                        FormElicitationBuilder.Create("m").String("a").Build();
                     }
                 }
                 """);
-            var type = compilation.GetTypeByMetadataName("CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder");
+            var type = compilation.GetTypeByMetadataName("CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase");
             var build = type!.GetMembers("Build").OfType<IMethodSymbol>().First(m => m.Parameters.Length == 0);
             var toXml = type.GetMembers("ToXml").OfType<IMethodSymbol>().First();
             var stringMethod = type.GetMembers("String").OfType<IMethodSymbol>().First(m => m.Parameters.Length == 1);

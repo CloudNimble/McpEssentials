@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
 
 namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
@@ -16,14 +16,15 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
 
         #region Fields
 
-        internal static readonly JsonSerializerOptions DefaultOptions = CreateDefaultOptions();
+        internal static readonly JsonSerializerOptions DefaultOptions = McpJsonUtilities.DefaultOptions;
 
         #endregion
 
         #region Public Methods
 
         /// <summary>
-        /// Binds accepted form content onto <typeparamref name="T"/>. Cancel and decline return default content.
+        /// Deserializes accepted <see cref="ElicitResult.Content"/> as <typeparamref name="T"/>.
+        /// Cancel and decline leave <see cref="ElicitResult{T}.Content"/> at its default.
         /// </summary>
         /// <typeparam name="T">The form type.</typeparam>
         /// <param name="result">The untyped elicitation result.</param>
@@ -34,7 +35,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         [RequiresDynamicCode("Deserializing form content requires the public properties of T. Pass JsonSerializerOptions from a JsonSerializerContext for native AOT.")]
         [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Callers that need AOT pass source-generated JsonSerializerOptions.")]
         [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "Callers that need AOT pass source-generated JsonSerializerOptions.")]
-        public static ElicitResult<T> Bind<T>(ElicitResult result, JsonSerializerOptions? options)
+        public static ElicitResult<T> ToTyped<T>(ElicitResult result, JsonSerializerOptions? options)
         {
             ArgumentNullException.ThrowIfNull(result);
 
@@ -44,25 +45,9 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
             }
 
             var serializerOptions = options ?? DefaultOptions;
-            var utf8 = JsonSerializer.SerializeToUtf8Bytes(result.Content);
+            var utf8 = JsonSerializer.SerializeToUtf8Bytes(result.Content, serializerOptions);
             var typed = JsonSerializer.Deserialize<T>(utf8, serializerOptions);
             return new ElicitResult<T> { Action = result.Action, Content = typed };
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        /// Creates the default camelCase / string-enum options used when the caller does not pass any.
-        /// </summary>
-        /// <returns>A read-only options instance.</returns>
-        [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "Default options are the reflection path; AOT callers pass source-generated options.")]
-        private static JsonSerializerOptions CreateDefaultOptions()
-        {
-            var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
-            options.Converters.Add(new JsonStringEnumConverter());
-            return options;
         }
 
         #endregion

@@ -373,7 +373,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         [TestMethod]
         public void AddFormElicitation_ResolvesKeyedSingleton()
         {
-            var form = FormElicitation.Create("Ship this order")
+            var form = FormElicitationBuilder.Create("Ship this order")
                 .String("trackingNumber").Required();
             var services = new ServiceCollection();
             services.AddFormElicitation("ship", form);
@@ -386,9 +386,57 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         }
 
         [TestMethod]
+        public void AddFormElicitation_StampsNameWhenEmpty()
+        {
+            var form = FormElicitationBuilder.Create("Ship this order");
+            form.String("trackingNumber").Required();
+            var services = new ServiceCollection();
+            services.AddFormElicitation("ship", form);
+
+            form.Name.Should().Be("ship");
+            form.ToXml().Should().Contain("Name=\"ship\"");
+        }
+
+        [TestMethod]
+        public void AddFormElicitation_StampsNameThroughFieldFacade()
+        {
+            var form = FormElicitationBuilder.Create("Ship this order");
+            var facade = form.String("trackingNumber").Required();
+            var services = new ServiceCollection();
+            services.AddFormElicitation("ship", facade);
+
+            form.Name.Should().Be("ship");
+            facade.ToXml().Should().Contain("Name=\"ship\"");
+        }
+
+        [TestMethod]
+        public void AddFormElicitation_DoesNotOverwriteExistingName()
+        {
+            var form = FormElicitationBuilder.Create("Ship this order");
+            form.String("trackingNumber").Required();
+            form.Name = "dispatch";
+            var services = new ServiceCollection();
+            services.AddFormElicitation("ship", form);
+
+            form.Name.Should().Be("dispatch");
+        }
+
+        [TestMethod]
+        public void AddFormElicitation_DoesNotStampSealedForm()
+        {
+            var form = FormElicitationBuilder.Create("Ship this order");
+            form.String("trackingNumber").Required();
+            _ = form.Build();
+            var services = new ServiceCollection();
+            services.AddFormElicitation("ship", form);
+
+            form.Name.Should().BeNull();
+        }
+
+        [TestMethod]
         public void AddFormElicitation_SameInstance_CanRegisterUnderTwoNames()
         {
-            var form = FormElicitation.Create("Ship this order").String("trackingNumber").Required();
+            var form = FormElicitationBuilder.Create("Ship this order").String("trackingNumber").Required();
             var services = new ServiceCollection();
             services.AddFormElicitation("ship", form);
             services.AddFormElicitation("dispatch", form);
@@ -402,7 +450,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         public void AddFormElicitation_BlankName_ThrowsArgumentException()
         {
             var services = new ServiceCollection();
-            var form = FormElicitation.Create("m");
+            var form = FormElicitationBuilder.Create("m");
             var act = () => services.AddFormElicitation("  ", form);
             act.Should().Throw<ArgumentException>().WithParameterName("name");
         }
@@ -419,7 +467,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         public void AddFormElicitation_NullServices_ThrowsArgumentNullException()
         {
             IServiceCollection services = null!;
-            var act = () => services.AddFormElicitation("ship", FormElicitation.Create("m"));
+            var act = () => services.AddFormElicitation("ship", FormElicitationBuilder.Create("m"));
             act.Should().Throw<ArgumentNullException>().WithParameterName("services");
         }
 
@@ -427,8 +475,8 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         public void AddFormElicitation_DuplicateName_ThrowsInvalidOperationException()
         {
             var services = new ServiceCollection();
-            var first = FormElicitation.Create("Ship this order").String("trackingNumber").Required();
-            var second = FormElicitation.Create("Dispatch").String("route").Required();
+            var first = FormElicitationBuilder.Create("Ship this order").String("trackingNumber").Required();
+            var second = FormElicitationBuilder.Create("Dispatch").String("route").Required();
             services.AddFormElicitation("ship", first);
 
             var act = () => services.AddFormElicitation("ship", second);
@@ -438,7 +486,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         [TestMethod]
         public void AddFormElicitation_IgnoresUnkeyedAndNonStringKeys()
         {
-            var form = FormElicitation.Create("Ship this order").String("trackingNumber").Required();
+            var form = FormElicitationBuilder.Create("Ship this order").String("trackingNumber").Required();
             var services = new ServiceCollection();
             services.AddSingleton<IFormElicitationSource>(form);
             services.AddKeyedSingleton<IFormElicitationSource>(42, form);
@@ -451,13 +499,13 @@ namespace CloudNimble.McpEssentials.Tests.Core.Extensions
         [TestMethod]
         public void AddFormElicitation_DuplicateName_AfterOtherDescriptors_ThrowsInvalidOperationException()
         {
-            var form = FormElicitation.Create("Ship this order").String("trackingNumber").Required();
+            var form = FormElicitationBuilder.Create("Ship this order").String("trackingNumber").Required();
             var services = new ServiceCollection();
             services.AddSingleton(form);
             services.AddKeyedSingleton<IFormElicitationSource>("dispatch", form);
             services.AddFormElicitation("ship", form);
 
-            var act = () => services.AddFormElicitation("ship", FormElicitation.Create("other"));
+            var act = () => services.AddFormElicitation("ship", FormElicitationBuilder.Create("other"));
             act.Should().Throw<InvalidOperationException>().WithMessage("*already registered*");
         }
 

@@ -10,7 +10,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
 {
 
     /// <summary>
-    /// Fail-first coverage for the compact XML codec and <see cref="FormElicitation.FromDefinition"/>.
+    /// Fail-first coverage for the compact XML codec and <see cref="FormElicitationBuilder.FromDefinition"/>.
     /// </summary>
     [TestClass]
     public class FormXmlAdversarialTests : BreakdanceMSTestBase
@@ -300,7 +300,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             var parsed = FormXml.Parse(xml);
             parsed.Fields[0].DefaultBool.Should().BeFalse();
 
-            var rebuilt = FormElicitation.FromDefinition(parsed).Build();
+            var rebuilt = FormElicitationBuilder.FromDefinition(parsed).Build();
             rebuilt.RequestedSchema!.Properties["on"].Should().BeOfType<ModelContextProtocol.Protocol.ElicitRequestParams.BooleanSchema>()
                 .Which.Default.Should().BeFalse();
         }
@@ -322,7 +322,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             parsed.Fields[1].Maximum.Should().Be(9.9);
             parsed.Fields[1].Minimum.Should().BeNull();
 
-            var rebuilt = FormElicitation.FromDefinition(parsed);
+            var rebuilt = FormElicitationBuilder.FromDefinition(parsed);
             rebuilt.Fields[0].Minimum.Should().Be(0);
             rebuilt.Fields[1].Maximum.Should().Be(9.9);
         }
@@ -394,14 +394,14 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Serialize_WhitespaceNamespace_OmitsXmlns()
         {
-            var xml = FormElicitation.Create("m").String("a").ToXml("  ");
+            var xml = FormElicitationBuilder.Create("m").String("a").ToXml("  ");
             xml.Should().NotContain("xmlns=");
         }
 
         [TestMethod]
         public void Serialize_BooleanFalseAndIntegerZeroDefaults()
         {
-            var xml = FormElicitation.Create("m")
+            var xml = FormElicitationBuilder.Create("m")
                 .Boolean("on").Default(false)
                 .Integer("n").Default(0)
                 .ToXml();
@@ -498,7 +498,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         public void FromDefinition_NullField_ThrowsArgumentNullException()
         {
             var definition = new FormDefinition("m", [null!]);
-            var act = () => FormElicitation.FromDefinition(definition);
+            var act = () => FormElicitationBuilder.FromDefinition(definition);
             act.Should().Throw<ArgumentNullException>();
         }
 
@@ -509,14 +509,14 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             [
                 new FormFieldDefinition("phone", FormFieldType.String) { Format = "tel" }
             ]);
-            var act = () => FormElicitation.FromDefinition(definition);
+            var act = () => FormElicitationBuilder.FromDefinition(definition);
             act.Should().Throw<InvalidOperationException>().WithMessage("*Unknown string format 'tel'*");
         }
 
         [TestMethod]
         public void FromDefinition_UnknownFieldType_ThrowsInvalidOperationException()
         {
-            var builder = FormElicitation.Create("m");
+            var builder = FormElicitationBuilder.Create("m");
             var act = () => builder.ApplyField(new FormFieldDefinition("a", (FormFieldType)99));
             act.Should().Throw<InvalidOperationException>().WithMessage("*Unknown form field type*");
         }
@@ -531,7 +531,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void FromDefinition_ApplyField_Null_ThrowsArgumentNullException()
         {
-            var act = () => FormElicitation.Create("m").ApplyField(null!);
+            var act = () => FormElicitationBuilder.Create("m").ApplyField(null!);
             act.Should().Throw<ArgumentNullException>().WithParameterName("field");
         }
 
@@ -542,7 +542,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             [
                 new FormFieldDefinition("age", FormFieldType.Integer) { Minimum = 10, Maximum = 1 }
             ]);
-            var act = () => FormElicitation.FromDefinition(definition);
+            var act = () => FormElicitationBuilder.FromDefinition(definition);
             act.Should().Throw<ArgumentException>();
         }
 
@@ -553,7 +553,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             [
                 new FormFieldDefinition("note", FormFieldType.String) { Format = "" }
             ]);
-            FormElicitation.FromDefinition(definition).Fields[0].Format.Should().BeNull();
+            FormElicitationBuilder.FromDefinition(definition).Fields[0].Format.Should().BeNull();
         }
 
         [TestMethod]
@@ -572,7 +572,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
                 }
             ]);
 
-            var builder = FormElicitation.FromDefinition(definition);
+            var builder = FormElicitationBuilder.FromDefinition(definition);
             builder.Fields[0].DefaultBool.Should().BeNull();
             builder.Fields[1].DefaultString.Should().BeNull();
             builder.Fields[2].DefaultStrings.Should().BeNull();
@@ -590,7 +590,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
                 }
             ]);
 
-            var field = FormElicitation.FromDefinition(definition).Fields[0];
+            var field = FormElicitationBuilder.FromDefinition(definition).Fields[0];
             field.Title.Should().Be("First Name");
             field.Description.Should().BeNull();
         }
@@ -616,7 +616,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
                 }
             ]);
 
-            var builder = FormElicitation.FromDefinition(definition);
+            var builder = FormElicitationBuilder.FromDefinition(definition);
             builder.Fields[0].DefaultString.Should().Be("red");
             builder.Fields[1].DefaultStrings.Should().Equal("admin", "user");
             builder.Fields[1].MinItems.Should().Be(1);
@@ -626,7 +626,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void ToDefinition_ChoiceWithoutOptions_ThrowsInvalidOperationException()
         {
-            var act = () => FormElicitation.Create("m").Choice("c").ToDefinition();
+            var act = () => FormElicitationBuilder.Create("m").Choice("c").ToDefinition();
             act.Should().Throw<InvalidOperationException>().WithMessage("*no options*");
         }
 
@@ -809,7 +809,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void ParseXml_Blank_ThrowsArgumentException()
         {
-            var act = () => FormElicitation.ParseXml("  ");
+            var act = () => FormElicitationBuilder.ParseXml("  ");
             act.Should().Throw<ArgumentException>().WithParameterName("xml");
         }
 
@@ -867,7 +867,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void ToDefinition_ChoiceWithoutDefault_HasUnselectedOptions()
         {
-            var definition = FormElicitation.Create("m")
+            var definition = FormElicitationBuilder.Create("m")
                 .Choice("color").Option("red").Option("blue")
                 .ToDefinition();
 

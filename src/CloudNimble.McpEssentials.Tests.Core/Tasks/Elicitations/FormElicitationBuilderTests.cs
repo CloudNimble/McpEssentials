@@ -20,7 +20,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Build_EmptyForm_IsConfirmDialog()
         {
-            var built = FormElicitation.Create("Are you sure?").Build();
+            var built = FormElicitationBuilder.Create("Are you sure?").Build();
 
             built.Mode.Should().Be("form");
             built.Message.Should().Be("Are you sure?");
@@ -31,7 +31,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Build_ProjectsEveryPrimitiveKind()
         {
-            var built = FormElicitation.Create("Fill this out")
+            var built = FormElicitationBuilder.Create("Fill this out")
                 .String("firstName").Title("Given name").Description("Legal first name").Required().MinLength(1).MaxLength(40).Default("Ada")
                 .Email("email").Required()
                 .Uri("homepage")
@@ -97,7 +97,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Build_TitledSingleSelect_WhenAnyOptionHasTitle()
         {
-            var built = FormElicitation.Create("Pick")
+            var built = FormElicitationBuilder.Create("Pick")
                 .Choice("color").Option("red", "Crimson").Option("blue").Build();
 
             var color = built.RequestedSchema!.Properties["color"].Should().BeOfType<ElicitRequestParams.TitledSingleSelectEnumSchema>().Subject;
@@ -109,7 +109,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Build_UntitledMultiSelect_WhenNoOptionHasTitle()
         {
-            var built = FormElicitation.Create("Pick")
+            var built = FormElicitationBuilder.Create("Pick")
                 .MultiChoice("roles").Option("admin").Option("user").Default("admin", "user").Build();
 
             var roles = built.RequestedSchema!.Properties["roles"].Should().BeOfType<ElicitRequestParams.UntitledMultiSelectEnumSchema>().Subject;
@@ -120,7 +120,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void String_CamelCasesNameAndTitleizes()
         {
-            var builder = FormElicitation.Create("m").String("TimeToLive");
+            var builder = FormElicitationBuilder.Create("m").String("TimeToLive");
 
             builder.Field.Name.Should().Be("timeToLive");
             builder.Field.Title.Should().Be("Time To Live");
@@ -129,7 +129,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void String_ReconfigureClearsFormat()
         {
-            var form = FormElicitation.Create("m");
+            var form = FormElicitationBuilder.Create("m");
             form.Email("contact");
             form.Fields.Should().HaveCount(1);
             form.Fields[0].Format.Should().Be("email");
@@ -143,7 +143,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Starter_ReconfigureDifferentKind_ResetsConstraints()
         {
-            var form = FormElicitation.Create("m");
+            var form = FormElicitationBuilder.Create("m");
             form.String("age").MinLength(2).MaxLength(4).Default("42");
             form.Integer("age");
 
@@ -159,7 +159,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Starter_SameName_KeepsTitleAndRequired()
         {
-            var form = FormElicitation.Create("m");
+            var form = FormElicitationBuilder.Create("m");
             form.String("name").Title("Custom").Required();
             form.String("name").MinLength(1);
 
@@ -172,7 +172,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void ToInputRequest_WrapsElicitationCreate()
         {
-            var request = FormElicitation.Create("Need a name")
+            var request = FormElicitationBuilder.Create("Need a name")
                 .String("name").Required()
                 .ToInputRequest();
 
@@ -185,14 +185,14 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Constructor_AcceptsMessage()
         {
-            var builder = new FormElicitationBuilder("hello");
+            var builder = FormElicitationBuilder.Create("hello");
             builder.Message.Should().Be("hello");
         }
 
         [TestMethod]
         public void MinLengthEqualsMaxLength_IsValid()
         {
-            var built = FormElicitation.Create("m").String("pin").MinLength(4).MaxLength(4).Build();
+            var built = FormElicitationBuilder.Create("m").String("pin").MinLength(4).MaxLength(4).Build();
             var pin = built.RequestedSchema!.Properties["pin"].Should().BeOfType<ElicitRequestParams.StringSchema>().Subject;
             pin.MinLength.Should().Be(4);
             pin.MaxLength.Should().Be(4);
@@ -201,7 +201,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Between_EqualBounds_IsValid()
         {
-            var built = FormElicitation.Create("m").Integer("n").Between(3, 3).Build();
+            var built = FormElicitationBuilder.Create("m").Integer("n").Between(3, 3).Build();
             var n = built.RequestedSchema!.Properties["n"].Should().BeOfType<ElicitRequestParams.NumberSchema>().Subject;
             n.Minimum.Should().Be(3);
             n.Maximum.Should().Be(3);
@@ -210,7 +210,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void FormatStarters_OverwriteEachOther()
         {
-            var form = FormElicitation.Create("m");
+            var form = FormElicitationBuilder.Create("m");
             form.Email("when");
             form.Date("when");
             form.DateTime("when");

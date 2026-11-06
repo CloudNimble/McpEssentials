@@ -26,7 +26,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             var form = KitchenSink();
             var original = form.Build();
             var xml = form.ToXml();
-            var rebuilt = FormElicitation.ParseXml(xml).Build();
+            var rebuilt = FormElicitationBuilder.ParseXml(xml).Build();
 
             AssertSchemaEquals(original, rebuilt);
         }
@@ -34,7 +34,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void ToXml_WritesRequiredTrue_OmitsRequiredFalse()
         {
-            var xml = FormElicitation.Create("Ship this order")
+            var xml = FormElicitationBuilder.Create("Ship this order")
                 .String("trackingNumber").Required()
                 .String("note")
                 .ToXml();
@@ -46,7 +46,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void ToXml_WritesSelectedTrue_OnDefaultOptions()
         {
-            var xml = FormElicitation.Create("Pick")
+            var xml = FormElicitationBuilder.Create("Pick")
                 .Choice("priority").Option("low").Option("high").Default("high")
                 .MultiChoice("roles").Option("admin").Option("user").Default("admin", "user")
                 .ToXml();
@@ -61,7 +61,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void ToXml_WritesIntegerAndNumberTypeSpellings()
         {
-            var xml = FormElicitation.Create("n")
+            var xml = FormElicitationBuilder.Create("n")
                 .Integer("age")
                 .Number("price")
                 .ToXml();
@@ -74,7 +74,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         public void ToXml_XmlNamespace_EmitsXmlnsOnForm()
         {
             const string ns = "https://github.com/odata/mcp/vocabularies/Microsoft.OData.Mcp.V1.xml";
-            var xml = FormElicitation.Create("Ship this order")
+            var xml = FormElicitationBuilder.Create("Ship this order")
                 .String("trackingNumber").Required()
                 .ToXml(ns);
 
@@ -93,7 +93,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
                 </Form>
                 """;
 
-            var built = FormElicitation.ParseXml(xml).Build();
+            var built = FormElicitationBuilder.ParseXml(xml).Build();
             built.Message.Should().Be("Ship this order");
             built.RequestedSchema!.Properties.Should().ContainKey("trackingNumber");
             built.RequestedSchema.Required.Should().Equal("trackingNumber");
@@ -179,28 +179,28 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
                 new FormFieldDefinition("firstName", FormFieldType.String)
             ]);
 
-            var act = () => FormElicitation.FromDefinition(definition);
+            var act = () => FormElicitationBuilder.FromDefinition(definition);
             act.Should().Throw<InvalidOperationException>().WithMessage("*already has a field named*");
         }
 
         [TestMethod]
         public void FromDefinition_Null_ThrowsArgumentNullException()
         {
-            var act = () => FormElicitation.FromDefinition(null!);
+            var act = () => FormElicitationBuilder.FromDefinition(null!);
             act.Should().Throw<ArgumentNullException>().WithParameterName("definition");
         }
 
         [TestMethod]
         public void ToXml_EmptyMessage_ThrowsInvalidOperationException()
         {
-            var act = () => FormElicitation.Create("").ToXml();
+            var act = () => FormElicitationBuilder.Create("").ToXml();
             act.Should().Throw<InvalidOperationException>().WithMessage("*message cannot be empty*");
         }
 
         [TestMethod]
         public void FacadeToXml_MatchesParentBuilder()
         {
-            var form = FormElicitation.Create("Ship this order");
+            var form = FormElicitationBuilder.Create("Ship this order");
             var facade = form.String("trackingNumber").Required();
 
             facade.ToXml().Should().Be(form.ToXml());
@@ -210,7 +210,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void TypedFacadeToXml_MatchesParentBuilder()
         {
-            var form = FormElicitation.From<EmptyForm>("Confirm?");
+            var form = FormElicitationBuilder.From<EmptyForm>("Confirm?");
             var facade = form.String("note");
 
             facade.ToXml().Should().Be(form.ToXml());
@@ -228,7 +228,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void ToDefinition_CopiesOptionalName()
         {
-            var form = FormElicitation.Create("Ship this order");
+            var form = FormElicitationBuilder.Create("Ship this order");
             form.Name = "ship";
             form.String("trackingNumber").Required();
 
@@ -236,14 +236,14 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
             definition.Name.Should().Be("ship");
             var xml = form.ToXml();
             xml.Should().Contain("Name=\"ship\"");
-            FormElicitation.ParseXml(xml).Name.Should().Be("ship");
+            FormElicitationBuilder.ParseXml(xml).Name.Should().Be("ship");
         }
 
         [TestMethod]
         public void RoundTrip_ConfirmDialog_EmptyFields()
         {
-            var xml = FormElicitation.Create("Are you sure?").ToXml();
-            var rebuilt = FormElicitation.ParseXml(xml).Build();
+            var xml = FormElicitationBuilder.Create("Are you sure?").ToXml();
+            var rebuilt = FormElicitationBuilder.ParseXml(xml).Build();
             rebuilt.Message.Should().Be("Are you sure?");
             rebuilt.RequestedSchema!.Properties.Should().BeEmpty();
         }
@@ -258,7 +258,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         /// <returns>The form.</returns>
         private static IFormElicitationSource KitchenSink()
         {
-            return FormElicitation.Create("Fill this out")
+            return FormElicitationBuilder.Create("Fill this out")
                 .String("firstName").Title("Given name").Description("Legal first name").Required().MinLength(1).MaxLength(40).Default("Ada")
                 .Email("email").Required()
                 .Uri("homepage")
@@ -274,7 +274,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         /// <summary>
         /// Asserts two <see cref="ElicitRequestParams"/> kitchen-sink schemas match.
         /// </summary>
-        /// <param name="original">The original <see cref="FormElicitationBuilder.Build"/> result.</param>
+        /// <param name="original">The original <see cref="FormElicitationBuilderBase.Build"/> result.</param>
         /// <param name="rebuilt">The result after XML round-trip.</param>
         private static void AssertSchemaEquals(ElicitRequestParams original, ElicitRequestParams rebuilt)
         {

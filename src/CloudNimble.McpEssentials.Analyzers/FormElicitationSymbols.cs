@@ -22,13 +22,13 @@ namespace CloudNimble.McpEssentials.Analyzers
         #region Public Methods
 
         /// <summary>
-        /// Gets whether <paramref name="type"/> is <c>FormElicitation</c>.
+        /// Gets whether <paramref name="type"/> is the non-generic <c>FormElicitationBuilder</c>.
         /// </summary>
         /// <param name="type">A type symbol.</param>
-        /// <returns><see langword="true"/> for the factory type.</returns>
+        /// <returns><see langword="true"/> for the untyped builder factory.</returns>
         public static bool IsFormElicitation(INamedTypeSymbol? type)
         {
-            return type is { Name: "FormElicitation" } && IsElicitationsNamespace(type);
+            return type is { Name: "FormElicitationBuilder", IsGenericType: false } && IsElicitationsNamespace(type);
         }
 
         /// <summary>
@@ -45,6 +45,7 @@ namespace CloudNimble.McpEssentials.Analyzers
 
             var name = type.OriginalDefinition.Name;
             return name is "FormElicitationBuilder"
+                or "FormElicitationBuilderBase"
                 or "StringFieldBuilder"
                 or "NumberFieldBuilder"
                 or "BooleanFieldBuilder"
@@ -174,7 +175,9 @@ namespace CloudNimble.McpEssentials.Analyzers
         /// <returns><see langword="true"/> when the invoked name is the generic identifier <c>From</c>.</returns>
         public static bool IsFromInvocationName(InvocationExpressionSyntax invocation)
         {
-            return GetInvokedName(invocation) is GenericNameSyntax { Identifier.ValueText: "From" };
+            var name = GetInvokedName(invocation);
+            return name is GenericNameSyntax { Identifier.ValueText: "From" }
+                or IdentifierNameSyntax { Identifier.ValueText: "From" };
         }
 
         /// <summary>

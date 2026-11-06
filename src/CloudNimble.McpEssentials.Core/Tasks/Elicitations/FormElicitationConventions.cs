@@ -8,7 +8,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
 {
 
     /// <summary>
-    /// Seeds a <see cref="FormElicitationBuilder"/> from the public instance properties of a CLR type.
+    /// Seeds a <see cref="FormElicitationBuilderBase"/> from the public instance properties of a CLR type.
     /// Unmappable members are skipped. Two properties that camelCase to the same wire name throw.
     /// </summary>
     internal static class FormElicitationConventions
@@ -23,7 +23,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// <param name="builder">The builder to seed.</param>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="builder"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">Thrown when two properties collapse to the same camelCase name.</exception>
-        public static void Apply<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(FormElicitationBuilder builder)
+        public static void Apply<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T>(FormElicitationBuilderBase builder)
         {
             ArgumentNullException.ThrowIfNull(builder);
 

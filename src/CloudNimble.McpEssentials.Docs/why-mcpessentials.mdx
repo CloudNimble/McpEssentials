@@ -24,7 +24,7 @@ A production MCP server cares. Tasks are long-running. Clients poll `tasks/get`.
     Tasks survive process death and scale-out. Same contract on EF Core, Redis, Cosmos, and native Postgres.
   </Card>
   <Card title="Fluent forms" icon="clipboard-list" href="/guides/form-elicitation">
-    `FormElicitation.Create` and `From<T>()`. `await server.ElicitAsync(form)` parks the form on the task.
+    Named forms at startup. `await server.ElicitAsync("ship")` parks the form on the task.
   </Card>
   <Card title="Compile-time forms" icon="wand-magic-sparkles" href="/guides/analyzers">
     MCPESS001–006. A nested `From<T>()` property or a colliding wire name fails the build.
@@ -56,9 +56,9 @@ The identity factory stays the same when you swap. TTL, sweep, and `ServeAndDrop
 
 ## Forms a compiler can see
 
-MCP elicitation is a flat object of primitives. Hand-rolled JSON schema is easy to get slightly wrong. [`FormElicitation`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitation) is a fluent builder: field by field, `From<T>()`, or a loop over metadata.
+MCP elicitation is a flat object of primitives. Hand-rolled JSON schema is easy to get slightly wrong. [`FormElicitationBuilder`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder) is a fluent builder: register it at startup, seed with `From<T>()`, or loop over metadata. The same instance emits compact XML for OData `$metadata`.
 
-Inside a task, `await server.ElicitAsync(form)` is enough. The SDK interceptor parks the form. Analyzers in Core turn a nested lambda or a colliding camelCase name into `dotnet build` diagnostics.
+Inside a task, `await server.ElicitAsync("ship")` is enough. The SDK interceptor parks the form. Analyzers in Core turn a nested lambda or a colliding camelCase name into `dotnet build` diagnostics.
 
 ## How it sits on the SDK
 

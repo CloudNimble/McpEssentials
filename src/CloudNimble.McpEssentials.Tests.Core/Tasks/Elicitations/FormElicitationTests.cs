@@ -8,7 +8,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
 {
 
     /// <summary>
-    /// Coverage for the <see cref="FormElicitation"/> factory entry points.
+    /// Coverage for the <see cref="FormElicitationBuilder"/> factory entry points.
     /// </summary>
     [TestClass]
     public class FormElicitationTests : BreakdanceMSTestBase
@@ -19,7 +19,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Create_ReturnsEmptyUntypedBuilder()
         {
-            var builder = FormElicitation.Create("Pick a color");
+            var builder = FormElicitationBuilder.Create("Pick a color");
 
             builder.Should().BeOfType<FormElicitationBuilder>();
             builder.Should().NotBeOfType<FormElicitationBuilder<KitchenSinkForm>>();
@@ -30,7 +30,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Create_NullMessage_ThrowsArgumentNullException()
         {
-            var act = () => FormElicitation.Create(null!);
+            var act = () => FormElicitationBuilder.Create(null!);
 
             act.Should().Throw<ArgumentNullException>().WithParameterName("message");
         }
@@ -38,7 +38,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Create_EmptyMessage_IsAllowedUntilBuild()
         {
-            var builder = FormElicitation.Create("");
+            var builder = FormElicitationBuilder.Create("");
 
             builder.Message.Should().BeEmpty();
             var act = () => builder.Build();
@@ -48,7 +48,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void From_SeedsTypedBuilder()
         {
-            var builder = FormElicitation.From<EmptyForm>("Confirm?");
+            var builder = FormElicitationBuilder.From<EmptyForm>("Confirm?");
 
             builder.Should().BeOfType<FormElicitationBuilder<EmptyForm>>();
             builder.Message.Should().Be("Confirm?");
@@ -58,9 +58,28 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void From_NullMessage_ThrowsArgumentNullException()
         {
-            var act = () => FormElicitation.From<EmptyForm>(null!);
+            var act = () => FormElicitationBuilder.From<EmptyForm>(null!);
 
             act.Should().Throw<ArgumentNullException>().WithParameterName("message");
+        }
+
+        [TestMethod]
+        public void TypedBuilder_IsSiblingOfUntypedBuilder()
+        {
+            var typed = FormElicitationBuilder.From<EmptyForm>("Confirm?");
+
+            typed.Should().BeAssignableTo<FormElicitationBuilderBase>();
+            typed.Should().BeAssignableTo<IFormElicitationSource<EmptyForm>>();
+            typed.Should().NotBeAssignableTo<FormElicitationBuilder>();
+        }
+
+        [TestMethod]
+        public void TypedFrom_OnGenericBuilder_SeedsTheSameWay()
+        {
+            var builder = FormElicitationBuilder<EmptyForm>.From("Confirm?");
+
+            builder.Should().BeOfType<FormElicitationBuilder<EmptyForm>>();
+            builder.Message.Should().Be("Confirm?");
         }
 
         #endregion

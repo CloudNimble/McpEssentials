@@ -3,7 +3,7 @@ title: Overview
 description: "Summary of the CloudNimble.McpEssentials.Core.Tasks.Elicitations Namespace"
 icon: folder-tree
 mode: wide
-keywords: ['CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'namespace', 'BooleanFieldBuilder', 'ChoiceFieldBuilder', 'FormDefinition', 'FormElicitation', 'FormElicitationBuilder', 'FormFieldDefinition', 'FormFieldType']
+keywords: ['CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'namespace', 'BooleanFieldBuilder', 'ChoiceFieldBuilder', 'FormDefinition', 'FormElicitationBuilder', 'FormElicitationBuilderBase', 'FormFieldDefinition', 'FormFieldType']
 ---
 
 ## Types
@@ -17,9 +17,9 @@ keywords: ['CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'namespace', 'Bo
 | [ChoiceFieldBuilder](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/ChoiceFieldBuilder) | Fluent facade for the current single-select field. |
 | [ChoiceFieldBuilder](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/ChoiceFieldBuilder) | Typed single-select facade. Constraint methods and starters keep *T* on the chain. |
 | [FormDefinition](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormDefinition) | Immutable snapshot of a form elicitation. Produced by  [IFormElicitationSource.ToDefinition](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/IFormElicitationSource#todefinition) and by `String)`. |
-| [FormElicitation](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitation) | Starts a fluent MCP form elicitation. `String)` is untyped;  `String)` seeds fields from a CLR type, then the same chain customizes them.  `JsonSerializerOptions)` projects an accepted result onto that type. |
-| [FormElicitationBuilder](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder) | Fluent builder for an MCP form elicitation schema. Field starters return a typed facade  for the current field; the next starter, and [FormElicitationBuilder.Build](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder#build), stay on the chain. |
+| [FormElicitationBuilder](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder) | Untyped fluent builder for an MCP form elicitation schema. Start with `String)`  or rebuild from XML with `String)`. |
 | [FormElicitationBuilder](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder) | Typed form builder. `String)` seeds mappable properties,  then expression starters reconfigure them and string starters add extra fields. |
+| [FormElicitationBuilderBase](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilderBase) | Shared fluent implementation for untyped and typed form builders. Field starters return  a facade for the current field; the next starter, and [FormElicitationBuilderBase.Build](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilderBase#build), stay on the chain. |
 | [FormFieldDefinition](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormFieldDefinition) | Immutable snapshot of one form field. Produced by [IFormElicitationSource.ToDefinition](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/IFormElicitationSource#todefinition)  and by `String)`. |
 | [FormFieldType](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormFieldType) | Primitive kind of a published form field. Maps onto the compact XML `Type` attribute  and the MCP elicitation JSON Schema subset. |
 | [FormOptionDefinition](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormOptionDefinition) | One allowed value on an [FormFieldType.Enum](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormFieldType#enum) or [FormFieldType.Multi](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormFieldType#multi) field. |

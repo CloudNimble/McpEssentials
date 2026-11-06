@@ -32,70 +32,70 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         protected FormElicitationBuilder<T> TypedForm { get; }
 
         /// <inheritdoc cref="MultiChoiceFieldBuilder.Title(string)"/>
-        public new MultiChoiceFieldBuilder<T> Title(string title)
+        public override MultiChoiceFieldBuilder<T> Title(string title)
         {
             base.Title(title);
             return this;
         }
 
         /// <inheritdoc cref="MultiChoiceFieldBuilder.Description(string)"/>
-        public new MultiChoiceFieldBuilder<T> Description(string description)
+        public override MultiChoiceFieldBuilder<T> Description(string description)
         {
             base.Description(description);
             return this;
         }
 
         /// <inheritdoc cref="MultiChoiceFieldBuilder.Required"/>
-        public new MultiChoiceFieldBuilder<T> Required()
+        public override MultiChoiceFieldBuilder<T> Required()
         {
             base.Required();
             return this;
         }
 
         /// <inheritdoc cref="MultiChoiceFieldBuilder.Optional"/>
-        public new MultiChoiceFieldBuilder<T> Optional()
+        public override MultiChoiceFieldBuilder<T> Optional()
         {
             base.Optional();
             return this;
         }
 
         /// <inheritdoc cref="MultiChoiceFieldBuilder.Option(string)"/>
-        public new MultiChoiceFieldBuilder<T> Option(string value)
+        public override MultiChoiceFieldBuilder<T> Option(string value)
         {
             base.Option(value);
             return this;
         }
 
         /// <inheritdoc cref="MultiChoiceFieldBuilder.Option(string, string)"/>
-        public new MultiChoiceFieldBuilder<T> Option(string value, string title)
+        public override MultiChoiceFieldBuilder<T> Option(string value, string title)
         {
             base.Option(value, title);
             return this;
         }
 
         /// <inheritdoc cref="MultiChoiceFieldBuilder.MinItems(int)"/>
-        public new MultiChoiceFieldBuilder<T> MinItems(int count)
+        public override MultiChoiceFieldBuilder<T> MinItems(int count)
         {
             base.MinItems(count);
             return this;
         }
 
         /// <inheritdoc cref="MultiChoiceFieldBuilder.MaxItems(int)"/>
-        public new MultiChoiceFieldBuilder<T> MaxItems(int count)
+        public override MultiChoiceFieldBuilder<T> MaxItems(int count)
         {
             base.MaxItems(count);
             return this;
         }
 
         /// <inheritdoc cref="MultiChoiceFieldBuilder.Default(string[])"/>
-        public new MultiChoiceFieldBuilder<T> Default(params string[] values)
+        public override MultiChoiceFieldBuilder<T> Default(params string[] values)
         {
             base.Default(values);
             return this;
         }
 
         /// <inheritdoc cref="MultiChoiceFieldBuilder.Default(IEnumerable{string})"/>
-        public new MultiChoiceFieldBuilder<T> Default(IEnumerable<string> values)
+        public override MultiChoiceFieldBuilder<T> Default(IEnumerable<string> values)
         {
             base.Default(values);
             return this;
@@ -105,79 +105,79 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         public virtual FormElicitationBuilder<T> Exclude<TProp>(Expression<Func<T, TProp>> property) => TypedForm.Exclude(property);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.String(string)"/>
-        public new StringFieldBuilder<T> String(string name) => TypedForm.String(name);
+        public override StringFieldBuilder<T> String(string name) => TypedForm.String(name);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.String{TProp}"/>
         public virtual StringFieldBuilder<T> String<TProp>(Expression<Func<T, TProp>> property) => TypedForm.String(property);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.Email(string)"/>
-        public new StringFieldBuilder<T> Email(string name) => TypedForm.Email(name);
+        public override StringFieldBuilder<T> Email(string name) => TypedForm.Email(name);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.Email{TProp}"/>
         public virtual StringFieldBuilder<T> Email<TProp>(Expression<Func<T, TProp>> property) => TypedForm.Email(property);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.Uri(string)"/>
-        public new StringFieldBuilder<T> Uri(string name) => TypedForm.Uri(name);
+        public override StringFieldBuilder<T> Uri(string name) => TypedForm.Uri(name);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.Uri{TProp}"/>
         public virtual StringFieldBuilder<T> Uri<TProp>(Expression<Func<T, TProp>> property) => TypedForm.Uri(property);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.Date(string)"/>
-        public new StringFieldBuilder<T> Date(string name) => TypedForm.Date(name);
+        public override StringFieldBuilder<T> Date(string name) => TypedForm.Date(name);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.Date{TProp}"/>
         public virtual StringFieldBuilder<T> Date<TProp>(Expression<Func<T, TProp>> property) => TypedForm.Date(property);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.DateTime(string)"/>
-        public new StringFieldBuilder<T> DateTime(string name) => TypedForm.DateTime(name);
+        public override StringFieldBuilder<T> DateTime(string name) => TypedForm.DateTime(name);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.DateTime{TProp}"/>
         public virtual StringFieldBuilder<T> DateTime<TProp>(Expression<Func<T, TProp>> property) => TypedForm.DateTime(property);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.Integer(string)"/>
-        public new NumberFieldBuilder<T> Integer(string name) => TypedForm.Integer(name);
+        public override NumberFieldBuilder<T> Integer(string name) => TypedForm.Integer(name);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.Integer{TProp}"/>
         public virtual NumberFieldBuilder<T> Integer<TProp>(Expression<Func<T, TProp>> property) => TypedForm.Integer(property);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.Number(string)"/>
-        public new NumberFieldBuilder<T> Number(string name) => TypedForm.Number(name);
+        public override NumberFieldBuilder<T> Number(string name) => TypedForm.Number(name);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.Number{TProp}"/>
         public virtual NumberFieldBuilder<T> Number<TProp>(Expression<Func<T, TProp>> property) => TypedForm.Number(property);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.Boolean(string)"/>
-        public new BooleanFieldBuilder<T> Boolean(string name) => TypedForm.Boolean(name);
+        public override BooleanFieldBuilder<T> Boolean(string name) => TypedForm.Boolean(name);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.Boolean{TProp}"/>
         public virtual BooleanFieldBuilder<T> Boolean<TProp>(Expression<Func<T, TProp>> property) => TypedForm.Boolean(property);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.Choice(string)"/>
-        public new ChoiceFieldBuilder<T> Choice(string name) => TypedForm.Choice(name);
+        public override ChoiceFieldBuilder<T> Choice(string name) => TypedForm.Choice(name);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.Choice{TProp}"/>
         public virtual ChoiceFieldBuilder<T> Choice<TProp>(Expression<Func<T, TProp>> property) => TypedForm.Choice(property);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.MultiChoice(string)"/>
-        public new MultiChoiceFieldBuilder<T> MultiChoice(string name) => TypedForm.MultiChoice(name);
+        public override MultiChoiceFieldBuilder<T> MultiChoice(string name) => TypedForm.MultiChoice(name);
 
         /// <inheritdoc cref="FormElicitationBuilder{T}.MultiChoice{TProp}"/>
         public virtual MultiChoiceFieldBuilder<T> MultiChoice<TProp>(Expression<Func<T, TProp>> property) => TypedForm.MultiChoice(property);
 
-        /// <inheritdoc cref="FormElicitationBuilder.Build"/>
-        public new ElicitRequestParams Build() => TypedForm.Build();
+        /// <inheritdoc cref="FormElicitationBuilderBase.Build"/>
+        public override ElicitRequestParams Build() => TypedForm.Build();
 
-        /// <inheritdoc cref="FormElicitationBuilder.ToInputRequest"/>
-        public new InputRequest ToInputRequest() => TypedForm.ToInputRequest();
+        /// <inheritdoc cref="FormElicitationBuilderBase.ToInputRequest"/>
+        public override InputRequest ToInputRequest() => TypedForm.ToInputRequest();
 
-        /// <inheritdoc cref="FormElicitationBuilder.ToDefinition"/>
-        public new FormDefinition ToDefinition() => TypedForm.ToDefinition();
+        /// <inheritdoc cref="FormElicitationBuilderBase.ToDefinition"/>
+        public override FormDefinition ToDefinition() => TypedForm.ToDefinition();
 
-        /// <inheritdoc cref="FormElicitationBuilder.ToXml"/>
-        public new string ToXml(string? xmlNamespace = null) => TypedForm.ToXml(xmlNamespace);
+        /// <inheritdoc cref="FormElicitationBuilderBase.ToXml"/>
+        public override string ToXml(string? xmlNamespace = null) => TypedForm.ToXml(xmlNamespace);
 
-        /// <inheritdoc cref="FormElicitationBuilder.ToJson"/>
-        public new JsonElement? ToJson() => TypedForm.ToJson();
+        /// <inheritdoc cref="FormElicitationBuilderBase.ToJson"/>
+        public override JsonElement? ToJson() => TypedForm.ToJson();
 
     }
 

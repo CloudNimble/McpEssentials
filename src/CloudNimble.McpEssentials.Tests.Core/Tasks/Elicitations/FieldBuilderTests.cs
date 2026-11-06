@@ -21,7 +21,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void StringFacade_ConstraintsAndForwarding()
         {
-            var facade = FormElicitation.Create("m").String("name")
+            var facade = FormElicitationBuilder.Create("m").String("name")
                 .Title("N")
                 .Description("d")
                 .Required()
@@ -54,7 +54,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void NumberFacade_ConstraintsAndForwarding()
         {
-            var facade = FormElicitation.Create("m").Integer("age")
+            var facade = FormElicitationBuilder.Create("m").Integer("age")
                 .Title("Age")
                 .Description("Years")
                 .Required()
@@ -91,7 +91,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void BooleanFacade_ConstraintsAndForwarding()
         {
-            var facade = FormElicitation.Create("m").Boolean("on")
+            var facade = FormElicitationBuilder.Create("m").Boolean("on")
                 .Title("On")
                 .Description("Switch")
                 .Required()
@@ -120,7 +120,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void ChoiceFacade_ConstraintsAndForwarding()
         {
-            var facade = FormElicitation.Create("m").Choice("color")
+            var facade = FormElicitationBuilder.Create("m").Choice("color")
                 .Title("Color")
                 .Description("Pick")
                 .Required()
@@ -151,7 +151,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void MultiChoiceFacade_ConstraintsAndForwarding()
         {
-            var facade = FormElicitation.Create("m").MultiChoice("roles")
+            var facade = FormElicitationBuilder.Create("m").MultiChoice("roles")
                 .Title("Roles")
                 .Description("Pick")
                 .Required()
@@ -192,7 +192,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void UntypedBuilder_ForwardsFromEachStarter()
         {
-            var form = FormElicitation.Create("m");
+            var form = FormElicitationBuilder.Create("m");
             form.String("s").Field.Kind.Should().Be(ElicitationFieldKind.String);
             form.Email("e").Field.Format.Should().Be("email");
             form.Uri("u").Field.Format.Should().Be("uri");
@@ -209,7 +209,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Remove_MissingName_IsNoOp()
         {
-            var form = FormElicitation.Create("m");
+            var form = FormElicitationBuilder.Create("m");
             form.String("keep");
             form.Remove("missing");
             form.Fields.Should().HaveCount(1);

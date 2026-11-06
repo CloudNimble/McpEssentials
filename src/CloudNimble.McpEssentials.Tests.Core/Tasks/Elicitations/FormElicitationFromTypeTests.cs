@@ -9,7 +9,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
 {
 
     /// <summary>
-    /// Coverage for <see cref="FormElicitation.From{T}"/> convention seeding, Exclude, and overrides.
+    /// Coverage for <see cref="FormElicitationBuilder.From{T}"/> convention seeding, Exclude, and overrides.
     /// </summary>
     [TestClass]
     public class FormElicitationFromTypeTests : BreakdanceMSTestBase
@@ -20,7 +20,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void From_Build_WithNoChain_EmitsDefaults()
         {
-            var built = FormElicitation.From<EmptyForm>("Confirm the action").Build();
+            var built = FormElicitationBuilder.From<EmptyForm>("Confirm the action").Build();
 
             built.Mode.Should().Be("form");
             built.Message.Should().Be("Confirm the action");
@@ -31,7 +31,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void From_KitchenSink_MapsEveryClrShape()
         {
-            var built = FormElicitation.From<KitchenSinkForm>("Fill this out").Build();
+            var built = FormElicitationBuilder.From<KitchenSinkForm>("Fill this out").Build();
             var properties = built.RequestedSchema!.Properties;
 
             properties["name"].Should().BeOfType<ElicitRequestParams.StringSchema>()
@@ -83,7 +83,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void From_SkipsUnmappableProperties()
         {
-            var built = FormElicitation.From<UnmappableForm>("m").Build();
+            var built = FormElicitationBuilder.From<UnmappableForm>("m").Build();
 
             built.RequestedSchema!.Properties.Keys.Should().Equal("name");
         }
@@ -91,7 +91,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void From_Exclude_RemovesSeededField()
         {
-            var built = FormElicitation.From<UnmappableForm>("m")
+            var built = FormElicitationBuilder.From<UnmappableForm>("m")
                 .Exclude(x => x.Name)
                 .Build();
 
@@ -101,7 +101,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void From_Exclude_Unmappable_IsSuccessfulNoOp()
         {
-            var act = () => FormElicitation.From<UnmappableForm>("m")
+            var act = () => FormElicitationBuilder.From<UnmappableForm>("m")
                 .Exclude(x => x.Home)
                 .Exclude(x => x.Duration)
                 .Build();
@@ -113,14 +113,14 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void From_Collision_ThrowsInvalidOperationException()
         {
-            var act = () => FormElicitation.From<CollisionForm>("m");
+            var act = () => FormElicitationBuilder.From<CollisionForm>("m");
             act.Should().Throw<InvalidOperationException>().WithMessage("*collide*");
         }
 
         [TestMethod]
         public void From_RequiredKeyword_MarksRequiredEvenWhenNullable()
         {
-            var built = FormElicitation.From<RequiredKeywordForm>("m").Build();
+            var built = FormElicitationBuilder.From<RequiredKeywordForm>("m").Build();
 
             built.RequestedSchema!.Required.Should().Contain("code");
             built.RequestedSchema!.Required.Should().Contain("note");
@@ -130,7 +130,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void From_NullableValueTypes_AreOptional()
         {
-            var built = FormElicitation.From<NullablePrimitivesForm>("m").Build();
+            var built = FormElicitationBuilder.From<NullablePrimitivesForm>("m").Build();
 
             built.RequestedSchema!.Required.Should().BeNull();
             built.RequestedSchema!.Properties["age"].Should().BeOfType<ElicitRequestParams.NumberSchema>()
@@ -144,30 +144,30 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void From_SkipsIndexers()
         {
-            var built = FormElicitation.From<IndexerForm>("m").Build();
+            var built = FormElicitationBuilder.From<IndexerForm>("m").Build();
             built.RequestedSchema!.Properties.Keys.Should().Equal("name");
         }
 
         [TestMethod]
         public void From_SkipsWriteOnlyAndStatic()
         {
-            FormElicitation.From<WriteOnlyForm>("m").Build()
+            FormElicitationBuilder.From<WriteOnlyForm>("m").Build()
                 .RequestedSchema!.Properties.Keys.Should().Equal("visible");
-            FormElicitation.From<StaticPropertyForm>("m").Build()
+            FormElicitationBuilder.From<StaticPropertyForm>("m").Build()
                 .RequestedSchema!.Properties.Keys.Should().Equal("name");
         }
 
         [TestMethod]
         public void From_IncludesInheritedProperties()
         {
-            var built = FormElicitation.From<DerivedSignupForm>("m").Build();
+            var built = FormElicitationBuilder.From<DerivedSignupForm>("m").Build();
             built.RequestedSchema!.Properties.Keys.Should().BeEquivalentTo("email", "name");
         }
 
         [TestMethod]
         public void From_EnumCollections_AllMultiChoice()
         {
-            var built = FormElicitation.From<EnumCollectionsForm>("m").Build();
+            var built = FormElicitationBuilder.From<EnumCollectionsForm>("m").Build();
             foreach (var key in new[] { "array", "list", "sequence", "iList", "set" })
             {
                 built.RequestedSchema!.Properties[key].Should().BeOfType<ElicitRequestParams.TitledMultiSelectEnumSchema>();
@@ -177,7 +177,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void From_FluentOverride_RequiredAndTitle()
         {
-            var built = FormElicitation.From<KitchenSinkForm>("m")
+            var built = FormElicitationBuilder.From<KitchenSinkForm>("m")
                 .String(x => x.Name).Title("Full name").Optional()
                 .Integer(x => x.Age).Min(18)
                 .Build();
@@ -193,7 +193,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void From_AddsExtraStringNamedField()
         {
-            var built = FormElicitation.From<EmptyForm>("m")
+            var built = FormElicitationBuilder.From<EmptyForm>("m")
                 .String("reason").Required()
                 .Build();
 
@@ -204,7 +204,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void From_ReconfigureSeededUriAsEmail()
         {
-            var built = FormElicitation.From<KitchenSinkForm>("m")
+            var built = FormElicitationBuilder.From<KitchenSinkForm>("m")
                 .Email(x => x.Homepage)
                 .Build();
 
@@ -215,7 +215,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void From_ExcludeThenReAdd()
         {
-            var built = FormElicitation.From<KitchenSinkForm>("m")
+            var built = FormElicitationBuilder.From<KitchenSinkForm>("m")
                 .Exclude(x => x.Name)
                 .String(x => x.Name).Title("Brought back")
                 .Build();
@@ -227,7 +227,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void From_TypedToInputRequest()
         {
-            var request = FormElicitation.From<EmptyForm>("Confirm?").ToInputRequest();
+            var request = FormElicitationBuilder.From<EmptyForm>("Confirm?").ToInputRequest();
             request.Method.Should().Be(RequestMethods.ElicitationCreate);
             request.ElicitationParams!.Message.Should().Be("Confirm?");
         }

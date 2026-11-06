@@ -65,7 +65,7 @@ The service collection.
 
 ```csharp
 services.AddFormElicitation("ship",
-    FormElicitation.Create("Ship this order")
+    FormElicitationBuilder.Create("Ship this order")
         .String("trackingNumber").Required());
 ```
 

@@ -19,7 +19,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void ExpressionStarters_ReconfigureSeededFields()
         {
-            var builder = FormElicitation.From<KitchenSinkForm>("m");
+            var builder = FormElicitationBuilder.From<KitchenSinkForm>("m");
 
             builder.String(x => x.Name).Field.Name.Should().Be("name");
             builder.Email(x => x.Nickname).Field.Format.Should().Be("email");
@@ -36,7 +36,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void StringNamedStarters_AddExtraFieldsWithoutDroppingT()
         {
-            var built = FormElicitation.From<EmptyForm>("m")
+            var built = FormElicitationBuilder.From<EmptyForm>("m")
                 .String("notes")
                 .Email("email")
                 .Uri("site")
@@ -56,7 +56,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void String_OnTypedBuilder_ClearsFormat()
         {
-            var builder = FormElicitation.From<KitchenSinkForm>("m");
+            var builder = FormElicitationBuilder.From<KitchenSinkForm>("m");
             builder.Email("homepage");
             builder.Fields.Find(f => f.Name == "homepage")!.Format.Should().Be("email");
             builder.String("homepage");
@@ -66,7 +66,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Exclude_FromBuilder_ThenBuild()
         {
-            var built = FormElicitation.From<DerivedSignupForm>("m")
+            var built = FormElicitationBuilder.From<DerivedSignupForm>("m")
                 .Exclude(x => x.Email)
                 .Build();
 
@@ -76,7 +76,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void ChainStaysTyped_AfterExpressionAndString()
         {
-            var built = FormElicitation.From<KitchenSinkForm>("Need details")
+            var built = FormElicitationBuilder.From<KitchenSinkForm>("Need details")
                 .Exclude(x => x.Nickname)
                 .String(x => x.Name).MinLength(1)
                 .Integer("extraCount").Min(0)

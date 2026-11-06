@@ -19,7 +19,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Build_CachesAndSeals()
         {
-            FormElicitationBuilder form = FormElicitation.Create("Ship this order");
+            FormElicitationBuilder form = FormElicitationBuilder.Create("Ship this order");
             form.String("trackingNumber").Required();
 
             var first = form.Build();
@@ -32,7 +32,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void ToXml_CachesIsland()
         {
-            FormElicitationBuilder form = FormElicitation.Create("Ship this order");
+            FormElicitationBuilder form = FormElicitationBuilder.Create("Ship this order");
             form.String("trackingNumber").Required();
 
             var first = form.ToXml();
@@ -46,7 +46,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void ToJson_ReturnsInputRequestParams()
         {
-            var form = FormElicitation.Create("Ship this order").String("trackingNumber").Required();
+            var form = FormElicitationBuilder.Create("Ship this order").String("trackingNumber").Required();
             var request = form.ToInputRequest();
 
             form.ToJson().Should().Be(request.Params);
@@ -56,7 +56,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void String_AfterBuild_Throws()
         {
-            var form = FormElicitation.Create("m").String("a");
+            var form = FormElicitationBuilder.Create("m").String("a");
             form.Build();
 
             var act = () => form.Integer("b");
@@ -66,7 +66,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Exclude_AfterToXml_Throws()
         {
-            var form = FormElicitation.From<BaseSignupForm>("m");
+            var form = FormElicitationBuilder.From<BaseSignupForm>("m");
             form.ToXml();
 
             var act = () => form.Exclude(x => x.Email);
@@ -76,7 +76,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Build_WhenInvalid_DoesNotSeal()
         {
-            FormElicitationBuilder form = FormElicitation.Create("m");
+            FormElicitationBuilder form = FormElicitationBuilder.Create("m");
             form.Choice("color");
 
             var act = () => form.Build();
@@ -90,22 +90,22 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Facade_ToJson_MatchesBuilder()
         {
-            FormElicitation.Create("m").String("notes").ToJson().Should().NotBeNull();
-            FormElicitation.Create("m").Boolean("ok").ToJson().Should().NotBeNull();
-            FormElicitation.Create("m").Integer("n").ToJson().Should().NotBeNull();
-            FormElicitation.Create("m").Choice("c").Option("a").ToJson().Should().NotBeNull();
-            FormElicitation.Create("m").MultiChoice("m1").Option("a").ToJson().Should().NotBeNull();
-            FormElicitation.From<BaseSignupForm>("m").String(x => x.Email).ToJson().Should().NotBeNull();
-            FormElicitation.From<BaseSignupForm>("m").Boolean("ok").ToJson().Should().NotBeNull();
-            FormElicitation.From<BaseSignupForm>("m").Integer("n").ToJson().Should().NotBeNull();
-            FormElicitation.From<BaseSignupForm>("m").Choice("c").Option("a").ToJson().Should().NotBeNull();
-            FormElicitation.From<BaseSignupForm>("m").MultiChoice("m1").Option("a").ToJson().Should().NotBeNull();
+            FormElicitationBuilder.Create("m").String("notes").ToJson().Should().NotBeNull();
+            FormElicitationBuilder.Create("m").Boolean("ok").ToJson().Should().NotBeNull();
+            FormElicitationBuilder.Create("m").Integer("n").ToJson().Should().NotBeNull();
+            FormElicitationBuilder.Create("m").Choice("c").Option("a").ToJson().Should().NotBeNull();
+            FormElicitationBuilder.Create("m").MultiChoice("m1").Option("a").ToJson().Should().NotBeNull();
+            FormElicitationBuilder.From<BaseSignupForm>("m").String(x => x.Email).ToJson().Should().NotBeNull();
+            FormElicitationBuilder.From<BaseSignupForm>("m").Boolean("ok").ToJson().Should().NotBeNull();
+            FormElicitationBuilder.From<BaseSignupForm>("m").Integer("n").ToJson().Should().NotBeNull();
+            FormElicitationBuilder.From<BaseSignupForm>("m").Choice("c").Option("a").ToJson().Should().NotBeNull();
+            FormElicitationBuilder.From<BaseSignupForm>("m").MultiChoice("m1").Option("a").ToJson().Should().NotBeNull();
         }
 
         [TestMethod]
         public void Name_AfterBuild_Throws()
         {
-            FormElicitationBuilder form = FormElicitation.Create("m");
+            FormElicitationBuilder form = FormElicitationBuilder.Create("m");
             form.Build();
 
             var act = () => form.Name = "ship";
@@ -115,7 +115,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void ToDefinition_AndToInputRequest_Cache()
         {
-            FormElicitationBuilder form = FormElicitation.Create("m");
+            FormElicitationBuilder form = FormElicitationBuilder.Create("m");
             form.String("a");
 
             form.ToDefinition().Should().BeSameAs(form.ToDefinition());

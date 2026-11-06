@@ -31,7 +31,7 @@ namespace CloudNimble.McpEssentials.Analyzers
         public static readonly DiagnosticDescriptor UnmappableProperty = new(
             id: "MCPESS001",
             title: "Form type has a property the elicitation schema cannot represent",
-            messageFormat: "Property '{0}' on '{1}' is skipped by FormElicitation.From. Exclude it or change the type to a supported primitive.",
+            messageFormat: "Property '{0}' on '{1}' is skipped by FormElicitationBuilder.From. Exclude it or change the type to a supported primitive.",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true,
@@ -79,7 +79,7 @@ namespace CloudNimble.McpEssentials.Analyzers
         public static readonly DiagnosticDescriptor NotAFormType = new(
             id: "MCPESS005",
             title: "From expects a form type of properties",
-            messageFormat: "'{0}' is not a form type. FormElicitation.From expects a class or struct of public properties.",
+            messageFormat: "'{0}' is not a form type. FormElicitationBuilder.From expects a class or struct of public properties.",
             category: Category,
             defaultSeverity: DiagnosticSeverity.Warning,
             isEnabledByDefault: true,

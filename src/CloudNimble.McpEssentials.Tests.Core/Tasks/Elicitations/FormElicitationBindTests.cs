@@ -11,7 +11,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
 {
 
     /// <summary>
-    /// Coverage for binding accepted elicitation content onto a CLR form type.
+    /// Coverage for deserializing accepted <see cref="ElicitResult.Content"/> onto a CLR type.
     /// </summary>
     [TestClass]
     public class FormElicitationBindTests : BreakdanceMSTestBase
@@ -20,7 +20,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         #region Public Methods
 
         [TestMethod]
-        public void Bind_AcceptedContent_MapsCamelCaseAndEnums()
+        public void ToTyped_AcceptedContent_MapsCamelCaseAndEnums()
         {
             var id = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
             var raw = new ElicitResult
@@ -37,7 +37,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
                 }
             };
 
-            var bound = FormElicitation.Bind<BindTargetForm>(raw);
+            var bound = FormElicitationBinder.ToTyped<BindTargetForm>(raw, options: null);
 
             bound.IsAccepted.Should().BeTrue();
             bound.Content.Should().NotBeNull();
@@ -51,7 +51,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         }
 
         [TestMethod]
-        public void Bind_PascalCaseKeys_StillMapsWhenCaseInsensitive()
+        public void ToTyped_PascalCaseKeys_StillMapsWhenCaseInsensitive()
         {
             var raw = new ElicitResult
             {
@@ -62,13 +62,13 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
                 }
             };
 
-            FormElicitation.Bind<BindTargetForm>(raw).Content!.Name.Should().Be("Bob");
+            FormElicitationBinder.ToTyped<BindTargetForm>(raw, options: null).Content!.Name.Should().Be("Bob");
         }
 
         [TestMethod]
         [DataRow("cancel")]
         [DataRow("decline")]
-        public void Bind_NotAccepted_ReturnsDefaultContent(string action)
+        public void ToTyped_NotAccepted_ReturnsDefaultContent(string action)
         {
             var raw = new ElicitResult
             {
@@ -79,30 +79,30 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
                 }
             };
 
-            var bound = FormElicitation.Bind<BindTargetForm>(raw);
+            var bound = FormElicitationBinder.ToTyped<BindTargetForm>(raw, options: null);
             bound.Action.Should().Be(action);
             bound.IsAccepted.Should().BeFalse();
             bound.Content.Should().BeNull();
         }
 
         [TestMethod]
-        public void Bind_AcceptedNullContent_ReturnsDefault()
+        public void ToTyped_AcceptedNullContent_ReturnsDefault()
         {
             var raw = new ElicitResult { Action = "accept", Content = null };
-            var bound = FormElicitation.Bind<BindTargetForm>(raw);
+            var bound = FormElicitationBinder.ToTyped<BindTargetForm>(raw, options: null);
             bound.IsAccepted.Should().BeTrue();
             bound.Content.Should().BeNull();
         }
 
         [TestMethod]
-        public void Bind_NullResult_Throws()
+        public void ToTyped_NullResult_Throws()
         {
-            var act = () => FormElicitation.Bind<BindTargetForm>(null!);
+            var act = () => FormElicitationBinder.ToTyped<BindTargetForm>(null!, options: null);
             act.Should().Throw<ArgumentNullException>().WithParameterName("result");
         }
 
         [TestMethod]
-        public void Bind_UnknownEnum_ThrowsJsonException()
+        public void ToTyped_UnknownEnum_ThrowsJsonException()
         {
             var raw = new ElicitResult
             {
@@ -113,12 +113,12 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
                 }
             };
 
-            var act = () => FormElicitation.Bind<BindTargetForm>(raw);
+            var act = () => FormElicitationBinder.ToTyped<BindTargetForm>(raw, options: null);
             act.Should().Throw<JsonException>();
         }
 
         [TestMethod]
-        public void Bind_ExtraKeys_AreIgnored()
+        public void ToTyped_ExtraKeys_AreIgnored()
         {
             var raw = new ElicitResult
             {
@@ -130,15 +130,15 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
                 }
             };
 
-            FormElicitation.Bind<BindTargetForm>(raw).Content!.Name.Should().Be("Ada");
+            FormElicitationBinder.ToTyped<BindTargetForm>(raw, options: null).Content!.Name.Should().Be("Ada");
         }
 
         [TestMethod]
         public void BindersAndFacades_AreFormSources()
         {
-            IFormElicitationSource untyped = FormElicitation.Create("m").String("n");
-            IFormElicitationSource<EmptyForm> typed = FormElicitation.From<EmptyForm>("m");
-            IFormElicitationSource<EmptyForm> typedField = FormElicitation.From<EmptyForm>("m").String("extra");
+            IFormElicitationSource untyped = FormElicitationBuilder.Create("m").String("n");
+            IFormElicitationSource<EmptyForm> typed = FormElicitationBuilder.From<EmptyForm>("m");
+            IFormElicitationSource<EmptyForm> typedField = FormElicitationBuilder.From<EmptyForm>("m").String("extra");
 
             untyped.Build().Message.Should().Be("m");
             typed.ToInputRequest().Method.Should().Be(RequestMethods.ElicitationCreate);

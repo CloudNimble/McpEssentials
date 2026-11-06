@@ -27,7 +27,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<Form>("m").Exclude(x => x.Home.City);
+                        FormElicitationBuilder.From<Form>("m").Exclude(x => x.Home.City);
                     }
                 }
                 """);
@@ -46,7 +46,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<Form>("m").Exclude(x => x.Home);
+                        FormElicitationBuilder.From<Form>("m").Exclude(x => x.Home);
                     }
                 }
                 """);
@@ -65,7 +65,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<Form>("m").Exclude(x => x.Email);
+                        FormElicitationBuilder.From<Form>("m").Exclude(x => x.Email);
                     }
                 }
                 """);
@@ -82,7 +82,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.Create("m").String("filter").Integer("top");
+                        FormElicitationBuilder.Create("m").String("filter").Integer("top");
                     }
                 }
                 """);
@@ -100,7 +100,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<Form>("m").String(x => x.Name.Trim());
+                        FormElicitationBuilder.From<Form>("m").String(x => x.Name.Trim());
                     }
                 }
                 """);

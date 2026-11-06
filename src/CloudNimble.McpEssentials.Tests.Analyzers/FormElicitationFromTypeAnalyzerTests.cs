@@ -30,7 +30,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<SignupForm>("Sign up");
+                        FormElicitationBuilder.From<SignupForm>("Sign up");
                     }
                 }
                 """);
@@ -57,7 +57,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<UnmappableForm>("m");
+                        FormElicitationBuilder.From<UnmappableForm>("m");
                     }
                 }
                 """);
@@ -85,7 +85,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<UnmappableForm>("m").Exclude(x => x.Home);
+                        FormElicitationBuilder.From<UnmappableForm>("m").Exclude(x => x.Home);
                     }
                 }
                 """);
@@ -107,7 +107,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<CollisionForm>("m");
+                        FormElicitationBuilder.From<CollisionForm>("m");
                     }
                 }
                 """);
@@ -123,7 +123,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<string>("m");
+                        FormElicitationBuilder.From<string>("m");
                     }
                 }
                 """);
@@ -143,7 +143,7 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        FormElicitation.From<EmptyForm>("Confirm?");
+                        FormElicitationBuilder.From<EmptyForm>("Confirm?");
                     }
                 }
                 """);
@@ -162,7 +162,26 @@ namespace CloudNimble.McpEssentials.Tests.Analyzers
                 {
                     public void Go()
                     {
-                        new FormElicitationBuilder<Bag>("m");
+                        FormElicitationBuilder.From<Bag>("m");
+                    }
+                }
+                """);
+
+            diags.Should().ContainSingle(d => d.Id == "MCPESS001");
+        }
+
+        [TestMethod]
+        public async Task TypedFrom_Unmappable_WarnsMcpess001()
+        {
+            var diags = await AnalyzerCompilation.GetDiagnosticsAsync("""
+                public class Address { public string City { get; set; } }
+                public class Bag { public Address Home { get; set; } }
+
+                public class Use
+                {
+                    public void Go()
+                    {
+                        FormElicitationBuilder<Bag>.From("m");
                     }
                 }
                 """);

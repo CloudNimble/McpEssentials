@@ -10,7 +10,7 @@ namespace ModelContextProtocol.Extensions.Tasks
 
     /// <summary>
     /// Parks a fluent form on a task as a single elicitation <see cref="InputRequest"/>.
-    /// Prefer <c>server.ElicitAsync(form)</c> from a tool: the SDK interceptor already
+    /// Prefer <c>context.RequireForm</c> from a form-attributed tool. The SDK interceptor already
     /// calls <see cref="IMcpTaskStore.SetInputRequestsAsync(string, IDictionary{string, InputRequest}, CancellationToken)"/>
     /// when the tool is running as a task.
     /// </summary>

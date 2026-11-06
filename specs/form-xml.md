@@ -3,7 +3,7 @@
 **Status:** Implemented alongside the fluent builders.  
 **Consumers:** any MCP host. OData MCP wraps the island in `Mcp.ElicitForm` (see Microsoft.OData.Mcp `specs/v3/ELICIT-FORM.md`).
 
-The live object is `FormElicitation` / `IFormElicitationSource`.
+The live object is `FormElicitationBuilder` / `IFormElicitationSource`. Compact XML is the OData `$metadata` helper (`Mcp.ElicitForm`); MCP elicitation on the wire is `Build()` → `ElicitRequestParams`.
 
 | Method | Result |
 |--------|--------|
@@ -12,7 +12,7 @@ The live object is `FormElicitation` / `IFormElicitationSource`.
 | `ToJson()` | `ToInputRequest().Params` |
 | `ToDefinition()` | immutable `FormDefinition`; cached |
 | `ToXml()` | compact `<Form>` island (`XmlWriter`, AOT-safe); cached (`_xml ??=`) |
-| `FormElicitation.ParseXml` / `FromDefinition` | rebuild a builder |
+| `FormElicitationBuilder.ParseXml` / `FromDefinition` | rebuild a builder |
 
 No `XmlSerializer`. No reflection. `XmlWriter` / `XmlReader` over `Form` / `Field` / `Option`. Optional `xmlns` on write; LocalName-only on read. DTD prohibited.
 
@@ -21,7 +21,7 @@ Dialect, attributes, and `Type` spellings: Microsoft.OData.Mcp `specs/v3/ELICIT-
 Named registration:
 
 ```csharp
-services.AddFormElicitation("ship", FormElicitation.Create("Ship this order").String("trackingNumber").Required());
+services.AddFormElicitation("ship", FormElicitationBuilder.Create("Ship this order").String("trackingNumber").Required());
 ```
 
 Keyed singleton `IFormElicitationSource`.

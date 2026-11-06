@@ -1,6 +1,7 @@
 using System;
 using System.Security.Claims;
 using CloudNimble.McpEssentials.Core.Tasks;
+using CloudNimble.McpEssentials.Core.Tasks.Elicitations;
 using ModelContextProtocol.Extensions.Tasks;
 using ModelContextProtocol.Server;
 
@@ -46,9 +47,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new InvalidOperationException($"Call {nameof(McpTaskStoreBuilder.UseInMemory)} or a provider Use* method.");
             }
 
-            return configureTasks is null
-                ? builder.WithTasks(tasks.Store)
-                : builder.WithTasks(tasks.Store, configureTasks);
+            return builder.WithTasks(tasks.Store, options =>
+            {
+                configureTasks?.Invoke(options);
+                FormElicitationExecutionMode.Apply(options);
+            });
         }
 
         /// <summary>

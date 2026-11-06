@@ -13,7 +13,7 @@ Get an MCP server that stamps the logged-in user on every task, asks the client 
     `WithTasksPlus` records the owner. Another user sees not found.
   </Card>
   <Card title="Elicit" icon="clipboard-list">
-    `await server.ElicitAsync(form)` parks the form on the task. The SDK interceptor resumes when the client answers.
+    Register the form at startup. `await server.ElicitAsync("ship")` parks it on the task. The SDK interceptor resumes when the client answers.
   </Card>
   <Card title="Swap" icon="database">
     Same identity factory. EF, Redis, Cosmos, or native Postgres.
@@ -109,19 +109,20 @@ Get an MCP server that stamps the logged-in user on every task, asks the client 
   </Step>
 
   <Step title="Ask the client for a form" icon="clipboard-list">
-    `await server.ElicitAsync(form)` is enough inside a task. The SDK interceptor parks the form and resumes when the client answers.
+    Register the form at startup. `await server.ElicitAsync("ship")` is enough inside a task. The SDK interceptor parks the form and resumes when the client answers.
 
     ```csharp
     using CloudNimble.McpEssentials.Core.Tasks.Elicitations;
     using ModelContextProtocol.Server;
 
+    services.AddFormElicitation("ship",
+        FormElicitationBuilder.Create("Need a tracking number")
+            .String("trackingNumber").Required().MinLength(1));
+
     [McpServerTool(Name = "ShipOrder"), Description("Asks for a tracking number, then ships.")]
     public static async Task<string> ShipOrder(McpServer server, CancellationToken cancellationToken)
     {
-        var result = await server.ElicitAsync(
-            FormElicitation.Create("Need a tracking number")
-                .String("trackingNumber").Required().MinLength(1),
-            cancellationToken);
+        var result = await server.ElicitAsync("ship", cancellationToken);
 
         if (!result.IsAccepted)
         {
@@ -132,7 +133,7 @@ Get an MCP server that stamps the logged-in user on every task, asks the client 
     }
     ```
 
-    Field-by-field `Create`, `From<T>()`, and metadata-driven builders are in [Form elicitation](/guides/form-elicitation). Broken `From<T>()` shapes are compiler diagnostics in [Analyzers](/guides/analyzers).
+    Named forms, `From<T>()`, and metadata-driven builders are in [Form elicitation](/guides/form-elicitation). Broken `From<T>()` shapes are compiler diagnostics in [Analyzers](/guides/analyzers).
   </Step>
 
   <Step title="Run it" icon="play">

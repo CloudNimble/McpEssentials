@@ -6,11 +6,11 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
 {
 
     /// <summary>
-    /// Typed form builder. <see cref="FormElicitation.From{T}"/> seeds mappable properties,
+    /// Typed form builder. <see cref="FormElicitationBuilder.From{T}"/> seeds mappable properties,
     /// then expression starters reconfigure them and string starters add extra fields.
     /// </summary>
     /// <typeparam name="T">The form type.</typeparam>
-    public class FormElicitationBuilder<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T> : FormElicitationBuilder, IFormElicitationSource<T>
+    public class FormElicitationBuilder<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] T> : FormElicitationBuilderBase, IFormElicitationSource<T>
     {
 
         #region Constructors
@@ -19,7 +19,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// Initializes a builder seeded from <typeparamref name="T"/>.
         /// </summary>
         /// <param name="message">The message presented to the user.</param>
-        public FormElicitationBuilder(string message)
+        protected FormElicitationBuilder(string message)
             : base(message)
         {
             FormElicitationConventions.Apply<T>(this);
@@ -28,6 +28,14 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         #endregion
 
         #region Public Methods
+
+        /// <summary>
+        /// Starts a form seeded from the public instance properties of <typeparamref name="T"/>.
+        /// </summary>
+        /// <param name="message">The message presented to the user.</param>
+        /// <returns>A typed form builder.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="message"/> is <see langword="null"/>.</exception>
+        public static FormElicitationBuilder<T> From(string message) => new(message);
 
         /// <summary>
         /// Removes the field for <paramref name="property"/> if it was seeded or added.
@@ -42,8 +50,8 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
             return this;
         }
 
-        /// <inheritdoc cref="FormElicitationBuilder.String(string)"/>
-        public new StringFieldBuilder<T> String(string name)
+        /// <inheritdoc cref="FormElicitationBuilderBase.String(string)"/>
+        public override StringFieldBuilder<T> String(string name)
         {
             var field = GetOrAdd(name, ElicitationFieldKind.String);
             field.Format = null;
@@ -59,8 +67,8 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         public virtual StringFieldBuilder<T> String<TProp>(Expression<Func<T, TProp>> property) =>
             String(FormElicitationProperty.From(property).Name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.Email(string)"/>
-        public new StringFieldBuilder<T> Email(string name)
+        /// <inheritdoc cref="FormElicitationBuilderBase.Email(string)"/>
+        public override StringFieldBuilder<T> Email(string name)
         {
             var field = GetOrAdd(name, ElicitationFieldKind.String);
             field.Format = "email";
@@ -76,8 +84,8 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         public virtual StringFieldBuilder<T> Email<TProp>(Expression<Func<T, TProp>> property) =>
             Email(FormElicitationProperty.From(property).Name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.Uri(string)"/>
-        public new StringFieldBuilder<T> Uri(string name)
+        /// <inheritdoc cref="FormElicitationBuilderBase.Uri(string)"/>
+        public override StringFieldBuilder<T> Uri(string name)
         {
             var field = GetOrAdd(name, ElicitationFieldKind.String);
             field.Format = "uri";
@@ -93,8 +101,8 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         public virtual StringFieldBuilder<T> Uri<TProp>(Expression<Func<T, TProp>> property) =>
             Uri(FormElicitationProperty.From(property).Name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.Date(string)"/>
-        public new StringFieldBuilder<T> Date(string name)
+        /// <inheritdoc cref="FormElicitationBuilderBase.Date(string)"/>
+        public override StringFieldBuilder<T> Date(string name)
         {
             var field = GetOrAdd(name, ElicitationFieldKind.String);
             field.Format = "date";
@@ -110,8 +118,8 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         public virtual StringFieldBuilder<T> Date<TProp>(Expression<Func<T, TProp>> property) =>
             Date(FormElicitationProperty.From(property).Name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.DateTime(string)"/>
-        public new StringFieldBuilder<T> DateTime(string name)
+        /// <inheritdoc cref="FormElicitationBuilderBase.DateTime(string)"/>
+        public override StringFieldBuilder<T> DateTime(string name)
         {
             var field = GetOrAdd(name, ElicitationFieldKind.String);
             field.Format = "date-time";
@@ -127,8 +135,8 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         public virtual StringFieldBuilder<T> DateTime<TProp>(Expression<Func<T, TProp>> property) =>
             DateTime(FormElicitationProperty.From(property).Name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.Integer(string)"/>
-        public new NumberFieldBuilder<T> Integer(string name) =>
+        /// <inheritdoc cref="FormElicitationBuilderBase.Integer(string)"/>
+        public override NumberFieldBuilder<T> Integer(string name) =>
             new(this, GetOrAdd(name, ElicitationFieldKind.Integer));
 
         /// <summary>
@@ -140,8 +148,8 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         public virtual NumberFieldBuilder<T> Integer<TProp>(Expression<Func<T, TProp>> property) =>
             Integer(FormElicitationProperty.From(property).Name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.Number(string)"/>
-        public new NumberFieldBuilder<T> Number(string name) =>
+        /// <inheritdoc cref="FormElicitationBuilderBase.Number(string)"/>
+        public override NumberFieldBuilder<T> Number(string name) =>
             new(this, GetOrAdd(name, ElicitationFieldKind.Number));
 
         /// <summary>
@@ -153,8 +161,8 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         public virtual NumberFieldBuilder<T> Number<TProp>(Expression<Func<T, TProp>> property) =>
             Number(FormElicitationProperty.From(property).Name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.Boolean(string)"/>
-        public new BooleanFieldBuilder<T> Boolean(string name) =>
+        /// <inheritdoc cref="FormElicitationBuilderBase.Boolean(string)"/>
+        public override BooleanFieldBuilder<T> Boolean(string name) =>
             new(this, GetOrAdd(name, ElicitationFieldKind.Boolean));
 
         /// <summary>
@@ -166,8 +174,8 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         public virtual BooleanFieldBuilder<T> Boolean<TProp>(Expression<Func<T, TProp>> property) =>
             Boolean(FormElicitationProperty.From(property).Name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.Choice(string)"/>
-        public new ChoiceFieldBuilder<T> Choice(string name) =>
+        /// <inheritdoc cref="FormElicitationBuilderBase.Choice(string)"/>
+        public override ChoiceFieldBuilder<T> Choice(string name) =>
             new(this, GetOrAdd(name, ElicitationFieldKind.Choice));
 
         /// <summary>
@@ -179,8 +187,8 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         public virtual ChoiceFieldBuilder<T> Choice<TProp>(Expression<Func<T, TProp>> property) =>
             Choice(FormElicitationProperty.From(property).Name);
 
-        /// <inheritdoc cref="FormElicitationBuilder.MultiChoice(string)"/>
-        public new MultiChoiceFieldBuilder<T> MultiChoice(string name) =>
+        /// <inheritdoc cref="FormElicitationBuilderBase.MultiChoice(string)"/>
+        public override MultiChoiceFieldBuilder<T> MultiChoice(string name) =>
             new(this, GetOrAdd(name, ElicitationFieldKind.MultiChoice));
 
         /// <summary>

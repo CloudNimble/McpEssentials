@@ -29,19 +29,28 @@ HTTP hosts call `AddHttpContextAccessor()` and pass a factory that resolves `IHt
 
 ## Form elicitation
 
-```csharp
-var result = await server.ElicitAsync(
-    FormElicitation.Create($"How should we query {entitySet}?")
-        .String("filter").Title("$filter")
-        .Integer("top").Title("$top").Min(1).Max(1000).Default(20),
-    cancellationToken);
+Register named forms at startup. Stamp the tool with `[FormElicitation("ship")]` and call `context.RequireForm("ship")`. `WithTasksPlus` keeps that tool on `tools/call` Multi Round-Trip Requests.
 
-var typed = await server.ElicitAsync(
-    FormElicitation.From<ProductQuery>("Query products").Exclude(x => x.Skip),
-    cancellationToken);
+```csharp
+services.AddFormElicitation("ship",
+    FormElicitationBuilder.Create("Ship this order")
+        .String("trackingNumber").Required());
+
+[McpServerTool(Name = "ShipOrder")]
+[FormElicitation("ship")]
+public static string ShipOrder(RequestContext<CallToolRequestParams> context)
+{
+    var result = context.RequireForm("ship");
+    if (!result.IsAccepted)
+    {
+        return "Shipping cancelled.";
+    }
+
+    return $"Shipped as {result.Content!["trackingNumber"].GetString()}.";
+}
 ```
 
-Keep the builder and add a field per name when the shape comes from metadata. `From<T>()` seeds a CLR type. Both work inside an MCP task: the SDK interceptor parks the form on the task when the tool `await`s `ElicitAsync`. To park yourself: `store.SetInputRequestsAsync(taskId, form)`.
+`From<T>()` seeds a CLR type. Keep the builder and add a field per name when the shape comes from metadata. To park a form on a running task yourself: `store.SetInputRequestsAsync(taskId, form)`.
 
 This package ships Roslyn analyzers (`MCPESS001`–`MCPESS005`) that warn on unmappable `From<T>()` properties, colliding wire names, and nested lambdas.
 

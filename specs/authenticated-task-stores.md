@@ -32,7 +32,7 @@ Every store, regardless of engine:
 | TTL | Expired tasks disappear on access and via a sweep or native expiry. |
 | Thread safety | Every method may run concurrently. |
 
-Claim order for `McpTaskStoreBase.GetUserId` (same as the SDK session identity): `ClaimTypes.NameIdentifier`, `sub`, `ClaimTypes.Upn`, `ClaimTypes.Name`, `IIdentity.Name`. Principal must be authenticated.
+Claim order for `McpTaskStoreBase.GetUserId`: `ClaimTypes.NameIdentifier`, `sub`, `ClaimTypes.Upn`, `ClaimTypes.Name`, `IIdentity.Name`. Principal must be authenticated.
 
 ## Canonical record
 
@@ -209,14 +209,14 @@ Providers that have a native bus (Redis pub/sub, Postgres NOTIFY, NATS) implemen
 
 Do not put tokens, vault ids, or elicitation secrets on the bus payload. Task id + request id are enough; the store already has the response body.
 
-## Isolation vs session
+## Isolation
 
-The SDK's stateful HTTP mode can isolate tasks per MCP session. Stateless mode has no session id. Authenticated stores isolate per **user**, which is the right grain for a multi-user remote MCP API:
+Authenticated stores isolate per **user**, which is the grain for a multi-user remote MCP API:
 
-- Same user, two browser tabs / two agents: they can see each other's in-flight tasks for that user. That is acceptable; the alternative is session affinity.
+- Same user, two browser tabs / two agents: they can see each other's in-flight tasks for that user. That is acceptable.
 - Different users: never.
 
-Do not mix session id and user id in the owner key unless a host explicitly implements a custom accessor that returns `userId + ":" + sessionId`.
+The owner key is the user id from the identity factory. A host that wants a tighter grain implements a custom accessor.
 
 ## What not to build
 
