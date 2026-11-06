@@ -29,7 +29,7 @@ HTTP hosts call `AddHttpContextAccessor()` and pass a factory that resolves `IHt
 
 ## Form elicitation
 
-Register named forms at startup. Stamp the tool with `[FormElicitation("ship")]` and call `context.RequireForm("ship")`. `WithTasksPlus` keeps that tool on `tools/call` Multi Round-Trip Requests.
+Register named forms at startup. Stamp the tool with `[McpElicitForm("ship")]` and call `context.RequireForm("ship")`. `WithTasksPlus` keeps that tool on `tools/call` Multi Round-Trip Requests.
 
 ```csharp
 services.AddFormElicitation("ship",
@@ -37,7 +37,7 @@ services.AddFormElicitation("ship",
         .String("trackingNumber").Required());
 
 [McpServerTool(Name = "ShipOrder")]
-[FormElicitation("ship")]
+[McpElicitForm("ship")]
 public static string ShipOrder(RequestContext<CallToolRequestParams> context)
 {
     var result = context.RequireForm("ship");

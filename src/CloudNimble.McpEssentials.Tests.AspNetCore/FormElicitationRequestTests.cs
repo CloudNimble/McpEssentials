@@ -6,7 +6,7 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
 {
 
     /// <summary>
-    /// Streamable HTTP coverage for <c>[FormElicitation]</c> and <c>RequireForm</c>.
+    /// Streamable HTTP coverage for <c>[McpElicitForm]</c> and <c>RequireForm</c>.
     /// </summary>
     [TestClass]
     public class FormElicitationRequestTests : FormElicitationHost

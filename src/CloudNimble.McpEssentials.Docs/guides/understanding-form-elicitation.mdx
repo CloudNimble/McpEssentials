@@ -6,6 +6,8 @@ keywords:
   - elicitation
   - form
   - MRTR
+  - McpElicitForm
+  - McpElicitUrl
   - InputRequiredException
   - tools/call
   - Streamable HTTP
@@ -96,7 +98,7 @@ Packages: `ModelContextProtocol.AspNetCore` 2.x and `CloudNimble.McpEssentials.C
   </Step>
 
   <Step title="Write the tool" icon="wrench">
-    Return an immediate result (`string`). Stamp the method with `[FormElicitation("ship")]`. Call `context.RequireForm("ship")`.
+    Return an immediate result (`string`). Stamp the method with `[McpElicitForm("ship")]`. Call `context.RequireForm("ship")`.
 
     First visit throws `InputRequiredException`. The SDK writes that as `resultType: "input_required"`. That POST is finished. The retry returns the `ElicitResult`.
 
@@ -112,7 +114,7 @@ Packages: `ModelContextProtocol.AspNetCore` 2.x and `CloudNimble.McpEssentials.C
     public class ShippingTools
     {
         [McpServerTool(Name = "ShipOrder"), Description("Asks for a tracking number, then ships.")]
-        [FormElicitation("ship")]
+        [McpElicitForm("ship")]
         public static string ShipOrder(RequestContext<CallToolRequestParams> context)
         {
             var result = context.RequireForm("ship");
@@ -153,7 +155,7 @@ Packages: `ModelContextProtocol.AspNetCore` 2.x and `CloudNimble.McpEssentials.C
   </Accordion>
 
   <Accordion title="If the host already registers Tasks" icon="list-check">
-    `[FormElicitation("ship")]` is enough. `WithTasksPlus` selects `McpTaskExecutionMode.Synchronous` for that tool. Other tools stay `Optional`.
+    `[McpElicitForm("ship")]` is enough. `WithTasksPlus` selects `McpTaskExecutionMode.Synchronous` for that tool. `[McpElicitUrl]` is `Optional` so a task can outlive the POST. Other tools stay `Optional`.
   </Accordion>
 </AccordionGroup>
 
@@ -374,7 +376,7 @@ Complete this list before the first `tools/call`.
     `AddFormElicitation("ship", …)` and a `[McpServerTool(Name = "ShipOrder")]` method that returns `string`.
   </Step>
   <Step title="Tasks, if already registered">
-    `[FormElicitation("ship")]` makes `WithTasksPlus` keep `ShipOrder` on `tools/call`.
+    `[McpElicitForm("ship")]` makes `WithTasksPlus` keep `ShipOrder` on `tools/call`.
   </Step>
   <Step title="First visit and retry">
     `RequireForm("ship")` throws on the first visit. The retry returns the `ElicitResult`.

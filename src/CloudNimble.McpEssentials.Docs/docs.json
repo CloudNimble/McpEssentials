@@ -22,6 +22,7 @@
         "pages": [
           "guides/index",
           "guides/authenticated-tasks",
+          "guides/understanding-form-elicitation",
           "guides/form-elicitation",
           "guides/analyzers",
           {
@@ -115,12 +116,15 @@
                               "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder",
                               "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder",
                               "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilderBase",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationExecutionMode",
                               "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormFieldDefinition",
                               "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormFieldType",
                               "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormOptionDefinition",
                               "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormXml",
                               "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/IFormElicitationSource",
                               "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/IFormElicitationSource",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/McpElicitFormAttribute",
+                              "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/McpElicitUrlAttribute",
                               "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/MultiChoiceFieldBuilder",
                               "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/MultiChoiceFieldBuilder",
                               "api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/NumberFieldBuilder",
@@ -258,7 +262,7 @@
                 "icon": "folder-tree",
                 "pages": [
                   "api-reference/ModelContextProtocol/Server/index",
-                  "api-reference/ModelContextProtocol/Server/McpServer"
+                  "api-reference/ModelContextProtocol/Server/RequestContext"
                 ]
               }
             ]

@@ -47,7 +47,7 @@ namespace ModelContextProtocol.Server
         /// <example>
         /// <code>
         /// [McpServerTool(Name = "ShipOrder")]
-        /// [FormElicitation("ship")]
+        /// [McpElicitForm("ship")]
         /// public static string ShipOrder(RequestContext&lt;CallToolRequestParams&gt; context)
         /// {
         ///     var result = context.RequireForm("ship");
@@ -61,7 +61,7 @@ namespace ModelContextProtocol.Server
         /// </code>
         /// </example>
         /// <remarks>
-        /// Pair this with <see cref="FormElicitationAttribute"/> so <c>WithTasksPlus</c> keeps the call synchronous.
+        /// Pair this with <see cref="McpElicitFormAttribute"/> so <c>WithTasksPlus</c> keeps the call synchronous.
         /// </remarks>
         public static ElicitResult RequireForm(this RequestContext<CallToolRequestParams> context, string name)
         {

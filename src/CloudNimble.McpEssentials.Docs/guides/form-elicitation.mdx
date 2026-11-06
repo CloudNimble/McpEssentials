@@ -5,12 +5,13 @@ icon: "clipboard-list"
 keywords:
   - FormElicitationBuilder
   - AddFormElicitation
+  - McpElicitForm
   - RequireForm
   - From
   - IFormElicitationSource
 ---
 
-Build the schema once at startup with [`FormElicitationBuilder`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder), register it with [`AddFormElicitation`](/api-reference/Microsoft/Extensions/DependencyInjection/IServiceCollection), stamp the tool with `[FormElicitation("ship")]`, and call `context.RequireForm("ship")`.
+Build the schema once at startup with [`FormElicitationBuilder`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder), register it with [`AddFormElicitation`](/api-reference/Microsoft/Extensions/DependencyInjection/IServiceCollection), stamp the tool with `[McpElicitForm("ship")]`, and call `context.RequireForm("ship")`.
 
 The two-POST retry, headers, and `_meta` live in [Understanding form elicitation](/guides/understanding-form-elicitation).
 
@@ -19,7 +20,7 @@ The two-POST retry, headers, and `_meta` live in [Understanding form elicitation
     `AddFormElicitation("ship", form)` is a keyed singleton.
   </Card>
   <Card title="Stamp the tool" icon="tag">
-    `[FormElicitation("ship")]` keeps the call on `tools/call` when Tasks is registered.
+    `[McpElicitForm("ship")]` keeps the call on `tools/call` when Tasks is registered.
   </Card>
   <Card title="RequireForm" icon="paper-plane">
     `context.RequireForm("ship")` returns `ElicitResult`. Typed: `RequireForm<ProductQuery>("query")`.
@@ -47,7 +48,7 @@ The two-POST retry, headers, and `_meta` live in [Understanding form elicitation
   <Step title="Read it on the tool">
     ```csharp
     [McpServerTool(Name = "ShipOrder"), Description("Asks for a tracking number, then ships.")]
-    [FormElicitation("ship")]
+    [McpElicitForm("ship")]
     public static string ShipOrder(RequestContext<CallToolRequestParams> context)
     {
         var result = context.RequireForm("ship");
@@ -362,7 +363,7 @@ An empty property list is legal. Nested property access in `Exclude` / expressio
 
 <Columns cols={2}>
   <Card title="Understanding form elicitation" icon="clipboard-question" href="/guides/understanding-form-elicitation">
-    Two POSTs, `[FormElicitation]`, `RequireForm`, headers, and `_meta`.
+    Two POSTs, `[McpElicitForm]`, `RequireForm`, headers, and `_meta`.
   </Card>
   <Card title="FormElicitationBuilder" icon="bolt" href="/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder">
     `Create` and `From<T>`. Field-by-field or seeded from a DTO.

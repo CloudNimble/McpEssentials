@@ -13,7 +13,7 @@ Get an MCP server that stamps the logged-in user on every task, asks the client 
     `WithTasksPlus` records the owner. Another user sees not found.
   </Card>
   <Card title="Elicit" icon="clipboard-list">
-    Register the form at startup. `[FormElicitation("ship")]` and `context.RequireForm("ship")`.
+    Register the form at startup. `[McpElicitForm("ship")]` and `context.RequireForm("ship")`.
   </Card>
   <Card title="Swap" icon="database">
     Same identity factory. EF, Redis, Cosmos, or native Postgres.
@@ -121,7 +121,7 @@ Get an MCP server that stamps the logged-in user on every task, asks the client 
             .String("trackingNumber").Required().MinLength(1));
 
     [McpServerTool(Name = "ShipOrder"), Description("Asks for a tracking number, then ships.")]
-    [FormElicitation("ship")]
+    [McpElicitForm("ship")]
     public static string ShipOrder(RequestContext<CallToolRequestParams> context)
     {
         var result = context.RequireForm("ship");

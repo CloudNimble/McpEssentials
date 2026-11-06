@@ -23,8 +23,8 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
         /// <param name="context">The current <c>tools/call</c> context.</param>
         /// <returns>The planned trip.</returns>
         [McpServerTool(Name = "PlanTrip"), Description("Plans a trip in two form rounds.")]
-        [FormElicitation("destination")]
-        [FormElicitation("dates")]
+        [McpElicitForm("destination")]
+        [McpElicitForm("dates")]
         public static string PlanTrip(RequestContext<CallToolRequestParams> context)
         {
             var destination = context.RequireForm("destination");
@@ -48,7 +48,7 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
         /// <param name="context">The current <c>tools/call</c> context.</param>
         /// <returns>Never returns on the first visit.</returns>
         [McpServerTool(Name = "ShipBlank"), Description("Blank form name.")]
-        [FormElicitation("ship")]
+        [McpElicitForm("ship")]
         public static string ShipBlank(RequestContext<CallToolRequestParams> context)
         {
             return context.RequireForm(" ").Action;
@@ -60,7 +60,7 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
         /// <param name="context">The current <c>tools/call</c> context.</param>
         /// <returns>The shipping result.</returns>
         [McpServerTool(Name = "ShipFacade"), Description("Ships using a field facade.")]
-        [FormElicitation("facade")]
+        [McpElicitForm("facade")]
         public static string ShipFacade(RequestContext<CallToolRequestParams> context)
         {
             var form = context.Services!.GetRequiredKeyedService<IFormElicitationSource>("facade");
@@ -79,7 +79,7 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
         /// <param name="context">The current <c>tools/call</c> context.</param>
         /// <returns>The shipping result.</returns>
         [McpServerTool(Name = "ShipLive"), Description("Ships using a live form instance.")]
-        [FormElicitation("live")]
+        [McpElicitForm("live")]
         public static string ShipLive(RequestContext<CallToolRequestParams> context)
         {
             var form = context.Services!.GetRequiredKeyedService<IFormElicitationSource>("live");
@@ -98,7 +98,7 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
         /// <param name="context">The current <c>tools/call</c> context.</param>
         /// <returns>Never returns a success string.</returns>
         [McpServerTool(Name = "ShipNameless"), Description("Nameless custom form.")]
-        [FormElicitation("ship")]
+        [McpElicitForm("ship")]
         public static string ShipNameless(RequestContext<CallToolRequestParams> context)
         {
             return context.RequireForm(new NamelessFormSource()).Action;
@@ -110,7 +110,7 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
         /// <param name="context">The current <c>tools/call</c> context.</param>
         /// <returns>The shipping result.</returns>
         [McpServerTool(Name = "ShipOrder"), Description("Asks for a tracking number, then ships.")]
-        [FormElicitation("ship")]
+        [McpElicitForm("ship")]
         public static string ShipOrder(RequestContext<CallToolRequestParams> context)
         {
             var result = context.RequireForm("ship");
@@ -128,7 +128,7 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
         /// <param name="context">The current <c>tools/call</c> context.</param>
         /// <returns>The shipping result.</returns>
         [McpServerTool(Name = "ShipTyped"), Description("Ships with a typed form.")]
-        [FormElicitation("typed")]
+        [McpElicitForm("typed")]
         public static string ShipTyped(RequestContext<CallToolRequestParams> context)
         {
             var result = context.RequireForm<ShipForm>("typed");
@@ -146,7 +146,7 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
         /// <param name="context">The current <c>tools/call</c> context.</param>
         /// <returns>The shipping result.</returns>
         [McpServerTool(Name = "ShipTypedLive"), Description("Ships with a typed live form.")]
-        [FormElicitation("typed")]
+        [McpElicitForm("typed")]
         public static string ShipTypedLive(RequestContext<CallToolRequestParams> context)
         {
             var form = context.Services!.GetRequiredKeyedService<IFormElicitationSource>("typed");
@@ -160,7 +160,7 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
         }
 
         /// <summary>
-        /// Calls <c>RequireForm</c> without <see cref="FormElicitationAttribute"/>.
+        /// Calls <c>RequireForm</c> without <see cref="McpElicitFormAttribute"/>.
         /// </summary>
         /// <param name="context">The current <c>tools/call</c> context.</param>
         /// <returns>The shipping result when the client did not opt into Tasks.</returns>
@@ -182,7 +182,7 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
         /// <param name="context">The current <c>tools/call</c> context.</param>
         /// <returns>Never returns a success string.</returns>
         [McpServerTool(Name = "ShipUnknown"), Description("Unknown form name.")]
-        [FormElicitation("missing")]
+        [McpElicitForm("missing")]
         public static string ShipUnknown(RequestContext<CallToolRequestParams> context)
         {
             return context.RequireForm("missing").Action;

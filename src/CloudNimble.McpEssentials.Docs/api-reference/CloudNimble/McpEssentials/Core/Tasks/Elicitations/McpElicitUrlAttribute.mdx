@@ -1,0 +1,88 @@
+---
+title: McpElicitUrlAttribute
+description: "Marks a tool so MCP elicits a URL after the member produces one. `WithTasksPlus` wraps the call as `Optional` so a task can outlive the POST while the operat..."
+icon: file-brackets-curly
+keywords: ['McpElicitUrlAttribute', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.McpElicitUrlAttribute', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'class', 'System.Attribute']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Core.dll
+
+**Namespace:** CloudNimble.McpEssentials.Core.Tasks.Elicitations
+
+**Inheritance:** System.Attribute
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Core.Tasks.Elicitations.McpElicitUrlAttribute
+```
+
+## Summary
+
+Marks a tool so MCP elicits a URL after the member produces one.
+`WithTasksPlus` wraps the call as
+`Optional` so a
+task can outlive the POST while the operator is in the browser.
+
+## Remarks
+
+Constructor arguments name JSON properties on the result that hold URLs
+(`connectUri`, `authorizationUrl`, and similar). An empty list leaves the
+host to apply its own defaults. Class-level usage applies to every
+`[McpServerTool]` method on the type. When [McpElicitFormAttribute](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/McpElicitFormAttribute) is
+also present, the form wins and the call stays on `tools/call`.
+
+## Examples
+
+```csharp
+[McpServerTool(Name = "Authorize")]
+[McpElicitUrl("connectUri")]
+public static AuthorizationTicket Authorize()
+{
+    return ticket;
+}
+```
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Marks the member as eliciting URLs from the given result properties.
+
+#### Syntax
+
+```csharp
+public McpElicitUrlAttribute(params string[] propertyNames)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `propertyNames` | `string[]` | JSON property names that hold elicit URLs. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *propertyNames* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `ArgumentException` | Thrown when a property name is empty. |
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> PropertyNames
+
+Gets JSON property names that hold URLs to elicit.
+
+#### Syntax
+
+```csharp
+public string[] PropertyNames { get; }
+```
+
+#### Property Value
+
+Type: `string[]`
+

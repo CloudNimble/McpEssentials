@@ -301,12 +301,12 @@ public static string GetUserId(System.Security.Claims.ClaimsPrincipal principal)
 #### Returns
 
 Type: `string?`
-The first non-whitespace claim in SDK session-identity order, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null)
+The first non-whitespace claim in lookup order, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null)
 when the principal is missing or unauthenticated.
 
 #### Remarks
 
-Claim lookup matches the MCP C# SDK session identity order:
+Claim lookup order:
 [NameIdentifier](https://learn.microsoft.com/dotnet/api/system.security.claims.claimtypes.nameidentifier), `sub`, [Upn](https://learn.microsoft.com/dotnet/api/system.security.claims.claimtypes.upn),
 [Name](https://learn.microsoft.com/dotnet/api/system.security.claims.claimtypes.name), then [Name](https://learn.microsoft.com/dotnet/api/system.security.principal.iidentity.name).
 The principal must be authenticated.

@@ -175,35 +175,6 @@ internal void ApplyField(CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormF
 |-----------|-------------|
 | `InvalidOperationException` | Thrown when the field type or format is unknown. |
 
-### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Bind
-
-Projects accepted form content onto *T*. Cancel and decline return default content.
-
-#### Syntax
-
-```csharp
-public static ModelContextProtocol.Protocol.ElicitResult<T> Bind(ModelContextProtocol.Protocol.ElicitResult result, System.Text.Json.JsonSerializerOptions options = null)
-```
-
-#### Parameters
-
-| Name | Type | Description |
-|------|------|-------------|
-| `result` | `ModelContextProtocol.Protocol.ElicitResult` | The untyped elicitation result. |
-| `options` | `System.Text.Json.JsonSerializerOptions?` | Serializer options. When omitted, properties are camelCase and enums use their member names.
-Native AOT callers should pass options from a [JsonSerializerContext](https://learn.microsoft.com/dotnet/api/system.text.json.serialization.jsonserializercontext). |
-
-#### Returns
-
-Type: `ModelContextProtocol.Protocol.ElicitResult<T>`
-A typed result with the same action as *result*.
-
-#### Exceptions
-
-| Exception | Description |
-|-----------|-------------|
-| `ArgumentNullException` | Thrown when *result* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
-
 ### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Boolean <Badge color="blue">Override</Badge>
 
 #### Syntax

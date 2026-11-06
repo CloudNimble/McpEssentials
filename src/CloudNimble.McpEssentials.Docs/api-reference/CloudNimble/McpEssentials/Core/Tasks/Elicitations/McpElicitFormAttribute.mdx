@@ -1,0 +1,90 @@
+---
+title: McpElicitFormAttribute
+description: "Marks a tool so MCP elicits a named form before the member runs. `WithTasksPlus` keeps the call on `tools/call` Multi Round-Trip Requests (`Synchronous`)."
+icon: file-brackets-curly
+keywords: ['McpElicitFormAttribute', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.McpElicitFormAttribute', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'class', 'System.Attribute']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Core.dll
+
+**Namespace:** CloudNimble.McpEssentials.Core.Tasks.Elicitations
+
+**Inheritance:** System.Attribute
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Core.Tasks.Elicitations.McpElicitFormAttribute
+```
+
+## Summary
+
+Marks a tool so MCP elicits a named form before the member runs.
+`WithTasksPlus` keeps the call on `tools/call` Multi Round-Trip Requests
+(`Synchronous`).
+
+## Remarks
+
+Pass the same name to `AddFormElicitation` and `RequireForm`.
+Class-level usage applies to every `[McpServerTool]` method on the type.
+When both this attribute and [McpElicitUrlAttribute](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/McpElicitUrlAttribute) are present, the form wins.
+
+## Examples
+
+```csharp
+[McpServerTool(Name = "ShipOrder")]
+[McpElicitForm("ship")]
+public static string ShipOrder(RequestContext&lt;CallToolRequestParams&gt; context)
+{
+    var result = context.RequireForm("ship");
+    if (!result.IsAccepted)
+    {
+        return "Shipping cancelled.";
+    }
+
+    return $"Shipped as {result.Content!["trackingNumber"].GetString()}.";
+}
+```
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Marks the member as eliciting the named form.
+
+#### Syntax
+
+```csharp
+public McpElicitFormAttribute(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The name passed to `AddFormElicitation` and `RequireForm`. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentException` | Thrown when *name* is empty. |
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Name
+
+Gets the keyed form name.
+
+#### Syntax
+
+```csharp
+public string Name { get; }
+```
+
+#### Property Value
+
+Type: `string`
+

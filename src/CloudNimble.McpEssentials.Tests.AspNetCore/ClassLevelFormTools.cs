@@ -10,7 +10,7 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
     /// Form elicitation stamped on the type so every method is synchronous under Tasks.
     /// </summary>
     [McpServerToolType]
-    [FormElicitation("class-ship")]
+    [McpElicitForm("class-ship")]
     public class ClassLevelFormTools
     {
 

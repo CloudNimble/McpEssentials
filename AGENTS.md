@@ -28,7 +28,7 @@ McpEssentials supports **only the current Model Context Protocol revision**. Tod
 The official MCP C# SDK still speaks older revisions so existing clients can connect. That compatibility is SDK necessity. It is **not** our product surface, and it is not a reason to keep older behavior in this repo.
 
 * Hosts are Streamable HTTP with `WithHttpTransport(o => o.Stateless = true)`.
-* Elicitation on a normal tool is MRTR: stamp `[FormElicitation("ship")]` and call `context.RequireForm("ship")`. `WithTasksPlus` keeps that tool `Synchronous`. A task-backed tool may `await server.ElicitAsync` because `WithTasks` parks the form on the task store.
+* Elicitation on a normal tool is MRTR: stamp `[McpElicitForm("ship")]` and call `context.RequireForm("ship")`. `WithTasksPlus` keeps that tool `Synchronous`. `[McpElicitUrl]` is Optional so a task can outlive the POST. A task-backed tool may `await server.ElicitAsync` because `WithTasks` parks the form on the task store.
 * Task isolation is per **user**, via the identity factory on `WithTasksPlus` / `With*Tasks`.
 * Stateful HTTP is unsupported. Do not design, document, test, or explain it. Do not use it as contrast, background, or an SDK-internals lesson. Anyone building for it is building for the past.
 * Do not add fallbacks that keep older protocol behavior alive in this repo.

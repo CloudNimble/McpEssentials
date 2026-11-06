@@ -7,10 +7,10 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
 {
 
     /// <summary>
-    /// Constructor guards for <see cref="FormElicitationAttribute"/>.
+    /// Constructor guards for <see cref="McpElicitFormAttribute"/>.
     /// </summary>
     [TestClass]
-    public class FormElicitationAttributeTests
+    public class McpElicitFormAttributeTests
     {
 
         #region Public Methods
@@ -18,14 +18,14 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void Ctor_BlankName_Throws()
         {
-            var act = () => new FormElicitationAttribute("  ");
+            var act = () => new McpElicitFormAttribute("  ");
             act.Should().Throw<ArgumentException>().WithParameterName("name");
         }
 
         [TestMethod]
         public void Ctor_StoresName()
         {
-            var attribute = new FormElicitationAttribute("ship");
+            var attribute = new McpElicitFormAttribute("ship");
             attribute.Name.Should().Be("ship");
         }
 

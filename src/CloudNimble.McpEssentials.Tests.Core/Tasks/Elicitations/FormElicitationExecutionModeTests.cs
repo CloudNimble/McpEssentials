@@ -19,6 +19,24 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         #region Public Methods
 
         [TestMethod]
+        public void Apply_FormAndUrl_IsSynchronous()
+        {
+            var options = new McpTasksOptions
+            {
+                ExecutionModeSelector = _ => McpTaskExecutionMode.Required
+            };
+            FormElicitationExecutionMode.Apply(options);
+
+            var primitive = new FakeMcpServerPrimitive
+            {
+                Metadata = [new McpElicitFormAttribute("ship"), new McpElicitUrlAttribute("connectUri")]
+            };
+            var context = CreateContext(primitive);
+
+            options.ExecutionModeSelector!(context).Should().Be(McpTaskExecutionMode.Synchronous);
+        }
+
+        [TestMethod]
         public void Apply_FormTool_IsSynchronous()
         {
             var options = new McpTasksOptions
@@ -29,7 +47,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
 
             var primitive = new FakeMcpServerPrimitive
             {
-                Metadata = [new FormElicitationAttribute("ship")]
+                Metadata = [new McpElicitFormAttribute("ship")]
             };
             var context = CreateContext(primitive);
 
@@ -68,10 +86,44 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         }
 
         [TestMethod]
+        public void Apply_UrlTool_IsOptional()
+        {
+            var options = new McpTasksOptions
+            {
+                ExecutionModeSelector = _ => McpTaskExecutionMode.Required
+            };
+            FormElicitationExecutionMode.Apply(options);
+
+            var primitive = new FakeMcpServerPrimitive
+            {
+                Metadata = [new McpElicitUrlAttribute("connectUri")]
+            };
+            var context = CreateContext(primitive);
+
+            options.ExecutionModeSelector!(context).Should().Be(McpTaskExecutionMode.Optional);
+        }
+
+        [TestMethod]
         public void IsFormTool_Context_Null_Throws()
         {
             var act = () => FormElicitationExecutionMode.IsFormTool((RequestContext<CallToolRequestParams>)null!);
             act.Should().Throw<ArgumentNullException>().WithParameterName("context");
+        }
+
+        [TestMethod]
+        public void IsFormTool_Context_ReadsMatchedPrimitive()
+        {
+            var primitive = new FakeMcpServerPrimitive
+            {
+                Metadata = [new McpElicitFormAttribute("ship")]
+            };
+            FormElicitationExecutionMode.IsFormTool(CreateContext(primitive)).Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void IsFormTool_NullMetadata_IsFalse()
+        {
+            FormElicitationExecutionMode.IsFormTool(new FakeMcpServerPrimitive { Metadata = null! }).Should().BeFalse();
         }
 
         [TestMethod]
@@ -84,6 +136,35 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         public void IsFormTool_WithoutAttribute_IsFalse()
         {
             FormElicitationExecutionMode.IsFormTool(new FakeMcpServerPrimitive()).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void IsUrlTool_Context_Null_Throws()
+        {
+            var act = () => FormElicitationExecutionMode.IsUrlTool((RequestContext<CallToolRequestParams>)null!);
+            act.Should().Throw<ArgumentNullException>().WithParameterName("context");
+        }
+
+        [TestMethod]
+        public void IsUrlTool_Context_ReadsMatchedPrimitive()
+        {
+            var primitive = new FakeMcpServerPrimitive
+            {
+                Metadata = [new McpElicitUrlAttribute("connectUri")]
+            };
+            FormElicitationExecutionMode.IsUrlTool(CreateContext(primitive)).Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void IsUrlTool_NullPrimitive_IsFalse()
+        {
+            FormElicitationExecutionMode.IsUrlTool((IMcpServerPrimitive?)null).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void IsUrlTool_WithoutAttribute_IsFalse()
+        {
+            FormElicitationExecutionMode.IsUrlTool(new FakeMcpServerPrimitive()).Should().BeFalse();
         }
 
         #endregion

@@ -24,7 +24,7 @@ A production MCP server cares. Tasks are long-running. Clients poll `tasks/get`.
     Tasks survive process death and scale-out. Same contract on EF Core, Redis, Cosmos, and native Postgres.
   </Card>
   <Card title="Fluent forms" icon="clipboard-list" href="/guides/form-elicitation">
-    Named forms at startup. `[FormElicitation("ship")]` and `context.RequireForm("ship")`.
+    Named forms at startup. `[McpElicitForm("ship")]` and `context.RequireForm("ship")`.
   </Card>
   <Card title="Compile-time forms" icon="wand-magic-sparkles" href="/guides/analyzers">
     MCPESS001–006. A nested `From<T>()` property or a colliding wire name fails the build.
