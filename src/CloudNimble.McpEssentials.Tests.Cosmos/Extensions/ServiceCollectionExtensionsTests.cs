@@ -6,10 +6,8 @@ using FluentAssertions;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ModelContextProtocol.Extensions.Tasks;
-using ModelContextProtocol.Server;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -115,35 +113,30 @@ namespace CloudNimble.McpEssentials.Tests.Cosmos.Extensions
         [TestMethod]
         public void WithCosmosTasks_Configure_SetsDefaultTimeToLive()
         {
-            using var client = CosmosStoreTestContext.CreateDummyClient();
-            var builder = new TestMcpServerBuilder();
-            builder.Services.AddSingleton(client);
-
-            builder.WithCosmosTasks("alice", o =>
+            ConfigureCosmosHost(services =>
             {
-                o.DefaultTimeToLive = TimeSpan.FromMinutes(5);
-                o.DefaultPollIntervalMs = 2500;
+                services.AddMcpServer().WithCosmosTasks("alice", o =>
+                {
+                    o.DefaultTimeToLive = TimeSpan.FromMinutes(5);
+                    o.DefaultPollIntervalMs = 2500;
+                });
             });
 
-            using var provider = builder.Services.BuildServiceProvider();
-            var store = provider.GetRequiredService<CosmosMcpTaskStore>();
-
-            store.DefaultTimeToLive.Should().Be(TimeSpan.FromMinutes(5));
+            var store = GetService<CosmosMcpTaskStore>();
+            store!.DefaultTimeToLive.Should().Be(TimeSpan.FromMinutes(5));
             store.DefaultPollIntervalMs.Should().Be(2500);
         }
 
         [TestMethod]
         public void WithCosmosTasks_ConstantUser_RegistersIsolatedStore()
         {
-            using var client = CosmosStoreTestContext.CreateDummyClient();
-            var builder = new TestMcpServerBuilder();
-            builder.Services.AddSingleton(client);
+            ConfigureCosmosHost(services =>
+            {
+                services.AddMcpServer().WithCosmosTasks("alice");
+            });
 
-            builder.WithCosmosTasks("alice");
-
-            using var provider = builder.Services.BuildServiceProvider();
-            var store = provider.GetRequiredService<IMcpTaskStore>();
-            var perUser = provider.GetRequiredService<IMcpTaskStorePlus>();
+            var store = GetService<IMcpTaskStore>();
+            var perUser = GetService<IMcpTaskStorePlus>();
 
             store.Should().BeOfType<CosmosMcpTaskStore>();
             store.Should().BeSameAs(perUser);
@@ -152,22 +145,12 @@ namespace CloudNimble.McpEssentials.Tests.Cosmos.Extensions
         [TestMethod]
         public void WithCosmosTasks_FromServiceProvider_CapturesProviderWhenOptionsAreConfigured()
         {
-            using var client = CosmosStoreTestContext.CreateDummyClient();
-            var builder = new TestMcpServerBuilder();
-            builder.Services.AddSingleton(client);
-            builder.Services.AddSingleton(TestUser.Authenticated("alice"));
             var configured = false;
-
-            builder.WithCosmosTasks(sp => sp.GetRequiredService<ClaimsPrincipal>(), configureTasks: _ => configured = true);
-
-            using var provider = builder.Services.BuildServiceProvider();
-            foreach (var configure in provider.GetServices<IConfigureOptions<McpServerOptions>>())
+            ConfigureCosmosHost(services =>
             {
-                if (configure is ConfigureOptions<McpServerOptions>)
-                {
-                    configure.Configure(new McpServerOptions());
-                }
-            }
+                services.AddSingleton(TestUser.Authenticated("alice"));
+                services.AddMcpServer().WithCosmosTasks(sp => sp.GetRequiredService<ClaimsPrincipal>(), configureTasks: _ => configured = true);
+            });
 
             configured.Should().BeTrue();
         }
@@ -175,10 +158,7 @@ namespace CloudNimble.McpEssentials.Tests.Cosmos.Extensions
         [TestMethod]
         public void WithCosmosTasks_WhenUserIdIsWhitespace_Throws()
         {
-            var builder = new TestMcpServerBuilder();
-
-            Action act = () => builder.WithCosmosTasks("  ");
-
+            var act = () => new ServiceCollection().AddMcpServer().WithCosmosTasks("  ");
             act.Should().Throw<ArgumentException>().WithParameterName("userId");
         }
 
@@ -195,10 +175,7 @@ namespace CloudNimble.McpEssentials.Tests.Cosmos.Extensions
         [TestMethod]
         public void WithCosmosTasks_WhenPrincipalFactoryIsNull_Throws()
         {
-            var builder = new TestMcpServerBuilder();
-
-            Action act = () => builder.WithCosmosTasks((Func<IServiceProvider, ClaimsPrincipal?>)null!);
-
+            var act = () => new ServiceCollection().AddMcpServer().WithCosmosTasks((Func<IServiceProvider, ClaimsPrincipal?>)null!);
             act.Should().Throw<ArgumentNullException>().WithParameterName("getPrincipal");
         }
 
@@ -223,48 +200,26 @@ namespace CloudNimble.McpEssentials.Tests.Cosmos.Extensions
         [TestMethod]
         public async Task WithCosmosTasks_FromUserIdFactory_CreatesTask()
         {
-            using var client = CosmosStoreTestContext.CreateDummyClient();
-            var builder = new TestMcpServerBuilder();
-            builder.Services.AddSingleton(client);
-            builder.Services.AddSingleton<ICosmosTaskGateway>(new InMemoryCosmosTaskGateway());
-
-            builder.WithCosmosTasks(() => "alice");
-
-            using var provider = builder.Services.BuildServiceProvider();
-            foreach (var configure in provider.GetServices<IConfigureOptions<McpServerOptions>>())
+            ConfigureCosmosHost(services =>
             {
-                if (configure is ConfigureOptions<McpServerOptions>)
-                {
-                    configure.Configure(new McpServerOptions());
-                }
-            }
+                services.AddMcpServer().WithCosmosTasks(() => "alice");
+            });
 
-            var store = provider.GetRequiredService<IMcpTaskStore>();
-            var created = await store.CreateTaskAsync();
+            var store = GetService<IMcpTaskStore>();
+            var created = await store!.CreateTaskAsync();
             created.TaskId.Should().NotBeNullOrWhiteSpace();
         }
 
         [TestMethod]
         public async Task WithCosmosTasks_FromPrincipalFactory_CreatesTask()
         {
-            using var client = CosmosStoreTestContext.CreateDummyClient();
-            var builder = new TestMcpServerBuilder();
-            builder.Services.AddSingleton(client);
-            builder.Services.AddSingleton<ICosmosTaskGateway>(new InMemoryCosmosTaskGateway());
-
-            builder.WithCosmosTasks(() => TestUser.Authenticated("alice"));
-
-            using var provider = builder.Services.BuildServiceProvider();
-            foreach (var configure in provider.GetServices<IConfigureOptions<McpServerOptions>>())
+            ConfigureCosmosHost(services =>
             {
-                if (configure is ConfigureOptions<McpServerOptions>)
-                {
-                    configure.Configure(new McpServerOptions());
-                }
-            }
+                services.AddMcpServer().WithCosmosTasks(() => TestUser.Authenticated("alice"));
+            });
 
-            var store = provider.GetRequiredService<IMcpTaskStore>();
-            var created = await store.CreateTaskAsync();
+            var store = GetService<IMcpTaskStore>();
+            var created = await store!.CreateTaskAsync();
             created.TaskId.Should().NotBeNullOrWhiteSpace();
         }
 

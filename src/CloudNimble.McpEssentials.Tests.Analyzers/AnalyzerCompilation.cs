@@ -1,5 +1,3 @@
-using CloudNimble.McpEssentials.Analyzers;
-using CloudNimble.McpEssentials.Core.Tasks.Elicitations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;

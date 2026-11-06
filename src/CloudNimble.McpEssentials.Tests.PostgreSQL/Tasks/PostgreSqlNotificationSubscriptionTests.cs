@@ -3,7 +3,6 @@ using CloudNimble.McpEssentials.PostgreSQL.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Threading;
 
 namespace CloudNimble.McpEssentials.Tests.PostgreSQL.Tasks
 {

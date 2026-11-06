@@ -24,7 +24,7 @@ A production MCP server cares. Tasks are long-running. Clients poll `tasks/get`.
     Tasks survive process death and scale-out. Same contract on EF Core, Redis, Cosmos, and native Postgres.
   </Card>
   <Card title="Fluent forms" icon="clipboard-list" href="/guides/form-elicitation">
-    Named forms at startup. `await server.ElicitAsync("ship")` parks the form on the task.
+    Named forms at startup. `[FormElicitation("ship")]` and `context.RequireForm("ship")`.
   </Card>
   <Card title="Compile-time forms" icon="wand-magic-sparkles" href="/guides/analyzers">
     MCPESS001–006. A nested `From<T>()` property or a colliding wire name fails the build.
@@ -89,7 +89,7 @@ You keep the official SDK. You keep your auth, your `DbContext`, your Redis mult
     Isolation rules, overloads, and the samples.
   </Card>
   <Card title="Form elicitation" icon="clipboard-list" href="/guides/form-elicitation">
-    Field-by-field, `From<T>()`, and parking a form on a task.
+    Field-by-field, `From<T>()`, and `RequireForm`.
   </Card>
   <Card title="Choose a store" icon="database" href="/guides/stores">
     EF Core, Redis, Cosmos, native Postgres, and the specified family.

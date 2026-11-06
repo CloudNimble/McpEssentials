@@ -1,5 +1,4 @@
 using CloudNimble.Breakdance.Extensions.MSTest2;
-using CloudNimble.McpEssentials.Analyzers;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;

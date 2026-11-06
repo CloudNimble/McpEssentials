@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using CloudNimble.McpEssentials.Core.Tasks;
 using ModelContextProtocol.Protocol;
 
 namespace CloudNimble.McpEssentials.Redis.Tasks

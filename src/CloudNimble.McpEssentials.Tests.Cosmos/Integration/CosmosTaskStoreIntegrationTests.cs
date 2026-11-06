@@ -3,7 +3,6 @@ using CloudNimble.McpEssentials.Core.Tasks;
 using CloudNimble.McpEssentials.Cosmos.Tasks;
 using CloudNimble.McpEssentials.Tests.Cosmos.Tasks;
 using FluentAssertions;
-using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

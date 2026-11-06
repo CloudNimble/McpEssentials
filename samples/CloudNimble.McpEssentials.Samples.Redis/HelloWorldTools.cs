@@ -2,7 +2,6 @@ using System.ComponentModel;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using CloudNimble.McpEssentials.Core.Tasks;
 using ModelContextProtocol.Server;
 
 namespace CloudNimble.McpEssentials.Samples.Redis

@@ -4,6 +4,7 @@ using CloudNimble.McpEssentials.Core.Tasks;
 using CloudNimble.McpEssentials.Core.Tasks.Elicitations;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using ModelContextProtocol.Extensions.Tasks;
+using ModelContextProtocol.Server;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -135,7 +136,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 }
             }
 
-            var builder = TryGetBuilder(form);
+            var builder = McpEssentials_Core_RequestContextExtensions.TryGetBuilder(form);
             if (builder is { IsSealed: false } && string.IsNullOrEmpty(builder.Name))
             {
                 builder.Name = name;
@@ -148,25 +149,6 @@ namespace Microsoft.Extensions.DependencyInjection
         #endregion
 
         #region Private Methods
-
-        /// <summary>
-        /// Gets the live builder behind <paramref name="form"/>, including field facades.
-        /// </summary>
-        /// <param name="form">A builder or field facade.</param>
-        /// <returns>The parent builder, or <see langword="null"/> for a custom source.</returns>
-        private static FormElicitationBuilderBase? TryGetBuilder(IFormElicitationSource form)
-        {
-            return form switch
-            {
-                FormElicitationBuilderBase builder => builder,
-                StringFieldBuilder stringField => stringField.Form,
-                NumberFieldBuilder numberField => numberField.Form,
-                BooleanFieldBuilder booleanField => booleanField.Form,
-                ChoiceFieldBuilder choiceField => choiceField.Form,
-                MultiChoiceFieldBuilder multiChoiceField => multiChoiceField.Form,
-                _ => null
-            };
-        }
 
         private static IServiceCollection RegisterStore(IServiceCollection services, InMemoryMcpTaskStorePlus store)
         {

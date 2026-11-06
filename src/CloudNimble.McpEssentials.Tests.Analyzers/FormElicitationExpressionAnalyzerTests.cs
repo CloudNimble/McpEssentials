@@ -1,7 +1,6 @@
 using CloudNimble.Breakdance.Extensions.MSTest2;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CloudNimble.McpEssentials.Tests.Analyzers

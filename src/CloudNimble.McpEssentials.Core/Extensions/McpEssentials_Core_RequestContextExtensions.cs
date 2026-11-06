@@ -17,6 +17,18 @@ namespace ModelContextProtocol.Server
     public static class McpEssentials_Core_RequestContextExtensions
     {
 
+        #region Fields
+
+        private static readonly ClientCapabilities RequiredElicitationCapabilities = new()
+        {
+            Elicitation = new ElicitationCapability
+            {
+                Form = new FormElicitationCapability()
+            }
+        };
+
+        #endregion
+
         #region Public Methods
 
         /// <summary>
@@ -61,8 +73,7 @@ namespace ModelContextProtocol.Server
             }
 
             ThrowIfElicitationMissing(context);
-            var form = ResolveNamedForm(context, name);
-            throw new InputRequiredException(new Dictionary<string, InputRequest> { [name] = form.ToInputRequest() });
+            throw CreateInputRequired(name, ResolveNamedForm(context, name).ToInputRequest());
         }
 
         /// <summary>
@@ -93,11 +104,11 @@ namespace ModelContextProtocol.Server
             }
 
             ThrowIfElicitationMissing(context);
-            throw new InputRequiredException(new Dictionary<string, InputRequest> { [name] = form.ToInputRequest() });
+            throw CreateInputRequired(name, form.ToInputRequest());
         }
 
         /// <summary>
-        /// Resolves the named form, then binds accepted content as <typeparamref name="T"/>.
+        /// Resolves the named form, then deserializes accepted content as <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T">The CLR type to bind accepted content onto.</typeparam>
         /// <param name="context">The current <c>tools/call</c> context.</param>
@@ -126,7 +137,7 @@ namespace ModelContextProtocol.Server
         }
 
         /// <summary>
-        /// Uses <paramref name="form"/> directly, then binds accepted content as <typeparamref name="T"/>.
+        /// Uses <paramref name="form"/> directly, then deserializes accepted content as <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T">The CLR type to bind accepted content onto.</typeparam>
         /// <param name="context">The current <c>tools/call</c> context.</param>
@@ -156,6 +167,20 @@ namespace ModelContextProtocol.Server
         #endregion
 
         #region Internal Methods
+
+        /// <summary>
+        /// Builds the MRTR exception for a single named form request.
+        /// </summary>
+        /// <param name="name">The input-request key.</param>
+        /// <param name="request">The form request.</param>
+        /// <returns>An exception the SDK serializes as <c>resultType: input_required</c>.</returns>
+        internal static InputRequiredException CreateInputRequired(string name, InputRequest request)
+        {
+            return new InputRequiredException(new Dictionary<string, InputRequest>(1)
+            {
+                [name] = request
+            });
+        }
 
         /// <summary>
         /// Reads the keyed-DI name from a builder or field facade.
@@ -199,13 +224,7 @@ namespace ModelContextProtocol.Server
             }
 
             throw new MissingRequiredClientCapabilityException(
-                new ClientCapabilities
-                {
-                    Elicitation = new ElicitationCapability
-                    {
-                        Form = new FormElicitationCapability()
-                    }
-                },
+                RequiredElicitationCapabilities,
                 "Server requires the elicitation capability for this request.");
         }
 

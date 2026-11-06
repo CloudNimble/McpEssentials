@@ -1,9 +1,7 @@
 using System;
 using System.Security.Claims;
-using CloudNimble.McpEssentials.Core.Tasks;
 using CloudNimble.McpEssentials.PostgreSQL.Tasks;
 using ModelContextProtocol.Extensions.Tasks;
-using ModelContextProtocol.Server;
 using Npgsql;
 
 namespace Microsoft.Extensions.DependencyInjection

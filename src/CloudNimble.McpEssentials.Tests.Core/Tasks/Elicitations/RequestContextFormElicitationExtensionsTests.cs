@@ -1,6 +1,8 @@
+using CloudNimble.Breakdance.Extensions.MSTest2;
 using CloudNimble.McpEssentials.Core.Tasks.Elicitations;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
@@ -18,8 +20,33 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
     /// Live round-trips live in Tests.AspNetCore.
     /// </summary>
     [TestClass]
-    public class RequestContextFormElicitationExtensionsTests
+    public class RequestContextFormElicitationExtensionsTests : BreakdanceMSTestBase
     {
+
+        #region Fields
+
+        private FormElicitationBuilder _form = null!;
+
+        #endregion
+
+        #region Test Lifecycle
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _form = FormElicitationBuilder.Create("Ship this order");
+            _form.String("trackingNumber").Required();
+            TestHostBuilder.ConfigureServices(services => services.AddFormElicitation("ship", _form));
+            TestSetup();
+        }
+
+        [TestCleanup]
+        public void TearDown()
+        {
+            TestTearDown();
+        }
+
+        #endregion
 
         #region Public Methods
 
@@ -80,12 +107,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void RequireForm_NamedFirstVisit_ThrowsInputRequired()
         {
-            var form = FormElicitationBuilder.Create("Ship this order");
-            form.String("trackingNumber").Required();
-            var services = new ServiceCollection();
-            services.AddFormElicitation("ship", form);
-            using var provider = services.BuildServiceProvider();
-            var context = CreateContext(provider, elicit: true);
+            var context = CreateContext(TestHost.Services, elicit: true);
 
             var act = () => context.RequireForm("ship");
             act.Should().Throw<InputRequiredException>()
@@ -95,12 +117,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void RequireForm_NullParams_ThrowsInputRequired()
         {
-            var form = FormElicitationBuilder.Create("Ship this order");
-            form.String("trackingNumber").Required();
-            var services = new ServiceCollection();
-            services.AddFormElicitation("ship", form);
-            using var provider = services.BuildServiceProvider();
-            var context = CreateContext(provider, elicit: true);
+            var context = CreateContext(TestHost.Services, elicit: true);
             context.Params = null!;
 
             var act = () => context.RequireForm("ship");
@@ -248,14 +265,9 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks.Elicitations
         [TestMethod]
         public void ResolveNamedForm_UsesRequestServices()
         {
-            var form = FormElicitationBuilder.Create("Ship this order").String("trackingNumber").Required();
-            var services = new ServiceCollection();
-            services.AddFormElicitation("ship", form);
-            using var provider = services.BuildServiceProvider();
-            var context = CreateContext(provider);
-
+            var context = CreateContext(TestHost.Services);
             var resolved = McpEssentials_Core_RequestContextExtensions.ResolveNamedForm(context, "ship");
-            resolved.Should().BeSameAs(form);
+            resolved.Should().BeSameAs(_form);
         }
 
         #endregion

@@ -4,11 +4,9 @@ using CloudNimble.McpEssentials.PostgreSQL.Tasks;
 using CloudNimble.McpEssentials.Tests.PostgreSQL.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ModelContextProtocol.Extensions.Tasks;
-using ModelContextProtocol.Server;
-using Npgsql;
 using System;
 using System.Security.Claims;
 
@@ -47,14 +45,16 @@ namespace CloudNimble.McpEssentials.Tests.PostgreSQL.Extensions
         [TestMethod]
         public void AddMcpEssentialsPostgreSqlTasks_ConstantUser_ResolvesSingletonStore()
         {
-            var services = new ServiceCollection();
-            services.AddSingleton(_postgres!.DataSource);
-            services.AddMcpEssentialsPostgreSqlTasks("alice");
-            using var provider = services.BuildServiceProvider();
+            TestHostBuilder.ConfigureServices(services =>
+            {
+                services.AddSingleton(_postgres!.DataSource);
+                services.AddMcpEssentialsPostgreSqlTasks("alice");
+            });
+            TestSetup();
 
-            var store1 = provider.GetRequiredService<IMcpTaskStore>();
-            var store2 = provider.GetRequiredService<IMcpTaskStorePlus>();
-            var concrete = provider.GetRequiredService<PostgreSqlMcpTaskStore>();
+            var store1 = GetService<IMcpTaskStore>();
+            var store2 = GetService<IMcpTaskStorePlus>();
+            var concrete = GetService<PostgreSqlMcpTaskStore>();
             store1.Should().BeSameAs(store2);
             store1.Should().BeSameAs(concrete);
         }
@@ -62,38 +62,44 @@ namespace CloudNimble.McpEssentials.Tests.PostgreSQL.Extensions
         [TestMethod]
         public void AddMcpEssentialsPostgreSqlTasks_FromUserIdFactory_Registers()
         {
-            var services = new ServiceCollection();
-            services.AddSingleton(_postgres!.DataSource);
-            services.AddMcpEssentialsPostgreSqlTasks(() => "alice");
-            using var provider = services.BuildServiceProvider();
-            provider.GetRequiredService<PostgreSqlMcpTaskStore>().Should().NotBeNull();
+            TestHostBuilder.ConfigureServices(services =>
+            {
+                services.AddSingleton(_postgres!.DataSource);
+                services.AddMcpEssentialsPostgreSqlTasks(() => "alice");
+            });
+            TestSetup();
+            GetService<PostgreSqlMcpTaskStore>().Should().NotBeNull();
         }
 
         [TestMethod]
         public void AddMcpEssentialsPostgreSqlTasks_FromPrincipalFactory_Registers()
         {
-            var services = new ServiceCollection();
-            services.AddSingleton(_postgres!.DataSource);
-            services.AddMcpEssentialsPostgreSqlTasks(_ => TestUser.Authenticated("alice"));
-            using var provider = services.BuildServiceProvider();
-            provider.GetRequiredService<IMcpTaskStore>().Should().BeOfType<PostgreSqlMcpTaskStore>();
+            TestHostBuilder.ConfigureServices(services =>
+            {
+                services.AddSingleton(_postgres!.DataSource);
+                services.AddMcpEssentialsPostgreSqlTasks(_ => TestUser.Authenticated("alice"));
+            });
+            TestSetup();
+            GetService<IMcpTaskStore>().Should().BeOfType<PostgreSqlMcpTaskStore>();
         }
 
         [TestMethod]
         public void AddMcpEssentialsPostgreSqlTasks_Configure_SetsTable()
         {
-            var services = new ServiceCollection();
-            services.AddSingleton(_postgres!.DataSource);
-            services.AddMcpEssentialsPostgreSqlTasks("alice", o =>
+            TestHostBuilder.ConfigureServices(services =>
             {
-                o.DefaultTimeToLive = TimeSpan.FromMinutes(5);
-                o.TableName = "AppTasks";
-                o.Schema = "mcp";
-                o.ListenChannel = "mcp_tasks";
+                services.AddSingleton(_postgres!.DataSource);
+                services.AddMcpEssentialsPostgreSqlTasks("alice", o =>
+                {
+                    o.DefaultTimeToLive = TimeSpan.FromMinutes(5);
+                    o.TableName = "AppTasks";
+                    o.Schema = "mcp";
+                    o.ListenChannel = "mcp_tasks";
+                });
             });
-            using var provider = services.BuildServiceProvider();
-            var store = provider.GetRequiredService<PostgreSqlMcpTaskStore>();
-            store.DefaultTimeToLive.Should().Be(TimeSpan.FromMinutes(5));
+            TestSetup();
+            var store = GetService<PostgreSqlMcpTaskStore>();
+            store!.DefaultTimeToLive.Should().Be(TimeSpan.FromMinutes(5));
             store.TableName.Should().Be("AppTasks");
             store.Schema.Should().Be("mcp");
             store.ListenChannel.Should().Be("mcp_tasks");
@@ -131,83 +137,83 @@ namespace CloudNimble.McpEssentials.Tests.PostgreSQL.Extensions
         [TestMethod]
         public void WithPostgreSqlTasks_ConstantUser_Registers()
         {
-            var builder = new TestMcpServerBuilder();
-            builder.Services.AddSingleton(_postgres!.DataSource);
-            builder.WithPostgreSqlTasks("alice");
-            using var provider = builder.Services.BuildServiceProvider();
-            provider.GetRequiredService<IMcpTaskStore>().Should().BeOfType<PostgreSqlMcpTaskStore>();
+            TestHostBuilder.ConfigureServices(services =>
+            {
+                services.AddSingleton(_postgres!.DataSource);
+                services.AddMcpServer().WithPostgreSqlTasks("alice");
+            });
+            TestSetup();
+            GetService<IMcpTaskStore>().Should().BeOfType<PostgreSqlMcpTaskStore>();
         }
 
         [TestMethod]
         public void WithPostgreSqlTasks_FromUserIdFactory_Registers()
         {
-            var builder = new TestMcpServerBuilder();
-            builder.Services.AddSingleton(_postgres!.DataSource);
-            builder.WithPostgreSqlTasks(() => "alice");
-            using var provider = builder.Services.BuildServiceProvider();
-            provider.GetRequiredService<PostgreSqlMcpTaskStore>().Should().NotBeNull();
+            TestHostBuilder.ConfigureServices(services =>
+            {
+                services.AddSingleton(_postgres!.DataSource);
+                services.AddMcpServer().WithPostgreSqlTasks(() => "alice");
+            });
+            TestSetup();
+            GetService<PostgreSqlMcpTaskStore>().Should().NotBeNull();
         }
 
         [TestMethod]
         public void WithPostgreSqlTasks_FromPrincipal_Registers()
         {
-            var builder = new TestMcpServerBuilder();
-            builder.Services.AddSingleton(_postgres!.DataSource);
-            builder.WithPostgreSqlTasks(() => TestUser.Authenticated("alice"));
-            using var provider = builder.Services.BuildServiceProvider();
-            provider.GetRequiredService<IMcpTaskStorePlus>().Should().NotBeNull();
+            TestHostBuilder.ConfigureServices(services =>
+            {
+                services.AddSingleton(_postgres!.DataSource);
+                services.AddMcpServer().WithPostgreSqlTasks(() => TestUser.Authenticated("alice"));
+            });
+            TestSetup();
+            GetService<IMcpTaskStorePlus>().Should().NotBeNull();
         }
 
         [TestMethod]
         public void WithPostgreSqlTasks_FromServiceProvider_CapturesProviderWhenOptionsAreConfigured()
         {
-            var builder = new TestMcpServerBuilder();
-            builder.Services.AddSingleton(_postgres!.DataSource);
-            builder.Services.AddSingleton(TestUser.Authenticated("alice"));
             var configured = false;
-            builder.WithPostgreSqlTasks(
-                sp => sp.GetRequiredService<ClaimsPrincipal>(),
-                o => o.TableName = "AppTasks",
-                _ => configured = true);
-
-            using var provider = builder.Services.BuildServiceProvider();
-            foreach (var configure in provider.GetServices<IConfigureOptions<McpServerOptions>>())
+            TestHostBuilder.ConfigureServices(services =>
             {
-                if (configure is ConfigureOptions<McpServerOptions>)
-                {
-                    configure.Configure(new McpServerOptions());
-                }
-            }
+                services.AddSingleton(_postgres!.DataSource);
+                services.AddSingleton(TestUser.Authenticated("alice"));
+                services.AddMcpServer().WithPostgreSqlTasks(
+                    sp => sp.GetRequiredService<ClaimsPrincipal>(),
+                    o => o.TableName = "AppTasks",
+                    _ => configured = true);
+            });
+            TestSetup();
 
             configured.Should().BeTrue();
-            provider.GetRequiredService<PostgreSqlMcpTaskStore>().TableName.Should().Be("AppTasks");
+            GetService<PostgreSqlMcpTaskStore>()!.TableName.Should().Be("AppTasks");
         }
 
         [TestMethod]
         public void WithPostgreSqlTasks_WhenUserIdIsWhitespace_Throws()
         {
-            Action act = () => new TestMcpServerBuilder().WithPostgreSqlTasks("  ");
+            var act = () => new ServiceCollection().AddMcpServer().WithPostgreSqlTasks("  ");
             act.Should().Throw<ArgumentException>().WithParameterName("userId");
         }
 
         [TestMethod]
         public void WithPostgreSqlTasks_WhenGetCurrentUserIdIsNull_Throws()
         {
-            Action act = () => new TestMcpServerBuilder().WithPostgreSqlTasks((Func<string?>)null!);
+            var act = () => new ServiceCollection().AddMcpServer().WithPostgreSqlTasks((Func<string?>)null!);
             act.Should().Throw<ArgumentNullException>().WithParameterName("getCurrentUserId");
         }
 
         [TestMethod]
         public void WithPostgreSqlTasks_WhenGetPrincipalIsNull_Throws()
         {
-            Action act = () => new TestMcpServerBuilder().WithPostgreSqlTasks((Func<ClaimsPrincipal?>)null!);
+            var act = () => new ServiceCollection().AddMcpServer().WithPostgreSqlTasks((Func<ClaimsPrincipal?>)null!);
             act.Should().Throw<ArgumentNullException>().WithParameterName("getPrincipal");
         }
 
         [TestMethod]
         public void WithPostgreSqlTasks_WhenServiceProviderFactoryIsNull_Throws()
         {
-            Action act = () => new TestMcpServerBuilder().WithPostgreSqlTasks((Func<IServiceProvider, ClaimsPrincipal?>)null!);
+            var act = () => new ServiceCollection().AddMcpServer().WithPostgreSqlTasks((Func<IServiceProvider, ClaimsPrincipal?>)null!);
             act.Should().Throw<ArgumentNullException>().WithParameterName("getPrincipal");
         }
 

@@ -1,8 +1,6 @@
 using CloudNimble.Breakdance.Extensions.MSTest2;
-using CloudNimble.McpEssentials.Analyzers;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace CloudNimble.McpEssentials.Tests.Analyzers

@@ -1,9 +1,7 @@
 using System;
 using System.Security.Claims;
-using CloudNimble.McpEssentials.Core.Tasks;
 using CloudNimble.McpEssentials.Cosmos.Tasks;
 using ModelContextProtocol.Extensions.Tasks;
-using ModelContextProtocol.Server;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

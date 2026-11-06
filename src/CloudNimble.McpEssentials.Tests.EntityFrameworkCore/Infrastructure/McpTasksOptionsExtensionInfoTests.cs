@@ -1,8 +1,6 @@
 using CloudNimble.Breakdance.Extensions.MSTest2;
 using CloudNimble.McpEssentials.EntityFrameworkCore.Infrastructure;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;

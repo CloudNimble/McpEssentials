@@ -13,7 +13,7 @@ Get an MCP server that stamps the logged-in user on every task, asks the client 
     `WithTasksPlus` records the owner. Another user sees not found.
   </Card>
   <Card title="Elicit" icon="clipboard-list">
-    Register the form at startup. `await server.ElicitAsync("ship")` parks it on the task. The SDK interceptor resumes when the client answers.
+    Register the form at startup. `[FormElicitation("ship")]` and `context.RequireForm("ship")`.
   </Card>
   <Card title="Swap" icon="database">
     Same identity factory. EF, Redis, Cosmos, or native Postgres.
@@ -109,10 +109,11 @@ Get an MCP server that stamps the logged-in user on every task, asks the client 
   </Step>
 
   <Step title="Ask the client for a form" icon="clipboard-list">
-    Register the form at startup. `await server.ElicitAsync("ship")` is enough inside a task. The SDK interceptor parks the form and resumes when the client answers.
+    Register the form at startup. Stamp the tool and call `RequireForm`. The two-POST retry is in [Understanding form elicitation](/guides/understanding-form-elicitation).
 
     ```csharp
     using CloudNimble.McpEssentials.Core.Tasks.Elicitations;
+    using ModelContextProtocol.Protocol;
     using ModelContextProtocol.Server;
 
     services.AddFormElicitation("ship",
@@ -120,10 +121,10 @@ Get an MCP server that stamps the logged-in user on every task, asks the client 
             .String("trackingNumber").Required().MinLength(1));
 
     [McpServerTool(Name = "ShipOrder"), Description("Asks for a tracking number, then ships.")]
-    public static async Task<string> ShipOrder(McpServer server, CancellationToken cancellationToken)
+    [FormElicitation("ship")]
+    public static string ShipOrder(RequestContext<CallToolRequestParams> context)
     {
-        var result = await server.ElicitAsync("ship", cancellationToken);
-
+        var result = context.RequireForm("ship");
         if (!result.IsAccepted)
         {
             return "cancelled";

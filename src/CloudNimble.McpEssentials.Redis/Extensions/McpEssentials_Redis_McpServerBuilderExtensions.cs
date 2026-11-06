@@ -1,9 +1,7 @@
 using System;
 using System.Security.Claims;
-using CloudNimble.McpEssentials.Core.Tasks;
 using CloudNimble.McpEssentials.Redis.Tasks;
 using ModelContextProtocol.Extensions.Tasks;
-using ModelContextProtocol.Server;
 using StackExchange.Redis;
 
 namespace Microsoft.Extensions.DependencyInjection

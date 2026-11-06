@@ -25,12 +25,19 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         {
             ArgumentNullException.ThrowIfNull(options);
             var inner = options.ExecutionModeSelector;
+            if (inner is null)
+            {
+                options.ExecutionModeSelector = context =>
+                    IsFormTool(context.MatchedPrimitive)
+                        ? McpTaskExecutionMode.Synchronous
+                        : McpTaskExecutionMode.Optional;
+                return;
+            }
+
             options.ExecutionModeSelector = context =>
-                IsFormTool(context)
+                IsFormTool(context.MatchedPrimitive)
                     ? McpTaskExecutionMode.Synchronous
-                    : inner is null
-                        ? McpTaskExecutionMode.Optional
-                        : inner(context);
+                    : inner(context);
         }
 
         /// <summary>
@@ -53,8 +60,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks.Elicitations
         /// <returns><see langword="true"/> when the attribute is present.</returns>
         public static bool IsFormTool(IMcpServerPrimitive? primitive)
         {
-            var metadata = primitive?.Metadata;
-            if (metadata is null)
+            if (primitive?.Metadata is not { Count: > 0 } metadata)
             {
                 return false;
             }

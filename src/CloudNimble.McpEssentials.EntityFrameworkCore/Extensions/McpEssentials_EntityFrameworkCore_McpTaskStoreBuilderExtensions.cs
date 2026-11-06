@@ -3,7 +3,6 @@ using System.Security.Claims;
 using CloudNimble.McpEssentials.Core.Tasks;
 using CloudNimble.McpEssentials.EntityFrameworkCore.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

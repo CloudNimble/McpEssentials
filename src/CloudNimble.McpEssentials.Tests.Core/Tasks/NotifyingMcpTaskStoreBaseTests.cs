@@ -1,5 +1,4 @@
 using CloudNimble.Breakdance.Extensions.MSTest2;
-using CloudNimble.McpEssentials.Core.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ModelContextProtocol.Protocol;
