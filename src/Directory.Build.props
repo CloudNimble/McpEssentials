@@ -137,7 +137,7 @@
         <PackageReference Include="FluentAssertions" Version="6.*" PrivateAssets="All" />
         <PackageReference Include="FluentAssertions.Analyzers" Version="0.*" PrivateAssets="All" />
         <PackageReference Include="MSTest" Version="4.*" />
-        <PackageReference Include="coverlet.msbuild" Version="6.*" PrivateAssets="All" />
+        <PackageReference Include="coverlet.msbuild" Version="10.*" PrivateAssets="All" />
 
         <!-- Class-level: methods in one class stay serial (shared Breakdance hosts). Workers=0 is processor count. -->
         <AssemblyAttribute Include="Microsoft.VisualStudio.TestTools.UnitTesting.Parallelize">
