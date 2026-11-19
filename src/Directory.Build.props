@@ -154,7 +154,7 @@
     </ItemGroup>
 
     <ItemGroup Condition=" $(IsTestProject) == 'true' and $(IsSampleProject) != 'true' and ('$(TargetFramework)' == 'net9.0' or '$(TargetFramework)' == 'net8.0') ">
-        <PackageReference Include="Breakdance.Extensions.MSTest2" Version="8.*-*" />
+        <PackageReference Include="Breakdance.Extensions.MSTest2" Version="9.*-*" />
     </ItemGroup>
 
     <ItemGroup>
