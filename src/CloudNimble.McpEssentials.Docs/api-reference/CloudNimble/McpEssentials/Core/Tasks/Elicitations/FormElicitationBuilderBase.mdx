@@ -3,7 +3,7 @@ title: FormElicitationBuilderBase
 description: "Shared fluent implementation for untyped and typed form builders. Field starters return a facade for the current field; the next starter, and [FormElicitatio..."
 icon: shapes
 tag: "ABSTRACT"
-keywords: ['FormElicitationBuilderBase', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'class', 'System.Object', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource']
+keywords: ['FormElicitationBuilderBase', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'class', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource']
 ---
 
 ## Definition
@@ -11,8 +11,6 @@ keywords: ['FormElicitationBuilderBase', 'CloudNimble.McpEssentials.Core.Tasks.E
 **Assembly:** CloudNimble.McpEssentials.Core.dll
 
 **Namespace:** CloudNimble.McpEssentials.Core.Tasks.Elicitations
-
-**Inheritance:** System.Object
 
 ## Syntax
 
@@ -426,12 +424,12 @@ Returns the elicitation JSON already stored on `Params`.
 #### Syntax
 
 ```csharp
-public virtual System.Nullable<System.Text.Json.JsonElement> ToJson()
+public virtual System.Text.Json.JsonElement? ToJson()
 ```
 
 #### Returns
 
-Type: `System.Nullable<System.Text.Json.JsonElement>`
+Type: `System.Text.Json.JsonElement?`
 The cached request parameters as JSON.
 
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToString <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>

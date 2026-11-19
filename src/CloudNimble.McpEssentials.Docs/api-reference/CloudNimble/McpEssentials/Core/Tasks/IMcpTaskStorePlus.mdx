@@ -41,12 +41,12 @@ Gets or sets the default time-to-live for new tasks, or [`null`](https://learn.m
 #### Syntax
 
 ```csharp
-System.Nullable<System.TimeSpan> DefaultTimeToLive { get; set; }
+System.TimeSpan? DefaultTimeToLive { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.TimeSpan>`
+Type: `System.TimeSpan?`
 
 ## Methods
 
@@ -57,7 +57,7 @@ Creates a new task owned by *user*.
 #### Syntax
 
 ```csharp
-System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> CreateTaskAsync(System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = null)
+System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> CreateTaskAsync(System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters
@@ -87,7 +87,7 @@ Retrieves the current state of a task when *user* owns it.
 #### Syntax
 
 ```csharp
-System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> GetTaskAsync(string taskId, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = null)
+System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> GetTaskAsync(string taskId, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters
@@ -119,7 +119,7 @@ when *user* owns the task.
 #### Syntax
 
 ```csharp
-System.Threading.Tasks.Task ResolveInputRequestsAsync(string taskId, System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse> inputResponses, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = null)
+System.Threading.Tasks.Task ResolveInputRequestsAsync(string taskId, System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse> inputResponses, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters
@@ -150,7 +150,7 @@ Transitions the task to `Cancelled` when *user* owns it.
 #### Syntax
 
 ```csharp
-System.Threading.Tasks.Task<bool> SetCancelledAsync(string taskId, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = null)
+System.Threading.Tasks.Task<bool> SetCancelledAsync(string taskId, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters
@@ -182,7 +182,7 @@ Removes snapshots the store's discard criteria say are gone.
 #### Syntax
 
 ```csharp
-System.Threading.Tasks.Task SweepExpiredAsync(System.Threading.CancellationToken cancellationToken = null)
+System.Threading.Tasks.Task SweepExpiredAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters

@@ -2,7 +2,7 @@
 title: RedisStoredMcpTask
 description: "JSON shape of a Redis task key. Maps to [StoredMcpTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask) at the store boundary."
 icon: file-brackets-curly
-keywords: ['RedisStoredMcpTask', 'CloudNimble.McpEssentials.Redis.Tasks.RedisStoredMcpTask', 'CloudNimble.McpEssentials.Redis.Tasks', 'class', 'System.Object']
+keywords: ['RedisStoredMcpTask', 'CloudNimble.McpEssentials.Redis.Tasks.RedisStoredMcpTask', 'CloudNimble.McpEssentials.Redis.Tasks', 'class']
 ---
 
 ## Definition
@@ -10,8 +10,6 @@ keywords: ['RedisStoredMcpTask', 'CloudNimble.McpEssentials.Redis.Tasks.RedisSto
 **Assembly:** CloudNimble.McpEssentials.Redis.dll
 
 **Namespace:** CloudNimble.McpEssentials.Redis.Tasks
-
-**Inheritance:** System.Object
 
 ## Syntax
 
@@ -66,12 +64,12 @@ Gets or sets when the key should be discarded.
 #### Syntax
 
 ```csharp
-public System.Nullable<System.DateTimeOffset> DiscardAfter { get; set; }
+public System.DateTimeOffset? DiscardAfter { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.DateTimeOffset>`
+Type: `System.DateTimeOffset?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Error
 
@@ -80,12 +78,12 @@ Gets or sets the JSON-RPC error payload.
 #### Syntax
 
 ```csharp
-public System.Nullable<System.Text.Json.JsonElement> Error { get; set; }
+public System.Text.Json.JsonElement? Error { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.Text.Json.JsonElement>`
+Type: `System.Text.Json.JsonElement?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ExpiresAt
 
@@ -94,12 +92,12 @@ Gets or sets the work-window end.
 #### Syntax
 
 ```csharp
-public System.Nullable<System.DateTimeOffset> ExpiresAt { get; set; }
+public System.DateTimeOffset? ExpiresAt { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.DateTimeOffset>`
+Type: `System.DateTimeOffset?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> InputRequests
 
@@ -150,12 +148,12 @@ Gets or sets the client poll interval in milliseconds.
 #### Syntax
 
 ```csharp
-public System.Nullable<long> PollIntervalMs { get; set; }
+public long? PollIntervalMs { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<long>`
+Type: `long?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Result
 
@@ -164,12 +162,12 @@ Gets or sets the terminal result payload.
 #### Syntax
 
 ```csharp
-public System.Nullable<System.Text.Json.JsonElement> Result { get; set; }
+public System.Text.Json.JsonElement? Result { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.Text.Json.JsonElement>`
+Type: `System.Text.Json.JsonElement?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Status
 
@@ -220,12 +218,12 @@ Gets or sets the time-to-live from create, or [`null`](https://learn.microsoft.c
 #### Syntax
 
 ```csharp
-public System.Nullable<System.TimeSpan> TimeToLive { get; set; }
+public System.TimeSpan? TimeToLive { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.TimeSpan>`
+Type: `System.TimeSpan?`
 
 ## Methods
 

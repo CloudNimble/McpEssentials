@@ -2,7 +2,7 @@
 title: StoredMcpTask
 description: "Persistence foundation for an MCP task. Protocol fields plus owner and expiry. Construct from `McpTaskInfo`, mutate with `Try*`, and emit the SDK record with..."
 icon: file-brackets-curly
-keywords: ['StoredMcpTask', 'CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask', 'CloudNimble.McpEssentials.Core.Tasks', 'class', 'System.Object']
+keywords: ['StoredMcpTask', 'CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask', 'CloudNimble.McpEssentials.Core.Tasks', 'class']
 ---
 
 ## Definition
@@ -10,8 +10,6 @@ keywords: ['StoredMcpTask', 'CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask'
 **Assembly:** CloudNimble.McpEssentials.Core.dll
 
 **Namespace:** CloudNimble.McpEssentials.Core.Tasks
-
-**Inheritance:** System.Object
 
 ## Syntax
 
@@ -23,7 +21,7 @@ CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask
 
 Persistence foundation for an MCP task. Protocol fields plus owner and expiry.
 Construct from `McpTaskInfo`, mutate with `Try*`, and emit the SDK record
-with `InputRequest})`. Durable providers subclass this type (for example
+with [StoredMcpTask.ToMcpTaskInfo](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#tomcptaskinfo). Durable providers subclass this type (for example
 `McpTaskEntity`) and add only engine-specific columns.
 
 ## Constructors
@@ -31,7 +29,7 @@ with `InputRequest})`. Durable providers subclass this type (for example
 ### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
 
 Initializes an empty instance. Used by materializers (EF Core). Prefer
-`McpTaskInfo)` when the owner and snapshot are known.
+[StoredMcpTask..ctor](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#.ctor) when the owner and snapshot are known.
 
 #### Syntax
 
@@ -70,7 +68,7 @@ Initializes a new working task owned by *ownerUserId*.
 #### Syntax
 
 ```csharp
-public StoredMcpTask(string ownerUserId, string taskId, System.DateTimeOffset createdAt, System.Nullable<System.TimeSpan> timeToLive, long pollIntervalMs)
+public StoredMcpTask(string ownerUserId, string taskId, System.DateTimeOffset createdAt, System.TimeSpan? timeToLive, long pollIntervalMs)
 ```
 
 #### Parameters
@@ -80,7 +78,7 @@ public StoredMcpTask(string ownerUserId, string taskId, System.DateTimeOffset cr
 | `ownerUserId` | `string` | The user recorded when the task was created. |
 | `taskId` | `string` | The opaque task identifier. |
 | `createdAt` | `System.DateTimeOffset` | Creation timestamp, UTC. |
-| `timeToLive` | `System.Nullable<System.TimeSpan>` | Duration from create, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) for unlimited. |
+| `timeToLive` | `System.TimeSpan?` | Duration from create, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) for unlimited. |
 | `pollIntervalMs` | `long` | Client poll interval in milliseconds. |
 
 #### Exceptions
@@ -123,17 +121,17 @@ Gets or sets when the row should be discarded. Stamped at write time as
 #### Syntax
 
 ```csharp
-public System.Nullable<System.DateTimeOffset> DiscardAfter { get; set; }
+public System.DateTimeOffset? DiscardAfter { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.DateTimeOffset>`
+Type: `System.DateTimeOffset?`
 
 #### Remarks
 
 Two windows is the visibility ceiling, including late complete, fail, or cancel.
-The stamp does not move when the task finishes. `DateTimeOffset)` compares
+The stamp does not move when the task finishes. [StoredMcpTask.HasExpired](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#hasexpired) compares
 the current time to this value.
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Error
@@ -143,12 +141,12 @@ Gets or sets the JSON-RPC error, or [`null`](https://learn.microsoft.com/dotnet/
 #### Syntax
 
 ```csharp
-public System.Nullable<System.Text.Json.JsonElement> Error { get; set; }
+public System.Text.Json.JsonElement? Error { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.Text.Json.JsonElement>`
+Type: `System.Text.Json.JsonElement?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ExpiresAt
 
@@ -158,12 +156,12 @@ Gets or sets the work-window end (`CreatedAt + TimeToLive`).
 #### Syntax
 
 ```csharp
-public System.Nullable<System.DateTimeOffset> ExpiresAt { get; set; }
+public System.DateTimeOffset? ExpiresAt { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.DateTimeOffset>`
+Type: `System.DateTimeOffset?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Info
 
@@ -242,12 +240,12 @@ Gets or sets the client poll interval in milliseconds.
 #### Syntax
 
 ```csharp
-public System.Nullable<long> PollIntervalMs { get; set; }
+public long? PollIntervalMs { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<long>`
+Type: `long?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Result
 
@@ -256,12 +254,12 @@ Gets or sets the terminal `CallToolResult`, or [`null`](https://learn.microsoft.
 #### Syntax
 
 ```csharp
-public System.Nullable<System.Text.Json.JsonElement> Result { get; set; }
+public System.Text.Json.JsonElement? Result { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.Text.Json.JsonElement>`
+Type: `System.Text.Json.JsonElement?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Status
 
@@ -312,12 +310,12 @@ Gets or sets the time-to-live from [StoredMcpTask.CreatedAt](/api-reference/Clou
 #### Syntax
 
 ```csharp
-public System.Nullable<System.TimeSpan> TimeToLive { get; set; }
+public System.TimeSpan? TimeToLive { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.TimeSpan>`
+Type: `System.TimeSpan?`
 
 ## Methods
 
@@ -367,7 +365,7 @@ Returns when the row should be discarded, or [`null`](https://learn.microsoft.co
 #### Syntax
 
 ```csharp
-public static System.Nullable<System.DateTimeOffset> ComputeDiscardAfter(System.DateTimeOffset createdAt, System.Nullable<System.TimeSpan> timeToLive)
+public static System.DateTimeOffset? ComputeDiscardAfter(System.DateTimeOffset createdAt, System.TimeSpan? timeToLive)
 ```
 
 #### Parameters
@@ -375,11 +373,11 @@ public static System.Nullable<System.DateTimeOffset> ComputeDiscardAfter(System.
 | Name | Type | Description |
 |------|------|-------------|
 | `createdAt` | `System.DateTimeOffset` | Creation timestamp, UTC. |
-| `timeToLive` | `System.Nullable<System.TimeSpan>` | Duration from create, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) for unlimited. |
+| `timeToLive` | `System.TimeSpan?` | Duration from create, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) for unlimited. |
 
 #### Returns
 
-Type: `System.Nullable<System.DateTimeOffset>`
+Type: `System.DateTimeOffset?`
 `createdAt + 2×timeToLive`, the visibility ceiling.
 
 ### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ComputeExpiresAt
@@ -389,7 +387,7 @@ Returns *createdAt* plus *timeToLive*, or [`null`](https://learn.microsoft.com/d
 #### Syntax
 
 ```csharp
-public static System.Nullable<System.DateTimeOffset> ComputeExpiresAt(System.DateTimeOffset createdAt, System.Nullable<System.TimeSpan> timeToLive)
+public static System.DateTimeOffset? ComputeExpiresAt(System.DateTimeOffset createdAt, System.TimeSpan? timeToLive)
 ```
 
 #### Parameters
@@ -397,11 +395,11 @@ public static System.Nullable<System.DateTimeOffset> ComputeExpiresAt(System.Dat
 | Name | Type | Description |
 |------|------|-------------|
 | `createdAt` | `System.DateTimeOffset` | - |
-| `timeToLive` | `System.Nullable<System.TimeSpan>` | - |
+| `timeToLive` | `System.TimeSpan?` | - |
 
 #### Returns
 
-Type: `System.Nullable<System.DateTimeOffset>`
+Type: `System.DateTimeOffset?`
 
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
 
@@ -521,7 +519,7 @@ than `CreatedAt + TimeToLive`.
 
 Uses [StoredMcpTask.TimeToLive](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#timetolive), not [StoredMcpTask.ExpiresAt](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#expiresat). Settle (complete, fail,
 cancel) is still allowed after this returns [`false`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) until
-`DateTimeOffset)` is [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool).
+[StoredMcpTask.HasExpired](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#hasexpired) is [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool).
 
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> IsExpired <Badge color="orange">Virtual</Badge>
 
@@ -544,7 +542,7 @@ public virtual bool IsExpired(System.DateTimeOffset now)
 
 Type: `bool`
 [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when *now* is at or past the work-window end.
-Work-window helper. Discard uses `DateTimeOffset)` / [StoredMcpTask.DiscardAfter](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#discardafter).
+Work-window helper. Discard uses [StoredMcpTask.HasExpired](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#hasexpired) / [StoredMcpTask.DiscardAfter](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#discardafter).
 
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> IsOwnedBy <Badge color="orange">Virtual</Badge>
 
@@ -587,18 +585,18 @@ Returns a positive TTL, or [`null`](https://learn.microsoft.com/dotnet/csharp/la
 #### Syntax
 
 ```csharp
-public static System.Nullable<System.TimeSpan> NormalizeTimeToLive(System.Nullable<System.TimeSpan> timeToLive)
+public static System.TimeSpan? NormalizeTimeToLive(System.TimeSpan? timeToLive)
 ```
 
 #### Parameters
 
 | Name | Type | Description |
 |------|------|-------------|
-| `timeToLive` | `System.Nullable<System.TimeSpan>` | - |
+| `timeToLive` | `System.TimeSpan?` | - |
 
 #### Returns
 
-Type: `System.Nullable<System.TimeSpan>`
+Type: `System.TimeSpan?`
 
 ### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ParseElement
 
@@ -607,7 +605,7 @@ Parses JSON text into a detached [JsonElement](https://learn.microsoft.com/dotne
 #### Syntax
 
 ```csharp
-public static System.Nullable<System.Text.Json.JsonElement> ParseElement(string json)
+public static System.Text.Json.JsonElement? ParseElement(string json)
 ```
 
 #### Parameters
@@ -618,7 +616,7 @@ public static System.Nullable<System.Text.Json.JsonElement> ParseElement(string 
 
 #### Returns
 
-Type: `System.Nullable<System.Text.Json.JsonElement?>?`
+Type: `System.Text.Json.JsonElement?`
 
 ### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ParseInputRequests
 
@@ -704,14 +702,14 @@ Serializes *element* to JSON text, or [`null`](https://learn.microsoft.com/dotne
 #### Syntax
 
 ```csharp
-public static string ToJson(System.Nullable<System.Text.Json.JsonElement> element)
+public static string ToJson(System.Text.Json.JsonElement? element)
 ```
 
 #### Parameters
 
 | Name | Type | Description |
 |------|------|-------------|
-| `element` | `System.Nullable<System.Text.Json.JsonElement?>?` | - |
+| `element` | `System.Text.Json.JsonElement?` | - |
 
 #### Returns
 
@@ -724,18 +722,18 @@ Returns the protocol snapshot. Optional overrides allocate a new record and leav
 #### Syntax
 
 ```csharp
-public virtual ModelContextProtocol.Extensions.Tasks.McpTaskInfo ToMcpTaskInfo(System.Nullable<ModelContextProtocol.Extensions.Tasks.McpTaskStatus> status = null, System.Nullable<System.DateTimeOffset> lastUpdatedAt = null, string statusMessage = null, System.Nullable<System.Text.Json.JsonElement> result = null, System.Nullable<System.Text.Json.JsonElement> error = null, System.Collections.Generic.IReadOnlyDictionary<string, ModelContextProtocol.Protocol.InputRequest> inputRequests = null)
+public virtual ModelContextProtocol.Extensions.Tasks.McpTaskInfo ToMcpTaskInfo(ModelContextProtocol.Extensions.Tasks.McpTaskStatus? status = null, System.DateTimeOffset? lastUpdatedAt = null, string statusMessage = null, System.Text.Json.JsonElement? result = null, System.Text.Json.JsonElement? error = null, System.Collections.Generic.IReadOnlyDictionary<string, ModelContextProtocol.Protocol.InputRequest> inputRequests = null)
 ```
 
 #### Parameters
 
 | Name | Type | Description |
 |------|------|-------------|
-| `status` | `System.Nullable<ModelContextProtocol.Extensions.Tasks.McpTaskStatus>` | - |
-| `lastUpdatedAt` | `System.Nullable<System.DateTimeOffset>` | - |
+| `status` | `ModelContextProtocol.Extensions.Tasks.McpTaskStatus?` | - |
+| `lastUpdatedAt` | `System.DateTimeOffset?` | - |
 | `statusMessage` | `string?` | - |
-| `result` | `System.Nullable<System.Text.Json.JsonElement>` | - |
-| `error` | `System.Nullable<System.Text.Json.JsonElement>` | - |
+| `result` | `System.Text.Json.JsonElement?` | - |
+| `error` | `System.Text.Json.JsonElement?` | - |
 | `inputRequests` | `System.Collections.Generic.IReadOnlyDictionary<string, ModelContextProtocol.Protocol.InputRequest>?` | - |
 
 #### Returns

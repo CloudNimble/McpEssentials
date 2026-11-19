@@ -3,7 +3,7 @@ title: McpTaskStoreBuilder
 description: "Selects an [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) provider for `WithTasksPlus` and OData `WithTasks`. Cor..."
 icon: lock
 tag: "SEALED"
-keywords: ['McpTaskStoreBuilder', 'CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder', 'CloudNimble.McpEssentials.Core.Tasks', 'class', 'System.Object']
+keywords: ['McpTaskStoreBuilder', 'CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder', 'CloudNimble.McpEssentials.Core.Tasks', 'class']
 ---
 
 ## Definition
@@ -11,8 +11,6 @@ keywords: ['McpTaskStoreBuilder', 'CloudNimble.McpEssentials.Core.Tasks.McpTaskS
 **Assembly:** CloudNimble.McpEssentials.Core.dll
 
 **Namespace:** CloudNimble.McpEssentials.Core.Tasks
-
-**Inheritance:** System.Object
 
 ## Syntax
 
@@ -23,7 +21,7 @@ CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder
 ## Summary
 
 Selects an [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) provider for `WithTasksPlus` and OData
-`WithTasks`. Core ships `McpTaskStoreOptions})`.
+`WithTasks`. Core ships [McpTaskStoreBuilder.UseInMemory](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBuilder#useinmemory).
 Provider packages add `UseEntityFramework`, `UseRedis`, `UsePostgreSql`, and so on.
 
 ## Constructors
@@ -337,7 +335,7 @@ public static CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder UseCosmos
 |------|------|-------------|
 | `builder` | `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder` | The task-store builder. |
 | `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. ASP.NET Core hosts pass
-`sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`. |
+`sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User`. |
 | `configure` | `System.Action<CloudNimble.McpEssentials.Cosmos.Tasks.CosmosMcpTaskStoreOptions>?` | Optional store options (TTL, database and container ids). |
 
 #### Returns
@@ -507,7 +505,7 @@ public static CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder UseEntity
 |------|------|-------------|
 | `builder` | `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder` | The task-store builder. |
 | `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. ASP.NET Core hosts pass
-`sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`. |
+`sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User`. |
 | `configure` | `System.Action<CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.EFCoreMcpTaskStoreOptions>?` | Optional store options (TTL, poll interval). |
 
 #### Returns
@@ -648,7 +646,7 @@ This builder.
 
 Uses [InMemoryMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/InMemoryMcpTaskStorePlus), resolving the owner from the built
 [IServiceProvider](https://learn.microsoft.com/dotnet/api/system.iserviceprovider). ASP.NET Core hosts pass
-`sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`.
+`sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User`.
 
 #### Syntax
 
@@ -815,7 +813,7 @@ public static CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder UsePostgr
 |------|------|-------------|
 | `builder` | `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder` | The task-store builder. |
 | `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. ASP.NET Core hosts pass
-`sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`. |
+`sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User`. |
 | `configure` | `System.Action<CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions>?` | Optional store options (TTL, table, listen channel). |
 
 #### Returns
@@ -973,7 +971,7 @@ public static CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder UseRedis(
 |------|------|-------------|
 | `builder` | `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBuilder` | The task-store builder. |
 | `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. ASP.NET Core hosts pass
-`sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`. |
+`sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User`. |
 | `configure` | `System.Action<CloudNimble.McpEssentials.Redis.Tasks.RedisMcpTaskStoreOptions>?` | Optional store options (TTL, key prefix, replica wait). |
 
 #### Returns

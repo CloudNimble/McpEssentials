@@ -1,6 +1,6 @@
 ---
 title: FormElicitationBuilder
-description: "Typed form builder. `String)` seeds mappable properties, then expression starters reconfigure them and string starters add extra fields."
+description: "Typed form builder. [FormElicitationBuilder.From](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder#from) seeds mappabl..."
 icon: code-branch
 keywords: ['FormElicitationBuilder', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder<T>', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'class', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource<T>', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource']
 ---
@@ -21,7 +21,7 @@ CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder<T>
 
 ## Summary
 
-Typed form builder. `String)` seeds mappable properties,
+Typed form builder. [FormElicitationBuilder.From](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder#from) seeds mappable properties,
 then expression starters reconfigure them and string starters add extra fields.
 
 ## Type Parameters
@@ -1117,12 +1117,12 @@ Returns the elicitation JSON already stored on `Params`.
 #### Syntax
 
 ```csharp
-public virtual System.Nullable<System.Text.Json.JsonElement> ToJson()
+public virtual System.Text.Json.JsonElement? ToJson()
 ```
 
 #### Returns
 
-Type: `System.Nullable<System.Text.Json.JsonElement>`
+Type: `System.Text.Json.JsonElement?`
 The cached request parameters as JSON.
 
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToString <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>

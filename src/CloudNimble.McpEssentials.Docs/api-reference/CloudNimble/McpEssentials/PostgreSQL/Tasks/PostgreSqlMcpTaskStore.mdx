@@ -27,8 +27,8 @@ An [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpT
 ## Remarks
 
 Register as a singleton. The host owns `NpgsqlDataSource`.
-[McpTaskStoreBase.AutoSweep](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase#autosweep) defaults to [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool). Sweep is
-`DELETE WHERE "DiscardAfter" &lt;= now`. Use Entity Framework Core with
+[McpTaskStoreBase.AutoSweep](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#autosweep) defaults to [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool). Sweep is
+`DELETE WHERE "DiscardAfter" <= now`. Use Entity Framework Core with
 `UseNpgsql` when the host already has a `DbContext`; this package exists
 for Npgsql/Dapper hosts and for native notification.
 

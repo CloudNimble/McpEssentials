@@ -28,7 +28,7 @@ over pub/sub.
 ## Remarks
 
 Register as a singleton. The host owns `IConnectionMultiplexer`.
-Native expiry is the drain; [McpTaskStoreBase.AutoSweep](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase#autosweep) defaults to
+Native expiry is the drain; [McpTaskStoreBase.AutoSweep](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#autosweep) defaults to
 [`false`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool). `WAIT` after create is off until
 [RedisMcpTaskStore.WaitReplicas](/api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTaskStore#waitreplicas) is positive. Eventually-consistent Redis without wait
 is not SEP-2663 durable across nodes.

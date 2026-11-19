@@ -1,6 +1,6 @@
 ---
 title: EFCoreMcpTaskStore
-description: "An [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) that persists snapshots on `TContext.Set&lt;McpTaskEntity&gt;()..."
+description: "An [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) that persists snapshots on `TContext.Set<McpTaskEntity>()`. Reg..."
 icon: code-branch
 keywords: ['EFCoreMcpTaskStore', 'CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.EFCoreMcpTaskStore<TContext>', 'CloudNimble.McpEssentials.EntityFrameworkCore.Tasks', 'class', 'CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase', 'System.IDisposable']
 ---
@@ -22,7 +22,7 @@ CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.EFCoreMcpTaskStore<TContext>
 ## Summary
 
 An [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) that persists snapshots on
-`TContext.Set&lt;McpTaskEntity&gt;()`. Register as a singleton. The host registers
+`TContext.Set<McpTaskEntity>()`. Register as a singleton. The host registers
 *TContext* as scoped (standard `AddDbContext`); this store opens
 a scope per operation.
 
@@ -30,7 +30,7 @@ a scope per operation.
 
 Client-facing operations require a current user and treat another user's task as missing.
 Server-side completion skips the live-user check. Optional [IMcpTaskInputSignalBus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus)
-fans [McpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase#inputresponsereceived) out to other nodes.
+fans [McpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#inputresponsereceived) out to other nodes.
 The SDK `WithTasks` API captures the store instance before `Build()`; use
 `WithTasksPlus` so the provider is stamped on first use.
 

@@ -3,7 +3,7 @@ title: FormFieldDefinition
 description: "Immutable snapshot of one form field. Produced by [IFormElicitationSource.ToDefinition](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/IFor..."
 icon: lock
 tag: "SEALED"
-keywords: ['FormFieldDefinition', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'class', 'System.Object']
+keywords: ['FormFieldDefinition', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'class']
 ---
 
 ## Definition
@@ -11,8 +11,6 @@ keywords: ['FormFieldDefinition', 'CloudNimble.McpEssentials.Core.Tasks.Elicitat
 **Assembly:** CloudNimble.McpEssentials.Core.dll
 
 **Namespace:** CloudNimble.McpEssentials.Core.Tasks.Elicitations
-
-**Inheritance:** System.Object
 
 ## Syntax
 
@@ -23,7 +21,7 @@ CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition
 ## Summary
 
 Immutable snapshot of one form field. Produced by [IFormElicitationSource.ToDefinition](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/IFormElicitationSource#todefinition)
-and by `String)`.
+and by [FormXml.Parse](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormXml#parse).
 
 ## Constructors
 
@@ -70,12 +68,12 @@ Gets the default boolean value, or [`null`](https://learn.microsoft.com/dotnet/c
 #### Syntax
 
 ```csharp
-public System.Nullable<bool> DefaultBool { get; init; }
+public bool? DefaultBool { get; init; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<bool>?`
+Type: `bool?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DefaultNumber
 
@@ -84,12 +82,12 @@ Gets the default numeric value, or [`null`](https://learn.microsoft.com/dotnet/c
 #### Syntax
 
 ```csharp
-public System.Nullable<double> DefaultNumber { get; init; }
+public double? DefaultNumber { get; init; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<double>?`
+Type: `double?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DefaultString
 
@@ -154,12 +152,12 @@ Gets the maximum numeric value.
 #### Syntax
 
 ```csharp
-public System.Nullable<double> Maximum { get; init; }
+public double? Maximum { get; init; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<double>?`
+Type: `double?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MaxItems
 
@@ -168,12 +166,12 @@ Gets the maximum number of selected items on a multi-select field.
 #### Syntax
 
 ```csharp
-public System.Nullable<int> MaxItems { get; init; }
+public int? MaxItems { get; init; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<int>?`
+Type: `int?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MaxLength
 
@@ -182,12 +180,12 @@ Gets the maximum string length.
 #### Syntax
 
 ```csharp
-public System.Nullable<int> MaxLength { get; init; }
+public int? MaxLength { get; init; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<int>?`
+Type: `int?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Minimum
 
@@ -196,12 +194,12 @@ Gets the minimum numeric value.
 #### Syntax
 
 ```csharp
-public System.Nullable<double> Minimum { get; init; }
+public double? Minimum { get; init; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<double>?`
+Type: `double?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MinItems
 
@@ -210,12 +208,12 @@ Gets the minimum number of selected items on a multi-select field.
 #### Syntax
 
 ```csharp
-public System.Nullable<int> MinItems { get; init; }
+public int? MinItems { get; init; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<int>?`
+Type: `int?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MinLength
 
@@ -224,12 +222,12 @@ Gets the minimum string length.
 #### Syntax
 
 ```csharp
-public System.Nullable<int> MinLength { get; init; }
+public int? MinLength { get; init; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<int>?`
+Type: `int?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Name
 
@@ -299,7 +297,7 @@ public CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldType Type { ge
 
 #### Property Value
 
-Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldType?`
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldType`
 
 ## Methods
 

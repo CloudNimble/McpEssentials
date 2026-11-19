@@ -137,7 +137,6 @@
         <PackageReference Include="FluentAssertions" Version="6.*" PrivateAssets="All" />
         <PackageReference Include="FluentAssertions.Analyzers" Version="0.*" PrivateAssets="All" />
         <PackageReference Include="MSTest" Version="4.*" />
-        <PackageReference Include="Breakdance.Extensions.MSTest2" Version="8.*-*" />
         <PackageReference Include="coverlet.msbuild" Version="6.*" PrivateAssets="All" />
 
         <!-- Class-level: methods in one class stay serial (shared Breakdance hosts). Workers=0 is processor count. -->
@@ -147,6 +146,15 @@
             <_Parameter2>Scope = Microsoft.VisualStudio.TestTools.UnitTesting.ExecutionScope.ClassLevel</_Parameter2>
             <_Parameter2_IsLiteral>true</_Parameter2_IsLiteral>
         </AssemblyAttribute>
+    </ItemGroup>
+
+    <!-- Breakdance 9 targets net10.0 and net11.0; its netstandard2.0 fallback lacks the keyed-service helpers, so net8.0 and net9.0 stay on the 8.x line. -->
+    <ItemGroup Condition=" $(IsTestProject) == 'true' and $(IsSampleProject) != 'true' and ('$(TargetFramework)' == 'net11.0' or '$(TargetFramework)' == 'net10.0') ">
+        <PackageReference Include="Breakdance.Extensions.MSTest2" Version="9.*" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" $(IsTestProject) == 'true' and $(IsSampleProject) != 'true' and ('$(TargetFramework)' == 'net9.0' or '$(TargetFramework)' == 'net8.0') ">
+        <PackageReference Include="Breakdance.Extensions.MSTest2" Version="8.*-*" />
     </ItemGroup>
 
     <ItemGroup>

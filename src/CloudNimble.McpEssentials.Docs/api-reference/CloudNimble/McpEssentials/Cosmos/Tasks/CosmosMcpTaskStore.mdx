@@ -27,7 +27,7 @@ by owner, with a task-id index for server-side complete and native document TTL.
 ## Remarks
 
 Register as a singleton. The host owns [CosmosClient](https://learn.microsoft.com/dotnet/api/microsoft.azure.cosmos.cosmosclient).
-Native TTL is the drain; [McpTaskStoreBase.AutoSweep](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase#autosweep) defaults to
+Native TTL is the drain; [McpTaskStoreBase.AutoSweep](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#autosweep) defaults to
 [`false`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool). Optional [IMcpTaskInputSignalBus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus) fans
 elicitation wake-ups across nodes.
 
@@ -182,12 +182,12 @@ to create without dedicated throughput (serverless).
 #### Syntax
 
 ```csharp
-public virtual System.Nullable<int> Throughput { get; set; }
+public virtual int? Throughput { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<int>`
+Type: `int?`
 
 ## Methods
 

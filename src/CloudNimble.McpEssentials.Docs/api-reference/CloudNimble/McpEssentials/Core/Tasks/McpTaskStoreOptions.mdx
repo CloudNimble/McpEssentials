@@ -2,7 +2,7 @@
 title: McpTaskStoreOptions
 description: "Registration knobs for authenticated MCP task stores. Passed to `AddInMemoryMcpTaskStorePlus`, `WithTasksPlus`, and the Entity Framework equivalents."
 icon: file-brackets-curly
-keywords: ['McpTaskStoreOptions', 'CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions', 'CloudNimble.McpEssentials.Core.Tasks', 'class', 'System.Object']
+keywords: ['McpTaskStoreOptions', 'CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions', 'CloudNimble.McpEssentials.Core.Tasks', 'class']
 ---
 
 ## Definition
@@ -10,8 +10,6 @@ keywords: ['McpTaskStoreOptions', 'CloudNimble.McpEssentials.Core.Tasks.McpTaskS
 **Assembly:** CloudNimble.McpEssentials.Core.dll
 
 **Namespace:** CloudNimble.McpEssentials.Core.Tasks
-
-**Inheritance:** System.Object
 
 ## Syntax
 
@@ -89,12 +87,12 @@ Gets or sets the default time-to-live for new tasks, or [`null`](https://learn.m
 #### Syntax
 
 ```csharp
-public System.Nullable<System.TimeSpan> DefaultTimeToLive { get; set; }
+public System.TimeSpan? DefaultTimeToLive { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.TimeSpan>`
+Type: `System.TimeSpan?`
 
 #### Remarks
 

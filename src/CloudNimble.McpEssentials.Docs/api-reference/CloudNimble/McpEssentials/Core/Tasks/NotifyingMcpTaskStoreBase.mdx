@@ -25,12 +25,12 @@ CloudNimble.McpEssentials.Core.Tasks.NotifyingMcpTaskStoreBase
 [McpTaskStoreBase](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) for engines that fan resolved input over a native
 notification channel (Redis pub/sub, Postgres `NOTIFY`, NATS). Subclasses
 implement publish, subscribe, and unsubscribe. This type skips this process's
-own echo and raises [McpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase#inputresponsereceived) for remote payloads.
+own echo and raises [McpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#inputresponsereceived) for remote payloads.
 
 ## Remarks
 
 Call `EnsureSubscription` from request-path core methods. After a successful
-local resolve, call `CancellationToken)`. Providers without a native
+local resolve, call `NotifyResolvedInputAsync`. Providers without a native
 channel (EF Core, Cosmos v1) keep using optional [IMcpTaskInputSignalBus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus).
 
 ## Constructors
@@ -134,7 +134,7 @@ The default is [`true`](https://learn.microsoft.com/dotnet/csharp/language-refer
 
 #### Remarks
 
-Set to [`false`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) and call `CancellationToken)` from your own job
+Set to [`false`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) and call [McpTaskStoreBase.SweepExpiredAsync](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#sweepexpiredasync) from your own job
 when you want to own the schedule. The public flush handle always runs a full pass.
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DefaultPollIntervalMs <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
@@ -163,12 +163,12 @@ Gets or sets the default time-to-live for new tasks, or [`null`](https://learn.m
 #### Syntax
 
 ```csharp
-public virtual System.Nullable<System.TimeSpan> DefaultTimeToLive { get; set; }
+public virtual System.TimeSpan? DefaultTimeToLive { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.TimeSpan>`
+Type: `System.TimeSpan?`
 
 #### Remarks
 
@@ -254,7 +254,7 @@ The default is 30 seconds. [Zero](https://learn.microsoft.com/dotnet/api/system.
 #### Syntax
 
 ```csharp
-public virtual System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> CreateTaskAsync(System.Threading.CancellationToken cancellationToken = null)
+public virtual System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> CreateTaskAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters
@@ -274,7 +274,7 @@ Type: `System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTask
 #### Syntax
 
 ```csharp
-public virtual System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> CreateTaskAsync(System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = null)
+public virtual System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> CreateTaskAsync(System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters
@@ -381,7 +381,7 @@ Type: `int`
 #### Syntax
 
 ```csharp
-public virtual System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> GetTaskAsync(string taskId, System.Threading.CancellationToken cancellationToken = null)
+public virtual System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> GetTaskAsync(string taskId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters
@@ -402,7 +402,7 @@ Type: `System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTask
 #### Syntax
 
 ```csharp
-public virtual System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> GetTaskAsync(string taskId, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = null)
+public virtual System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> GetTaskAsync(string taskId, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters
@@ -565,24 +565,24 @@ Returns a positive TTL, or [`null`](https://learn.microsoft.com/dotnet/csharp/la
 #### Syntax
 
 ```csharp
-protected virtual System.Nullable<System.TimeSpan> NormalizeTimeToLive(System.Nullable<System.TimeSpan> timeToLive)
+protected virtual System.TimeSpan? NormalizeTimeToLive(System.TimeSpan? timeToLive)
 ```
 
 #### Parameters
 
 | Name | Type | Description |
 |------|------|-------------|
-| `timeToLive` | `System.Nullable<System.TimeSpan>` | - |
+| `timeToLive` | `System.TimeSpan?` | - |
 
 #### Returns
 
-Type: `System.Nullable<System.TimeSpan>`
+Type: `System.TimeSpan?`
 
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> OnInputResponseReceived <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
 
-Raises [McpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase#inputresponsereceived) for a resolved input.
+Raises [McpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#inputresponsereceived) for a resolved input.
 
 #### Syntax
 
@@ -602,7 +602,7 @@ protected virtual void OnInputResponseReceived(string taskId, string requestId, 
 
 <Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
 
-Pulses a throttled flush when [McpTaskStoreBase.AutoSweep](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase#autosweep) is on.
+Pulses a throttled flush when [McpTaskStoreBase.AutoSweep](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#autosweep) is on.
 
 #### Syntax
 
@@ -701,7 +701,7 @@ Type: `string`
 #### Syntax
 
 ```csharp
-public virtual System.Threading.Tasks.Task ResolveInputRequestsAsync(string taskId, System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse> inputResponses, System.Threading.CancellationToken cancellationToken = null)
+public virtual System.Threading.Tasks.Task ResolveInputRequestsAsync(string taskId, System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse> inputResponses, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters
@@ -723,7 +723,7 @@ Type: `System.Threading.Tasks.Task`
 #### Syntax
 
 ```csharp
-public virtual System.Threading.Tasks.Task ResolveInputRequestsAsync(string taskId, System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse> inputResponses, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = null)
+public virtual System.Threading.Tasks.Task ResolveInputRequestsAsync(string taskId, System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse> inputResponses, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters
@@ -771,7 +771,7 @@ Type: `System.Threading.Tasks.Task`
 #### Syntax
 
 ```csharp
-public virtual System.Threading.Tasks.Task<bool> SetCancelledAsync(string taskId, System.Threading.CancellationToken cancellationToken = null)
+public virtual System.Threading.Tasks.Task<bool> SetCancelledAsync(string taskId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters
@@ -792,7 +792,7 @@ Type: `System.Threading.Tasks.Task<bool>`
 #### Syntax
 
 ```csharp
-public virtual System.Threading.Tasks.Task<bool> SetCancelledAsync(string taskId, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = null)
+public virtual System.Threading.Tasks.Task<bool> SetCancelledAsync(string taskId, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters
@@ -838,7 +838,7 @@ Type: `System.Threading.Tasks.Task<bool>`
 #### Syntax
 
 ```csharp
-public virtual System.Threading.Tasks.Task SetCompletedAsync(string taskId, System.Text.Json.JsonElement result, System.Threading.CancellationToken cancellationToken = null)
+public virtual System.Threading.Tasks.Task SetCompletedAsync(string taskId, System.Text.Json.JsonElement result, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters
@@ -884,7 +884,7 @@ Type: `System.Threading.Tasks.Task`
 #### Syntax
 
 ```csharp
-public virtual System.Threading.Tasks.Task SetFailedAsync(string taskId, System.Text.Json.JsonElement error, System.Threading.CancellationToken cancellationToken = null)
+public virtual System.Threading.Tasks.Task SetFailedAsync(string taskId, System.Text.Json.JsonElement error, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters
@@ -930,7 +930,7 @@ Type: `System.Threading.Tasks.Task`
 #### Syntax
 
 ```csharp
-public virtual System.Threading.Tasks.Task SetInputRequestsAsync(string taskId, System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputRequest> inputRequests, System.Threading.CancellationToken cancellationToken = null)
+public virtual System.Threading.Tasks.Task SetInputRequestsAsync(string taskId, System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputRequest> inputRequests, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters
@@ -991,10 +991,10 @@ protected virtual bool ShouldDiscard(CloudNimble.McpEssentials.Core.Tasks.Stored
 #### Returns
 
 Type: `bool`
-The default is `DateTimeOffset)` (compares
+The default is [StoredMcpTask.HasExpired](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#hasexpired) (compares
 [StoredMcpTask.DiscardAfter](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#discardafter)). Override for per-row Get and mutate.
 Set-based drains (EF `ExecuteDelete`) use the stamp; override
-`CancellationToken)` when bulk criteria must differ.
+[McpTaskStoreBase.SweepExpiredCoreAsync](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#sweepexpiredcoreasync) when bulk criteria must differ.
 
 ### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SweepExpiredAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
 
@@ -1003,7 +1003,7 @@ Set-based drains (EF `ExecuteDelete`) use the stamp; override
 #### Syntax
 
 ```csharp
-public virtual System.Threading.Tasks.Task SweepExpiredAsync(System.Threading.CancellationToken cancellationToken = null)
+public virtual System.Threading.Tasks.Task SweepExpiredAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
 ```
 
 #### Parameters
@@ -1082,7 +1082,7 @@ protected virtual bool TryClaimSweep(System.DateTimeOffset now)
 
 Type: `bool`
 [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when this caller should run the pass.
-A [McpTaskStoreBase.SweepInterval](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase#sweepinterval) of [Zero](https://learn.microsoft.com/dotnet/api/system.timespan.zero) always claims.
+A [McpTaskStoreBase.SweepInterval](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#sweepinterval) of [Zero](https://learn.microsoft.com/dotnet/api/system.timespan.zero) always claims.
 
 ## Events
 
@@ -1093,7 +1093,7 @@ A [McpTaskStoreBase.SweepInterval](/api-reference/CloudNimble/McpEssentials/Core
 #### Syntax
 
 ```csharp
-public virtual System.Action<ModelContextProtocol.Extensions.Tasks.InputResponseReceivedEventArgs> InputResponseReceived
+public virtual event System.Action<ModelContextProtocol.Extensions.Tasks.InputResponseReceivedEventArgs> InputResponseReceived
 ```
 
 ## Related APIs

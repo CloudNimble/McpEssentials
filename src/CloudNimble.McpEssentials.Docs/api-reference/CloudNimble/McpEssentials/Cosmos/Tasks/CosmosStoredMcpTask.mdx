@@ -2,7 +2,7 @@
 title: CosmosStoredMcpTask
 description: "Cosmos document for a task. [CosmosStoredMcpTask.Id](/api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosStoredMcpTask#id) is the Cosmos item id (the..."
 icon: file-brackets-curly
-keywords: ['CosmosStoredMcpTask', 'CloudNimble.McpEssentials.Cosmos.Tasks.CosmosStoredMcpTask', 'CloudNimble.McpEssentials.Cosmos.Tasks', 'class', 'System.Object']
+keywords: ['CosmosStoredMcpTask', 'CloudNimble.McpEssentials.Cosmos.Tasks.CosmosStoredMcpTask', 'CloudNimble.McpEssentials.Cosmos.Tasks', 'class']
 ---
 
 ## Definition
@@ -10,8 +10,6 @@ keywords: ['CosmosStoredMcpTask', 'CloudNimble.McpEssentials.Cosmos.Tasks.Cosmos
 **Assembly:** CloudNimble.McpEssentials.Cosmos.dll
 
 **Namespace:** CloudNimble.McpEssentials.Cosmos.Tasks
-
-**Inheritance:** System.Object
 
 ## Syntax
 
@@ -67,12 +65,12 @@ Gets or sets when the document should be discarded.
 #### Syntax
 
 ```csharp
-public System.Nullable<System.DateTimeOffset> DiscardAfter { get; set; }
+public System.DateTimeOffset? DiscardAfter { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.DateTimeOffset>`
+Type: `System.DateTimeOffset?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Error
 
@@ -81,12 +79,12 @@ Gets or sets the JSON-RPC error payload.
 #### Syntax
 
 ```csharp
-public System.Nullable<System.Text.Json.JsonElement> Error { get; set; }
+public System.Text.Json.JsonElement? Error { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.Text.Json.JsonElement>`
+Type: `System.Text.Json.JsonElement?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ExpiresAt
 
@@ -95,12 +93,12 @@ Gets or sets the work-window end.
 #### Syntax
 
 ```csharp
-public System.Nullable<System.DateTimeOffset> ExpiresAt { get; set; }
+public System.DateTimeOffset? ExpiresAt { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.DateTimeOffset>`
+Type: `System.DateTimeOffset?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Id
 
@@ -165,12 +163,12 @@ Gets or sets the client poll interval in milliseconds.
 #### Syntax
 
 ```csharp
-public System.Nullable<long> PollIntervalMs { get; set; }
+public long? PollIntervalMs { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<long>`
+Type: `long?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Result
 
@@ -179,12 +177,12 @@ Gets or sets the terminal result payload.
 #### Syntax
 
 ```csharp
-public System.Nullable<System.Text.Json.JsonElement> Result { get; set; }
+public System.Text.Json.JsonElement? Result { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.Text.Json.JsonElement>`
+Type: `System.Text.Json.JsonElement?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Status
 
@@ -221,12 +219,12 @@ Gets or sets the time-to-live from create, or [`null`](https://learn.microsoft.c
 #### Syntax
 
 ```csharp
-public System.Nullable<System.TimeSpan> TimeToLive { get; set; }
+public System.TimeSpan? TimeToLive { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.TimeSpan>`
+Type: `System.TimeSpan?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TimeToLiveSeconds
 
@@ -235,12 +233,12 @@ Gets or sets Cosmos per-document TTL in seconds, or [`null`](https://learn.micro
 #### Syntax
 
 ```csharp
-public System.Nullable<int> TimeToLiveSeconds { get; set; }
+public int? TimeToLiveSeconds { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<int>`
+Type: `int?`
 
 ## Methods
 
@@ -412,18 +410,18 @@ Converts *discardAfter* into Cosmos TTL seconds from *now*.
 #### Syntax
 
 ```csharp
-public static System.Nullable<int> ToTtlSeconds(System.Nullable<System.DateTimeOffset> discardAfter, System.DateTimeOffset now)
+public static int? ToTtlSeconds(System.DateTimeOffset? discardAfter, System.DateTimeOffset now)
 ```
 
 #### Parameters
 
 | Name | Type | Description |
 |------|------|-------------|
-| `discardAfter` | `System.Nullable<System.DateTimeOffset>` | The visibility ceiling, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unlimited. |
+| `discardAfter` | `System.DateTimeOffset?` | The visibility ceiling, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unlimited. |
 | `now` | `System.DateTimeOffset` | The current UTC time. |
 
 #### Returns
 
-Type: `System.Nullable<int>`
+Type: `int?`
 At least 1 second, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unlimited.
 

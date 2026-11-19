@@ -62,7 +62,7 @@ The elicitation result from the retry.
 ```csharp
 [McpServerTool(Name = "ShipOrder")]
 [McpElicitForm("ship")]
-public static string ShipOrder(RequestContext&lt;CallToolRequestParams&gt; context)
+public static string ShipOrder(RequestContext<CallToolRequestParams> context)
 {
     var result = context.RequireForm("ship");
     if (!result.IsAccepted)

@@ -1,8 +1,8 @@
 ---
 title: IServiceCollection
 description: "Extension methods for IServiceCollection from Microsoft.Extensions.DependencyInjection.Abstractions"
-icon: file-brackets-curly
-keywords: ['IServiceCollection', 'Microsoft.Extensions.DependencyInjection.IServiceCollection', 'Microsoft.Extensions.DependencyInjection', 'error']
+icon: plug
+keywords: ['IServiceCollection', 'Microsoft.Extensions.DependencyInjection.IServiceCollection', 'Microsoft.Extensions.DependencyInjection', 'interface']
 ---
 
 ## Definition
@@ -157,7 +157,7 @@ public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddInM
 |------|------|-------------|
 | `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
 | `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. Hosts typically pass
-`sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`. |
+`sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User`. |
 | `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions>?` | Optional store options (TTL, poll interval). |
 
 #### Returns
@@ -255,7 +255,7 @@ public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcp
 |------|------|-------------|
 | `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
 | `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. Hosts typically pass
-`sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`. |
+`sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User`. |
 | `configure` | `System.Action<CloudNimble.McpEssentials.Cosmos.Tasks.CosmosMcpTaskStoreOptions>?` | Optional store options (TTL, database and container ids). |
 
 #### Returns
@@ -361,7 +361,7 @@ public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcp
 |------|------|-------------|
 | `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
 | `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. Hosts typically pass
-`sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`. |
+`sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User`. |
 | `configure` | `System.Action<CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions>?` | Optional store options (TTL, poll interval). |
 
 #### Returns
@@ -463,7 +463,7 @@ public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcp
 |------|------|-------------|
 | `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
 | `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. Hosts typically pass
-`sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`. |
+`sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User`. |
 | `configure` | `System.Action<CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlMcpTaskStoreOptions>?` | Optional store options (TTL, table, listen channel). |
 
 #### Returns
@@ -561,7 +561,7 @@ public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddMcp
 |------|------|-------------|
 | `services` | `Microsoft.Extensions.DependencyInjection.IServiceCollection` | The service collection. |
 | `getPrincipal` | `System.Func<System.IServiceProvider, System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. Hosts typically pass
-`sp =&gt; sp.GetRequiredService&lt;IHttpContextAccessor&gt;().HttpContext?.User`. |
+`sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User`. |
 | `configure` | `System.Action<CloudNimble.McpEssentials.Redis.Tasks.RedisMcpTaskStoreOptions>?` | Optional store options (TTL, key prefix, replica wait). |
 
 #### Returns

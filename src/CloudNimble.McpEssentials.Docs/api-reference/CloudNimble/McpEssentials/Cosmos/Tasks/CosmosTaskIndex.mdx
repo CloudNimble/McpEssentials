@@ -2,7 +2,7 @@
 title: CosmosTaskIndex
 description: "Singleton-partition index document: task id → owner, so server-side complete can point-read the task without a current user."
 icon: file-brackets-curly
-keywords: ['CosmosTaskIndex', 'CloudNimble.McpEssentials.Cosmos.Tasks.CosmosTaskIndex', 'CloudNimble.McpEssentials.Cosmos.Tasks', 'class', 'System.Object']
+keywords: ['CosmosTaskIndex', 'CloudNimble.McpEssentials.Cosmos.Tasks.CosmosTaskIndex', 'CloudNimble.McpEssentials.Cosmos.Tasks', 'class']
 ---
 
 ## Definition
@@ -10,8 +10,6 @@ keywords: ['CosmosTaskIndex', 'CloudNimble.McpEssentials.Cosmos.Tasks.CosmosTask
 **Assembly:** CloudNimble.McpEssentials.Cosmos.dll
 
 **Namespace:** CloudNimble.McpEssentials.Cosmos.Tasks
-
-**Inheritance:** System.Object
 
 ## Syntax
 
@@ -82,12 +80,12 @@ Matches the task document so the index row does not outlive the task.
 #### Syntax
 
 ```csharp
-public System.Nullable<int> TimeToLiveSeconds { get; set; }
+public int? TimeToLiveSeconds { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<int>`
+Type: `int?`
 
 ## Methods
 

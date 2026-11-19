@@ -2,7 +2,7 @@
 title: PostgreSqlStoredMcpTask
 description: "One `McpTasks` row. Maps to [StoredMcpTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask) at the store boundary and adds [PostgreSqlStor..."
 icon: file-brackets-curly
-keywords: ['PostgreSqlStoredMcpTask', 'CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlStoredMcpTask', 'CloudNimble.McpEssentials.PostgreSQL.Tasks', 'class', 'System.Object']
+keywords: ['PostgreSqlStoredMcpTask', 'CloudNimble.McpEssentials.PostgreSQL.Tasks.PostgreSqlStoredMcpTask', 'CloudNimble.McpEssentials.PostgreSQL.Tasks', 'class']
 ---
 
 ## Definition
@@ -10,8 +10,6 @@ keywords: ['PostgreSqlStoredMcpTask', 'CloudNimble.McpEssentials.PostgreSQL.Task
 **Assembly:** CloudNimble.McpEssentials.PostgreSQL.dll
 
 **Namespace:** CloudNimble.McpEssentials.PostgreSQL.Tasks
-
-**Inheritance:** System.Object
 
 ## Syntax
 
@@ -58,7 +56,7 @@ public System.DateTimeOffset CreatedAt { get; set; }
 
 #### Property Value
 
-Type: `System.DateTimeOffset?`
+Type: `System.DateTimeOffset`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DiscardAfter
 
@@ -67,12 +65,12 @@ Gets or sets when the row should be discarded.
 #### Syntax
 
 ```csharp
-public System.Nullable<System.DateTimeOffset> DiscardAfter { get; set; }
+public System.DateTimeOffset? DiscardAfter { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.DateTimeOffset?>?`
+Type: `System.DateTimeOffset?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ErrorJson
 
@@ -95,12 +93,12 @@ Gets or sets the work-window end.
 #### Syntax
 
 ```csharp
-public System.Nullable<System.DateTimeOffset> ExpiresAt { get; set; }
+public System.DateTimeOffset? ExpiresAt { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.DateTimeOffset?>?`
+Type: `System.DateTimeOffset?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> InputRequestsJson
 
@@ -128,7 +126,7 @@ public System.DateTimeOffset LastUpdatedAt { get; set; }
 
 #### Property Value
 
-Type: `System.DateTimeOffset?`
+Type: `System.DateTimeOffset`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> OwnerUserId
 
@@ -151,12 +149,12 @@ Gets or sets the client poll interval in milliseconds.
 #### Syntax
 
 ```csharp
-public System.Nullable<long> PollIntervalMs { get; set; }
+public long? PollIntervalMs { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<long>?`
+Type: `long?`
 
 ### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ResultJson
 
@@ -235,12 +233,12 @@ Gets or sets the time-to-live from create, or [`null`](https://learn.microsoft.c
 #### Syntax
 
 ```csharp
-public System.Nullable<System.TimeSpan> TimeToLive { get; set; }
+public System.TimeSpan? TimeToLive { get; set; }
 ```
 
 #### Property Value
 
-Type: `System.Nullable<System.TimeSpan?>?`
+Type: `System.TimeSpan?`
 
 ## Methods
 

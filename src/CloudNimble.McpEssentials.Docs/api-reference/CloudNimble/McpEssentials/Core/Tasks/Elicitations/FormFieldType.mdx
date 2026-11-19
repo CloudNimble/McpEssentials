@@ -3,7 +3,7 @@ title: FormFieldType
 description: "Primitive kind of a published form field. Maps onto the compact XML `Type` attribute and the MCP elicitation JSON Schema subset."
 icon: list-ol
 tag: "ENUM"
-keywords: ['FormFieldType', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldType', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'class', 'System.Enum']
+keywords: ['FormFieldType', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldType', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'enum', 'System.Enum', 'System.IComparable', 'System.ISpanFormattable', 'System.IFormattable', 'System.IConvertible']
 ---
 
 ## Definition
@@ -29,10 +29,17 @@ and the MCP elicitation JSON Schema subset.
 
 | Name | Value | Description |
 |------|-------|-------------|
-| `String` | 0 | A string, optionally with a format. XML <c>Type="string"</c>. |
-| `Integer` | 1 | An integer number. XML <c>Type="integer"</c>. |
-| `Number` | 2 | A floating-point number. XML <c>Type="number"</c>. |
-| `Boolean` | 3 | A boolean. XML <c>Type="boolean"</c>. |
-| `Enum` | 4 | A single-select enum. XML <c>Type="enum"</c>. |
-| `Multi` | 5 | A multi-select enum. XML <c>Type="multi"</c>. |
+| `String` | 0 | A string, optionally with a format. XML `Type="string"`. |
+| `Integer` | 1 | An integer number. XML `Type="integer"`. |
+| `Number` | 2 | A floating-point number. XML `Type="number"`. |
+| `Boolean` | 3 | A boolean. XML `Type="boolean"`. |
+| `Enum` | 4 | A single-select enum. XML `Type="enum"`. |
+| `Multi` | 5 | A multi-select enum. XML `Type="multi"`. |
+
+## Related APIs
+
+- System.IComparable
+- System.ISpanFormattable
+- System.IFormattable
+- System.IConvertible
 

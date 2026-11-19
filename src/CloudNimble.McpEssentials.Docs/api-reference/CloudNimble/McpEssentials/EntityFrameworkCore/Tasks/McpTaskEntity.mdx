@@ -62,7 +62,7 @@ Initializes a new working row owned by *ownerUserId*.
 #### Syntax
 
 ```csharp
-public McpTaskEntity(string ownerUserId, string taskId, System.DateTimeOffset createdAt, System.Nullable<System.TimeSpan> timeToLive, long pollIntervalMs)
+public McpTaskEntity(string ownerUserId, string taskId, System.DateTimeOffset createdAt, System.TimeSpan? timeToLive, long pollIntervalMs)
 ```
 
 #### Parameters
@@ -72,7 +72,7 @@ public McpTaskEntity(string ownerUserId, string taskId, System.DateTimeOffset cr
 | `ownerUserId` | `string` | - |
 | `taskId` | `string` | - |
 | `createdAt` | `System.DateTimeOffset` | - |
-| `timeToLive` | `System.Nullable<System.TimeSpan>` | - |
+| `timeToLive` | `System.TimeSpan?` | - |
 | `pollIntervalMs` | `long` | - |
 
 ## Properties
