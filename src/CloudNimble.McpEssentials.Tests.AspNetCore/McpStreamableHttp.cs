@@ -25,6 +25,16 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
         /// </summary>
         public const string TasksMetaJson = """{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientInfo":{"name":"mcpessentials-tests","version":"1.0"},"io.modelcontextprotocol/clientCapabilities":{"extensions":{"io.modelcontextprotocol/tasks":{}}}}""";
 
+        /// <summary>
+        /// Per-request <c>_meta</c> that advertises form elicitation.
+        /// </summary>
+        public const string ElicitationMetaJson = """{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientInfo":{"name":"mcpessentials-tests","version":"1.0"},"io.modelcontextprotocol/clientCapabilities":{"elicitation":{"form":{}}}}""";
+
+        /// <summary>
+        /// Per-request <c>_meta</c> that advertises form elicitation and Tasks.
+        /// </summary>
+        public const string TasksAndElicitationMetaJson = """{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientInfo":{"name":"mcpessentials-tests","version":"1.0"},"io.modelcontextprotocol/clientCapabilities":{"elicitation":{"form":{}},"extensions":{"io.modelcontextprotocol/tasks":{}}}}""";
+
         #endregion
 
         #region Public Methods
@@ -112,12 +122,33 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
         /// <summary>
         /// Builds a task-augmented <c>tools/call</c> payload.
         /// </summary>
-        public static string CallToolPayload(string toolName, string argumentsJson = "{}")
+        public static string CallToolPayload(string toolName, string argumentsJson = "{}", string? metaJson = null)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(toolName);
             var args = string.IsNullOrWhiteSpace(argumentsJson) ? "{}" : argumentsJson;
+            var meta = string.IsNullOrWhiteSpace(metaJson) ? TasksMetaJson : metaJson;
             return "{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"method\":\"tools/call\",\"params\":{\"name\":\"" + toolName
-                + "\",\"arguments\":" + args + ",\"_meta\":" + TasksMetaJson + "}}";
+                + "\",\"arguments\":" + args + ",\"_meta\":" + meta + "}}";
+        }
+
+        /// <summary>
+        /// Builds a <c>tools/call</c> retry with <c>inputResponses</c>.
+        /// </summary>
+        public static string CallToolRetryPayload(
+            string toolName,
+            string inputResponsesJson,
+            string argumentsJson = "{}",
+            string? metaJson = null,
+            string id = "2")
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(toolName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(inputResponsesJson);
+            var args = string.IsNullOrWhiteSpace(argumentsJson) ? "{}" : argumentsJson;
+            var meta = string.IsNullOrWhiteSpace(metaJson) ? ElicitationMetaJson : metaJson;
+            var jsonId = JsonSerializer.Serialize(id);
+            return "{\"jsonrpc\":\"2.0\",\"id\":" + jsonId + ",\"method\":\"tools/call\",\"params\":{\"name\":\"" + toolName
+                + "\",\"arguments\":" + args + ",\"inputResponses\":" + inputResponsesJson
+                + ",\"_meta\":" + meta + "}}";
         }
 
         /// <summary>
@@ -175,6 +206,69 @@ namespace CloudNimble.McpEssentials.Tests.AspNetCore
             using var document = JsonDocument.Parse(ExtractJson(body));
             return document.RootElement.TryGetProperty("result", out _)
                 && !document.RootElement.TryGetProperty("error", out _);
+        }
+
+        /// <summary>
+        /// Reads <c>result.resultType</c> from a JSON-RPC result body.
+        /// </summary>
+        public static string? ReadResultType(string body)
+        {
+            using var document = JsonDocument.Parse(ExtractJson(body));
+            if (!document.RootElement.TryGetProperty("result", out var result))
+            {
+                return null;
+            }
+
+            return result.TryGetProperty("resultType", out var resultType) ? resultType.GetString() : null;
+        }
+
+        /// <summary>
+        /// Returns whether <c>result.inputRequests</c> contains <paramref name="key"/>.
+        /// </summary>
+        public static bool HasInputRequest(string body, string key)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(key);
+            using var document = JsonDocument.Parse(ExtractJson(body));
+            if (!document.RootElement.TryGetProperty("result", out var result)
+                || !result.TryGetProperty("inputRequests", out var requests)
+                || requests.ValueKind != JsonValueKind.Object)
+            {
+                return false;
+            }
+
+            return requests.TryGetProperty(key, out _);
+        }
+
+        /// <summary>
+        /// Reads the first text content from a <c>CallToolResult</c>.
+        /// </summary>
+        public static string? ReadText(string body)
+        {
+            using var document = JsonDocument.Parse(ExtractJson(body));
+            if (!document.RootElement.TryGetProperty("result", out var result)
+                || !result.TryGetProperty("content", out var content)
+                || content.ValueKind != JsonValueKind.Array
+                || content.GetArrayLength() == 0)
+            {
+                return null;
+            }
+
+            var first = content[0];
+            return first.TryGetProperty("text", out var text) ? text.GetString() : null;
+        }
+
+        /// <summary>
+        /// Returns whether the tool result is an execution error.
+        /// </summary>
+        public static bool IsToolError(string body)
+        {
+            using var document = JsonDocument.Parse(ExtractJson(body));
+            if (!document.RootElement.TryGetProperty("result", out var result))
+            {
+                return false;
+            }
+
+            return result.TryGetProperty("isError", out var isError) && isError.ValueKind == JsonValueKind.True;
         }
 
         #endregion

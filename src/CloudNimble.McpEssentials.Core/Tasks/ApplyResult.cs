@@ -2,7 +2,7 @@ namespace CloudNimble.McpEssentials.Core.Tasks
 {
 
     /// <summary>
-    /// Result of <see cref="InMemoryAuthenticatedMcpTaskStore.TryApply"/>.
+    /// Result of <see cref="InMemoryMcpTaskStorePlus.TryApply"/>.
     /// </summary>
     public enum ApplyResult
     {

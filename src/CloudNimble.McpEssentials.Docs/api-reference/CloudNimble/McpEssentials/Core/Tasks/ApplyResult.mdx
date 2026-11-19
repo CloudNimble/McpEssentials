@@ -1,9 +1,9 @@
 ---
 title: ApplyResult
-description: "Result of `CancellationToken)`."
+description: "Result of `TryApply`."
 icon: list-ol
 tag: "ENUM"
-keywords: ['ApplyResult', 'CloudNimble.McpEssentials.Core.Tasks.ApplyResult', 'CloudNimble.McpEssentials.Core.Tasks', 'class', 'System.Enum']
+keywords: ['ApplyResult', 'CloudNimble.McpEssentials.Core.Tasks.ApplyResult', 'CloudNimble.McpEssentials.Core.Tasks', 'enum', 'System.Enum', 'System.IComparable', 'System.ISpanFormattable', 'System.IFormattable', 'System.IConvertible']
 ---
 
 ## Definition
@@ -22,13 +22,20 @@ CloudNimble.McpEssentials.Core.Tasks.ApplyResult
 
 ## Summary
 
-Result of `CancellationToken)`.
+Result of `TryApply`.
 
 ## Values
 
 | Name | Value | Description |
 |------|-------|-------------|
-| `Missing` | 0 | No snapshot was present, or <see cref="M:CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask.HasExpired(System.DateTimeOffset)" /> was <see langword="true" />. |
+| `Missing` | 0 | No snapshot was present, or [StoredMcpTask.HasExpired](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#hasexpired) was [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool). |
 | `Unchanged` | 1 | The snapshot was present and left unchanged. |
 | `Updated` | 2 | The snapshot was replaced. |
+
+## Related APIs
+
+- System.IComparable
+- System.ISpanFormattable
+- System.IFormattable
+- System.IConvertible
 

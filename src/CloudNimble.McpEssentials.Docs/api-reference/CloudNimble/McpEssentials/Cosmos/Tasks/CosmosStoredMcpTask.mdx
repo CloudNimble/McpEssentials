@@ -1,0 +1,427 @@
+---
+title: CosmosStoredMcpTask
+description: "Cosmos document for a task. [CosmosStoredMcpTask.Id](/api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosStoredMcpTask#id) is the Cosmos item id (the..."
+icon: file-brackets-curly
+keywords: ['CosmosStoredMcpTask', 'CloudNimble.McpEssentials.Cosmos.Tasks.CosmosStoredMcpTask', 'CloudNimble.McpEssentials.Cosmos.Tasks', 'class']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Cosmos.dll
+
+**Namespace:** CloudNimble.McpEssentials.Cosmos.Tasks
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Cosmos.Tasks.CosmosStoredMcpTask
+```
+
+## Summary
+
+Cosmos document for a task. [CosmosStoredMcpTask.Id](/api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosStoredMcpTask#id) is the Cosmos item id (the task id).
+Partition key is [CosmosStoredMcpTask.OwnerUserId](/api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosStoredMcpTask#owneruserid).
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+#### Syntax
+
+```csharp
+public CosmosStoredMcpTask()
+```
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public Object()
+```
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> CreatedAt
+
+Gets or sets when the task was created, UTC.
+
+#### Syntax
+
+```csharp
+public System.DateTimeOffset CreatedAt { get; set; }
+```
+
+#### Property Value
+
+Type: `System.DateTimeOffset`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DiscardAfter
+
+Gets or sets when the document should be discarded.
+
+#### Syntax
+
+```csharp
+public System.DateTimeOffset? DiscardAfter { get; set; }
+```
+
+#### Property Value
+
+Type: `System.DateTimeOffset?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Error
+
+Gets or sets the JSON-RPC error payload.
+
+#### Syntax
+
+```csharp
+public System.Text.Json.JsonElement? Error { get; set; }
+```
+
+#### Property Value
+
+Type: `System.Text.Json.JsonElement?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ExpiresAt
+
+Gets or sets the work-window end.
+
+#### Syntax
+
+```csharp
+public System.DateTimeOffset? ExpiresAt { get; set; }
+```
+
+#### Property Value
+
+Type: `System.DateTimeOffset?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Id
+
+Gets or sets the Cosmos item id (the opaque task identifier).
+
+#### Syntax
+
+```csharp
+public string Id { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> InputRequests
+
+Gets or sets outstanding input requests.
+
+#### Syntax
+
+```csharp
+public System.Collections.Generic.Dictionary<string, ModelContextProtocol.Protocol.InputRequest> InputRequests { get; set; }
+```
+
+#### Property Value
+
+Type: `System.Collections.Generic.Dictionary<string, ModelContextProtocol.Protocol.InputRequest>?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> LastUpdatedAt
+
+Gets or sets when the task last changed, UTC.
+
+#### Syntax
+
+```csharp
+public System.DateTimeOffset LastUpdatedAt { get; set; }
+```
+
+#### Property Value
+
+Type: `System.DateTimeOffset`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> OwnerUserId
+
+Gets or sets the user recorded when the task was created. Partition key.
+
+#### Syntax
+
+```csharp
+public string OwnerUserId { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> PollIntervalMs
+
+Gets or sets the client poll interval in milliseconds.
+
+#### Syntax
+
+```csharp
+public long? PollIntervalMs { get; set; }
+```
+
+#### Property Value
+
+Type: `long?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Result
+
+Gets or sets the terminal result payload.
+
+#### Syntax
+
+```csharp
+public System.Text.Json.JsonElement? Result { get; set; }
+```
+
+#### Property Value
+
+Type: `System.Text.Json.JsonElement?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Status
+
+Gets or sets the protocol status (enum name).
+
+#### Syntax
+
+```csharp
+public ModelContextProtocol.Extensions.Tasks.McpTaskStatus Status { get; set; }
+```
+
+#### Property Value
+
+Type: `ModelContextProtocol.Extensions.Tasks.McpTaskStatus`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> StatusMessage
+
+Gets or sets an optional status message.
+
+#### Syntax
+
+```csharp
+public string StatusMessage { get; set; }
+```
+
+#### Property Value
+
+Type: `string?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TimeToLive
+
+Gets or sets the time-to-live from create, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) for unlimited.
+
+#### Syntax
+
+```csharp
+public System.TimeSpan? TimeToLive { get; set; }
+```
+
+#### Property Value
+
+Type: `System.TimeSpan?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TimeToLiveSeconds
+
+Gets or sets Cosmos per-document TTL in seconds, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unlimited.
+
+#### Syntax
+
+```csharp
+public int? TimeToLiveSeconds { get; set; }
+```
+
+#### Property Value
+
+Type: `int?`
+
+## Methods
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual bool Equals(object obj)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `obj` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool Equals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> From
+
+Copies *stored* into a Cosmos document.
+
+#### Syntax
+
+```csharp
+public static CloudNimble.McpEssentials.Cosmos.Tasks.CosmosStoredMcpTask From(CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask stored, System.DateTimeOffset now)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `stored` | `CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask` | The in-memory snapshot. |
+| `now` | `System.DateTimeOffset` | The current UTC time, used to stamp [CosmosStoredMcpTask.TimeToLiveSeconds](/api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosStoredMcpTask#timetoliveseconds). |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Cosmos.Tasks.CosmosStoredMcpTask`
+A document with the same fields.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *stored* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetHashCode <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual int GetHashCode()
+```
+
+#### Returns
+
+Type: `int`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetType <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public System.Type GetType()
+```
+
+#### Returns
+
+Type: `System.Type`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MemberwiseClone <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+protected internal object MemberwiseClone()
+```
+
+#### Returns
+
+Type: `object`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ReferenceEquals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool ReferenceEquals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToStored <Badge color="orange">Virtual</Badge>
+
+Builds a [StoredMcpTask](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask) from this document.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask ToStored()
+```
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask`
+A snapshot the Core `Try*` methods can mutate.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToString <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual string ToString()
+```
+
+#### Returns
+
+Type: `string?`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToTtlSeconds
+
+Converts *discardAfter* into Cosmos TTL seconds from *now*.
+
+#### Syntax
+
+```csharp
+public static int? ToTtlSeconds(System.DateTimeOffset? discardAfter, System.DateTimeOffset now)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `discardAfter` | `System.DateTimeOffset?` | The visibility ceiling, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unlimited. |
+| `now` | `System.DateTimeOffset` | The current UTC time. |
+
+#### Returns
+
+Type: `int?`
+At least 1 second, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unlimited.
+

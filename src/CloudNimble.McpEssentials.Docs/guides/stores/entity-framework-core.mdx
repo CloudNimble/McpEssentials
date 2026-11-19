@@ -1,16 +1,29 @@
 ---
 title: "Entity Framework Core"
 description: "Persist per-user MCP tasks on any EF Core database. The host owns the DbContext, the connection, and migrations."
-keywords: ["EntityFrameworkCore", "AddMcpTasksTable", "WithEntityFrameworkTasks", "McpTaskEntity", "SQL Server", "SQLite", "PostgreSQL"]
+icon: "table"
+keywords: ["EntityFrameworkCore", "AddMcpTasksTable", "WithTasksPlus", "McpTaskEntity", "SQL Server", "SQLite", "PostgreSQL"]
 ---
 
-`McpEssentials.EntityFrameworkCore` is the first durable authenticated task store. It subclasses [`AuthenticatedMcpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/AuthenticatedMcpTaskStoreBase) and persists [`McpTaskEntity`](/api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/McpTaskEntity) rows through **your** `DbContext`.
+`McpEssentials.EntityFrameworkCore` is the first durable authenticated task store. It subclasses [`McpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) and persists [`McpTaskEntity`](/api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/McpTaskEntity) rows through **your** `DbContext`.
+
+<CardGroup cols={3}>
+  <Card title="Any EF provider" icon="database">
+    SQL Server, SQLite, PostgreSQL, MySQL, MariaDB, Cosmos via EF, Oracle — whatever you already pass to `AddDbContext`.
+  </Card>
+  <Card title="Host owns the model" icon="table">
+    Your context, your connection, your migrations. The store opens a scope per operation.
+  </Card>
+  <Card title="Optional bus" icon="tower-broadcast">
+    Multi-node `ElicitAsync` takes [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus).
+  </Card>
+</CardGroup>
 
 <Note>
-This package works with **any EF Core database provider**. SQL Server, SQLite, PostgreSQL (Npgsql), MySQL, MariaDB, Cosmos via EF, Oracle, and whatever else you already pass to `AddDbContext` are all valid. The store talks to `TContext.Set<McpTaskEntity>()`; it never binds a specific engine.
+This package works with **any EF Core database provider**. The store talks to `TContext.Set<McpTaskEntity>()`; it never binds a specific engine.
 </Note>
 
-The host owns the context, the connection, and migrations. This package ships the entity, [`AddMcpTasksTable`](/api-reference/Microsoft/EntityFrameworkCore/ModelBuilder), and a singleton store that opens a scope per operation so a standard scoped `AddDbContext` works.
+The host owns the context, the connection, and migrations. This package ships the entity, [`AddMcpTasksTable`](/api-reference/Microsoft/EntityFrameworkCore/ModelBuilder) on `ModelBuilder` and on [`DbContextOptionsBuilder`](/api-reference/Microsoft/EntityFrameworkCore/DbContextOptionsBuilder), and a singleton store that opens a scope per operation so a standard scoped `AddDbContext` works.
 
 ## Install
 
@@ -20,77 +33,115 @@ dotnet add package McpEssentials.EntityFrameworkCore
 
 Register an EF Core provider on the context the way you already do:
 
-```csharp
+<CodeGroup>
+
+```csharp UseSqlServer
 builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(connectionString));
-// or: o.UseSqlite("Data Source=app.db");
-// or: o.UseNpgsql(connectionString);
-// or: o.UseCosmos(accountEndpoint, accountKey, databaseName);
-// or: o.UseMySql(connectionString, serverVersion);
 ```
+
+```csharp UseSqlite
+builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlite("Data Source=app.db"));
+```
+
+```csharp UseNpgsql
+builder.Services.AddDbContext<AppDbContext>(o => o.UseNpgsql(connectionString));
+```
+
+```csharp UseCosmos
+builder.Services.AddDbContext<AppDbContext>(o => o.UseCosmos(accountEndpoint, accountKey, databaseName));
+```
+
+```csharp UseMySql
+builder.Services.AddDbContext<AppDbContext>(o => o.UseMySql(connectionString, serverVersion));
+```
+
+</CodeGroup>
 
 ## Map the table
 
-Call [`AddMcpTasksTable`](/api-reference/Microsoft/EntityFrameworkCore/ModelBuilder) from `OnModelCreating`. Keep MCP task rows on their own table; they expire in minutes.
+Keep MCP task rows on their own table; they expire in minutes. The default name is `McpTasks`. Pass a name and schema on either call to change it: `AddMcpTasksTable("AppTasks", "mcp")`.
 
-```csharp
-public class AppDbContext : DbContext
-{
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+The store talks to `TContext.Set<McpTaskEntity>()`. The host does not need a `DbSet`. Both options use the **same** host `DbContext`. Pick **one**.
 
+<Tabs>
+  <Tab title="OnModelCreating" icon="code">
+    Use this in a single-project app, or whenever the project that owns `AppDbContext` already references this package. Mapping lives with the rest of the model. Migrations from that project see the table.
+
+    ```csharp
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.AddMcpTasksTable();
-        // or: modelBuilder.AddMcpTasksTable("AppTasks", "mcp");
     }
-}
-```
+    ```
+  </Tab>
+  <Tab title="AddDbContext" icon="puzzle-piece">
+    Use this when `AppDbContext` lives in a class library that must stay free of MCP. Only the application project takes this package. Call `AddMcpTasksTable` on the options next to `UseSqlServer` (or whatever provider you already use). EF still uses the same host `DbContext`; the mapping runs after `OnModelCreating`.
 
-The default table is `McpTasks` in the database default schema. The overload sets table name and optional schema. Then add a host migration:
+    ```csharp
+    builder.Services.AddDbContext<AppDbContext>(o =>
+    {
+        o.UseSqlServer(connectionString);
+        o.AddMcpTasksTable();
+    });
+    ```
 
-```bash
-dotnet ef migrations add AddMcpTasks
-```
+    Run migrations with the application as the startup project so the options hook is in the model:
+
+    ```bash
+    dotnet ef migrations add AddMcpTasks --startup-project path/to/App
+    ```
+
+    <Warning>
+    A migration from the context project alone will not see `McpTasks` and can emit a drop.
+    </Warning>
+  </Tab>
+</Tabs>
 
 Mapped columns include `TaskId`, `OwnerUserId`, `Status` (enum name as string), timestamps, `TimeToLive`, `ExpiresAt`, `DiscardAfter` (UTC ticks so every provider, including SQLite, can `ExecuteDelete`), JSON payloads, and an application-managed `RowVersion`. Indexes cover owner, `(OwnerUserId, TaskId)`, `ExpiresAt`, and `DiscardAfter`. SQL Server hosts may remap `RowVersion` as `rowversion` in their own configuration.
 
 ## Wire the store
 
-Same identity factory as [Authenticated tasks](/guides/authenticated-tasks). The SDK `WithTasks` API captures the store before `Build()`; [`WithEntityFrameworkTasks`](/api-reference/Microsoft/Extensions/DependencyInjection/IMcpServerBuilder) stamps the provider on first use.
-
-```csharp
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(connectionString));
-
-builder.Services.AddMcpServer()
-    .WithHttpTransport(o => o.Stateless = true)
-    .WithTools<MyTools>()
-    .WithEntityFrameworkTasks<AppDbContext>(
-        sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
-        o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
-```
-
-**Stdio / single user**
-
-```csharp
-builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlite("Data Source=tasks.db"));
-builder.Services.AddMcpServer()
-    .WithEntityFrameworkTasks<AppDbContext>("local-user");
-```
-
-**Store only**, without `IMcpServerBuilder`:
-
-```csharp
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddMcpEssentialsEntityFrameworkTasks<AppDbContext>(
-    sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
-    o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
-```
+Same identity factory as [Authenticated tasks](/guides/authenticated-tasks). The SDK `WithTasks` API captures the store before `Build()`; [`WithTasksPlus`](/api-reference/Microsoft/Extensions/DependencyInjection/IMcpServerBuilder) stamps the provider on first use.
 
 Register the store as a **singleton**. The context stays scoped. Each operation opens an `IServiceScope`, resolves `TContext`, and disposes the scope.
 
+<Tabs>
+  <Tab title="HTTP" icon="globe">
+    ```csharp
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(connectionString));
+
+    builder.Services.AddMcpServer()
+        .WithHttpTransport(o => o.Stateless = true)
+        .WithTools<MyTools>()
+        .WithTasksPlus<AppDbContext>(
+            sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
+            o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+    ```
+  </Tab>
+  <Tab title="Stdio" icon="terminal">
+    ```csharp
+    builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlite("Data Source=tasks.db"));
+    builder.Services.AddMcpServer()
+        .WithTasksPlus<AppDbContext>("local-user");
+    ```
+  </Tab>
+  <Tab title="Store only" icon="database">
+    Same factory, without `IMcpServerBuilder`:
+
+    ```csharp
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlServer(connectionString));
+    builder.Services.AddMcpEssentialsEntityFrameworkTasks<AppDbContext>(
+        sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
+        o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+    ```
+  </Tab>
+</Tabs>
+
 ## Options
 
-Pass `Action<AuthenticatedMcpTaskStoreOptions>` as the next argument after identity.
+Pass `Action<McpTaskStoreOptions>` as the next argument after identity.
 
 | Knob | Default | Role |
 |---|---|---|
@@ -101,7 +152,7 @@ Pass `Action<AuthenticatedMcpTaskStoreOptions>` as the next argument after ident
 | `ServeAndDrop` | `true` | Owner get of a terminal snapshot serves it and then deletes the row. |
 
 ```csharp
-.WithEntityFrameworkTasks<AppDbContext>(currentUser, o =>
+.WithTasksPlus<AppDbContext>(currentUser, o =>
 {
     o.DefaultTimeToLive = TimeSpan.FromMinutes(5);
     o.AutoSweep = false;          // you own the schedule
@@ -109,19 +160,21 @@ Pass `Action<AuthenticatedMcpTaskStoreOptions>` as the next argument after ident
 });
 ```
 
-Call [`SweepExpiredAsync`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IPerUserMcpTaskStore) from a hosted service or SQL Agent wrapper when `AutoSweep` is off. The public handle always runs a full pass.
+Call [`SweepExpiredAsync`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) from a hosted service or SQL Agent wrapper when `AutoSweep` is off. The public handle always runs a full pass.
 
 The EF drain is a set-delete: `DELETE WHERE DiscardAfter IS NOT NULL AND DiscardAfter <= now`. It does not load the table. SQLite stores `DiscardAfter` as UTC ticks so that comparison translates; SQL Server and PostgreSQL use the same path.
 
 Per-row get and mutate still use `ShouldDiscard` (default `HasExpired`). Override `SweepExpiredCoreAsync` when bulk criteria must differ from the stamp.
 
-## Multi-node elicitation
+## Events
 
 A single instance raises `InputResponseReceived` in-process. Several nodes that wait on `ElicitAsync` need a bus: register [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus) in DI (Redis, Service Bus, …). The store publishes after a successful resolve and subscribes so the originating process wakes up.
 
 Payload is task id plus request id. Keep tokens and elicitation secrets off the bus; the row already has the response body.
 
+<Warning>
 Missing bus plus multiple nodes means elicitation waits until timeout. That is a host misconfiguration.
+</Warning>
 
 ## Isolation
 
@@ -129,6 +182,30 @@ Missing bus plus multiple nodes means elicitation waits until timeout. That is a
 
 ## When to use a native package instead
 
-Stay on this package when the host already uses EF Core. Reach for [PostgreSQL](/guides/stores/postgresql) when you want `LISTEN` / `NOTIFY` without EF. Reach for [SQL Server](/guides/stores/sql-server) when you want ADO.NET or Dapper only.
+Stay on this package when the host already uses EF Core.
 
-See [Stores](/guides/stores) for the rest of the family.
+<CardGroup cols={2}>
+  <Card title="PostgreSQL" icon="database" href="/guides/stores/postgresql">
+    Npgsql or Dapper, and `LISTEN` / `NOTIFY`, with no `DbContext`.
+  </Card>
+  <Card title="SQL Server" icon="server" href="/guides/stores/sql-server">
+    ADO.NET or Dapper only. Specified; use this package with `UseSqlServer` until it ships.
+  </Card>
+</CardGroup>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Sample" icon="play" href="https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.EntityFrameworkCore">
+    Runnable SQLite host.
+  </Card>
+  <Card title="Stores" icon="database" href="/guides/stores">
+    Pick a backing store by the engine you already run.
+  </Card>
+  <Card title="Authenticated tasks" icon="user-lock" href="/guides/authenticated-tasks">
+    Identity factory, isolation rules, and the in-memory store.
+  </Card>
+  <Card title="Cosmos DB" icon="globe" href="/guides/stores/cosmos">
+    Native Cosmos when you want in-partition point reads instead of `UseCosmos`.
+  </Card>
+</CardGroup>

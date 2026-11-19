@@ -1,0 +1,225 @@
+---
+title: FormOptionDefinition
+description: "One allowed value on an [FormFieldType.Enum](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormFieldType) or [FormFieldType.Multi](/api-re..."
+icon: lock
+tag: "SEALED"
+keywords: ['FormOptionDefinition', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormOptionDefinition', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'class']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Core.dll
+
+**Namespace:** CloudNimble.McpEssentials.Core.Tasks.Elicitations
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormOptionDefinition
+```
+
+## Summary
+
+One allowed value on an [FormFieldType.Enum](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormFieldType) or [FormFieldType.Multi](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormFieldType) field.
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes an option.
+
+#### Syntax
+
+```csharp
+public FormOptionDefinition(string value, string title = null, bool selected = false)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `value` | `string` | The wire value. |
+| `title` | `string?` | An optional display title. |
+| `selected` | `bool` | [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when this value is the (or a) default.
+Written as `Selected="true"` on the compact island. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentException` | Thrown when *value* is empty. |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public Object()
+```
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Selected
+
+Gets whether this option is selected by default.
+
+#### Syntax
+
+```csharp
+public bool Selected { get; }
+```
+
+#### Property Value
+
+Type: `bool`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Title
+
+Gets the display title, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when the value is untitled.
+
+#### Syntax
+
+```csharp
+public string Title { get; }
+```
+
+#### Property Value
+
+Type: `string?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Value
+
+Gets the wire value.
+
+#### Syntax
+
+```csharp
+public string Value { get; }
+```
+
+#### Property Value
+
+Type: `string`
+
+## Methods
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual bool Equals(object obj)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `obj` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool Equals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetHashCode <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual int GetHashCode()
+```
+
+#### Returns
+
+Type: `int`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetType <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public System.Type GetType()
+```
+
+#### Returns
+
+Type: `System.Type`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MemberwiseClone <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+protected internal object MemberwiseClone()
+```
+
+#### Returns
+
+Type: `object`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ReferenceEquals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool ReferenceEquals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToString <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual string ToString()
+```
+
+#### Returns
+
+Type: `string?`
+

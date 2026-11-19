@@ -1,4 +1,4 @@
-<Project Sdk="DotNetDocs.Sdk/1.5.5-preview.1">
+﻿<Project Sdk="DotNetDocs.Sdk/2.0.0">
 
     <PropertyGroup>
         <DocumentationType>Mintlify</DocumentationType>
@@ -21,15 +21,22 @@
                 <Pages>
                     <Groups>
                         <Group Name="Getting Started" Icon="stars">
-                            <Pages>index</Pages>
+                            <Pages>
+                                index;
+                                quickstart;
+                                why-mcpessentials
+                            </Pages>
                         </Group>
-                        <Group Name="Guides" Icon="dog-leashed" Root="guides/index">
+                        <Group Name="Guides" Icon="dog-leashed">
                             <Pages>
                                 guides/index;
-                                guides/authenticated-tasks
+                                guides/authenticated-tasks;
+                                guides/understanding-form-elicitation;
+                                guides/form-elicitation;
+                                guides/analyzers
                             </Pages>
                             <Groups>
-                                <Group Name="Stores" Icon="database" Root="guides/stores/index">
+                                <Group Name="Stores" Icon="database">
                                     <Pages>
                                         guides/stores/index
                                     </Pages>
@@ -66,8 +73,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\CloudNimble.McpEssentials.Analyzers\CloudNimble.McpEssentials.Analyzers.csproj" />
         <ProjectReference Include="..\CloudNimble.McpEssentials.Core\CloudNimble.McpEssentials.Core.csproj" />
+        <ProjectReference Include="..\CloudNimble.McpEssentials.Cosmos\CloudNimble.McpEssentials.Cosmos.csproj" />
         <ProjectReference Include="..\CloudNimble.McpEssentials.EntityFrameworkCore\CloudNimble.McpEssentials.EntityFrameworkCore.csproj" />
+        <ProjectReference Include="..\CloudNimble.McpEssentials.PostgreSQL\CloudNimble.McpEssentials.PostgreSQL.csproj" />
+        <ProjectReference Include="..\CloudNimble.McpEssentials.Redis\CloudNimble.McpEssentials.Redis.csproj" />
     </ItemGroup>
 
 </Project>

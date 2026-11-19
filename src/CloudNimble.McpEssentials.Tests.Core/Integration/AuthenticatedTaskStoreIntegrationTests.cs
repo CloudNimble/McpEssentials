@@ -17,7 +17,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Integration
 
     /// <summary>
     /// Breakdance host tests that resolve the real store from DI and prove per-user isolation
-    /// through both <see cref="IMcpTaskStore"/> and <see cref="IPerUserMcpTaskStore"/>.
+    /// through both <see cref="IMcpTaskStore"/> and <see cref="IMcpTaskStorePlus"/>.
     /// </summary>
     [TestClass]
     public class AuthenticatedTaskStoreIntegrationTests : BreakdanceMSTestBase
@@ -37,7 +37,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Integration
             _user = new TestUser("alice");
             TestHostBuilder.ConfigureServices(services =>
             {
-                services.AddInMemoryAuthenticatedTaskStore(() => _user.UserId);
+                services.AddInMemoryMcpTaskStorePlus(() => _user.UserId);
             });
             TestSetup();
         }
@@ -75,9 +75,9 @@ namespace CloudNimble.McpEssentials.Tests.Core.Integration
         }
 
         [TestMethod]
-        public async Task Host_IPerUserMcpTaskStore_UsesExplicitPrincipals()
+        public async Task Host_IMcpTaskStorePlus_UsesExplicitPrincipals()
         {
-            var store = GetService<IPerUserMcpTaskStore>();
+            var store = GetService<IMcpTaskStorePlus>();
             var alice = TestUser.Authenticated("alice");
             var bob = TestUser.Authenticated("bob");
 
@@ -90,8 +90,8 @@ namespace CloudNimble.McpEssentials.Tests.Core.Integration
         public async Task Host_SameInstance_ForAllRegistrations()
         {
             var mcp = GetService<IMcpTaskStore>();
-            var perUser = GetService<IPerUserMcpTaskStore>();
-            var concrete = GetService<InMemoryAuthenticatedMcpTaskStore>();
+            var perUser = GetService<IMcpTaskStorePlus>();
+            var concrete = GetService<InMemoryMcpTaskStorePlus>();
 
             mcp.Should().BeSameAs(perUser);
             mcp.Should().BeSameAs(concrete);
@@ -116,7 +116,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Integration
         [TestMethod]
         public async Task Host_ResolveInput_OnlyOwnerRaisesEvent()
         {
-            var store = GetService<IPerUserMcpTaskStore>();
+            var store = GetService<IMcpTaskStorePlus>();
             var created = await store!.CreateTaskAsync(TestUser.Authenticated("alice"));
             var raised = 0;
             store.InputResponseReceived += _ => raised++;
@@ -146,7 +146,7 @@ namespace CloudNimble.McpEssentials.Tests.Core.Integration
             ClaimsPrincipal? current = TestUser.Authenticated("alice");
             TestHostBuilder.ConfigureServices(services =>
             {
-                services.AddInMemoryAuthenticatedTaskStore(_ => current);
+                services.AddInMemoryMcpTaskStorePlus(_ => current);
             });
             TestSetup();
 

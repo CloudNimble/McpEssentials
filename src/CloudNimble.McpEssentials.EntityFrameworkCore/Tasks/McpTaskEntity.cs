@@ -14,6 +14,17 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
     public class McpTaskEntity : StoredMcpTask
     {
 
+        #region Fields
+
+        private string? _cachedResultJson;
+        private string? _cachedErrorJson;
+        private string? _cachedInputRequestsJson;
+        private bool _resultJsonCached;
+        private bool _errorJsonCached;
+        private bool _inputRequestsJsonCached;
+
+        #endregion
+
         #region Properties
 
         /// <summary>
@@ -27,8 +38,22 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
         /// </summary>
         public string? ResultJson
         {
-            get => ToJson(Result);
-            set => Result = ParseElement(value);
+            get
+            {
+                if (!_resultJsonCached)
+                {
+                    _cachedResultJson = ToJson(Result);
+                    _resultJsonCached = true;
+                }
+
+                return _cachedResultJson;
+            }
+            set
+            {
+                _cachedResultJson = value;
+                _resultJsonCached = true;
+                Result = ParseElement(value);
+            }
         }
 
         /// <summary>
@@ -36,8 +61,22 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
         /// </summary>
         public string? ErrorJson
         {
-            get => ToJson(Error);
-            set => Error = ParseElement(value);
+            get
+            {
+                if (!_errorJsonCached)
+                {
+                    _cachedErrorJson = ToJson(Error);
+                    _errorJsonCached = true;
+                }
+
+                return _cachedErrorJson;
+            }
+            set
+            {
+                _cachedErrorJson = value;
+                _errorJsonCached = true;
+                Error = ParseElement(value);
+            }
         }
 
         /// <summary>
@@ -45,8 +84,22 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
         /// </summary>
         public string? InputRequestsJson
         {
-            get => ToInputRequestsJson(InputRequests);
-            set => InputRequests = ParseInputRequests(value);
+            get
+            {
+                if (!_inputRequestsJsonCached)
+                {
+                    _cachedInputRequestsJson = ToInputRequestsJson(InputRequests);
+                    _inputRequestsJsonCached = true;
+                }
+
+                return _cachedInputRequestsJson;
+            }
+            set
+            {
+                _cachedInputRequestsJson = value;
+                _inputRequestsJsonCached = true;
+                InputRequests = ParseInputRequests(value);
+            }
         }
 
         #endregion
@@ -92,6 +145,19 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
             }
 
             return clone;
+        }
+
+        #endregion
+
+        #region Protected Methods
+
+        /// <inheritdoc />
+        protected override void InvalidateInfo()
+        {
+            base.InvalidateInfo();
+            _resultJsonCached = false;
+            _errorJsonCached = false;
+            _inputRequestsJsonCached = false;
         }
 
         #endregion

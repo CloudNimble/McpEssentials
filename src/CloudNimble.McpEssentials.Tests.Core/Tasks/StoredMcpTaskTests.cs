@@ -342,6 +342,137 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
             stored.Info.Should().BeSameAs(next);
         }
 
+        [TestMethod]
+        public void Constructor_FromInfo_KeepsNonEmptyInputRequests()
+        {
+            var now = DateTimeOffset.UtcNow;
+            var requests = new Dictionary<string, InputRequest>
+            {
+                ["r1"] = InputRequest.ForElicitation(new ElicitRequestParams { Message = "Need input" })
+            };
+            var info = new McpTaskInfo("abc", McpTaskStatus.InputRequired, now, now, null, 1000, null, null, null, requests);
+
+            var stored = new StoredMcpTask("alice", info);
+
+            stored.InputRequests.Should().ContainKey("r1");
+        }
+
+        [TestMethod]
+        public void IsOwnedBy_WhenOwnerOrUserMissing_IsFalse()
+        {
+            var stored = new StoredMcpTask("alice", "id", DateTimeOffset.UtcNow, null, 1000);
+
+            stored.IsOwnedBy(null).Should().BeFalse();
+            stored.IsOwnedBy("  ").Should().BeFalse();
+            stored.IsOwnedBy("alice").Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void TryResolveInputRequests_WhenMapEmpty_ReturnsToWorking()
+        {
+            var now = DateTimeOffset.UtcNow;
+            var stored = new StoredMcpTask("alice", "id", now, null, 1000);
+
+            stored.TryResolveInputRequests(new Dictionary<string, InputResponse>
+            {
+                ["r1"] = InputResponse.FromElicitResult(new ElicitResult { Action = "accept" })
+            }, now).Should().BeTrue();
+
+            stored.Status.Should().Be(McpTaskStatus.Working);
+        }
+
+        [TestMethod]
+        public void ToJson_WhenUndefinedOrNullKind_ReturnsNull()
+        {
+            StoredMcpTask.ToJson(default(JsonElement)).Should().BeNull();
+            StoredMcpTask.ToJson(JsonSerializer.SerializeToElement((string?)null)).Should().BeNull();
+        }
+
+        [TestMethod]
+        public void ToInputRequestsJson_WhenNotDictionary_Copies()
+        {
+            IReadOnlyDictionary<string, InputRequest> requests = new Dictionary<string, InputRequest>
+            {
+                ["r1"] = InputRequest.ForElicitation(new ElicitRequestParams { Message = "Need input" })
+            }.AsReadOnly();
+
+            var json = StoredMcpTask.ToInputRequestsJson(requests);
+            json.Should().Contain("r1");
+        }
+
+        [TestMethod]
+        public void ParseInputRequests_WhenEmptyObject_ReturnsEmpty()
+        {
+            StoredMcpTask.ParseInputRequests("{}").Should().BeSameAs(StoredMcpTask.EmptyInputRequests);
+        }
+
+        [TestMethod]
+        public void WithTry_WhenFinished_ReturnsThis()
+        {
+            var now = DateTimeOffset.UtcNow;
+            var stored = new StoredMcpTask("alice", "id", now, null, 1000);
+            stored.TryCancel(now).Should().BeTrue();
+
+            stored.WithTry(next => next.TryComplete(JsonSerializer.SerializeToElement(new { ok = true }), now))
+                .Should().BeSameAs(stored);
+            stored.Status.Should().Be(McpTaskStatus.Cancelled);
+        }
+
+        [TestMethod]
+        public void WithTry_WhenMutateFails_ReturnsThis()
+        {
+            var stored = new StoredMcpTask("alice", "id", DateTimeOffset.UtcNow, null, 1000);
+
+            stored.WithTry(_ => false).Should().BeSameAs(stored);
+            stored.Status.Should().Be(McpTaskStatus.Working);
+        }
+
+        [TestMethod]
+        public void WithTry_WhenMutateSucceeds_ReturnsClone()
+        {
+            var now = DateTimeOffset.UtcNow;
+            var stored = new StoredMcpTask("alice", "id", now, null, 1000);
+
+            var next = stored.WithTry(clone => clone.TryCancel(now));
+
+            next.Should().NotBeSameAs(stored);
+            next.Status.Should().Be(McpTaskStatus.Cancelled);
+            stored.Status.Should().Be(McpTaskStatus.Working);
+        }
+
+        [TestMethod]
+        public void ToInputRequestDictionaryOrNull_EmptyIsNull_CopiesNonDictionary()
+        {
+            var now = DateTimeOffset.UtcNow;
+            var stored = new StoredMcpTask("alice", "id", now, null, 1000);
+
+            stored.ToInputRequestDictionaryOrNull().Should().BeNull();
+
+            var inner = new Dictionary<string, InputRequest>
+            {
+                ["r1"] = InputRequest.ForElicitation(new ElicitRequestParams { Message = "Need input" })
+            };
+            stored.TrySetInputRequests(inner, now);
+            stored.ToInputRequestDictionaryOrNull().Should().BeSameAs(stored.InputRequests as Dictionary<string, InputRequest>);
+
+            stored.InputRequests = new System.Collections.ObjectModel.ReadOnlyDictionary<string, InputRequest>(inner);
+            var copy = stored.ToInputRequestDictionaryOrNull();
+            copy.Should().ContainKey("r1");
+            copy.Should().NotBeSameAs(inner);
+        }
+
+        [TestMethod]
+        public void WorkingConstructor_DefersInfoUntilAccessed()
+        {
+            var now = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            var stored = new StoredMcpTask("alice", "task1", now, TimeSpan.FromSeconds(30), 250);
+
+            var info = stored.Info;
+            info.TaskId.Should().Be("task1");
+            info.Status.Should().Be(McpTaskStatus.Working);
+            stored.Info.Should().BeSameAs(info);
+        }
+
         #endregion
 
     }

@@ -7,9 +7,9 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
 {
 
     /// <summary>
-    /// Counts <see cref="InMemoryAuthenticatedMcpTaskStore.CreateTaskAsync"/> calls.
+    /// Counts <see cref="InMemoryMcpTaskStorePlus.CreateTaskAsync"/> calls.
     /// </summary>
-    internal class CountingStore : InMemoryAuthenticatedMcpTaskStore
+    internal class CountingStore : InMemoryMcpTaskStorePlus
     {
 
         #region Properties

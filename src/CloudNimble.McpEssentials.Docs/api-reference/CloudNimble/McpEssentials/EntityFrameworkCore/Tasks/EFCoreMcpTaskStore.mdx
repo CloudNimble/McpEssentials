@@ -1,0 +1,152 @@
+---
+title: EFCoreMcpTaskStore
+description: "An [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) that persists snapshots on `TContext.Set<McpTaskEntity>()`. Reg..."
+icon: code-branch
+keywords: ['EFCoreMcpTaskStore', 'CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.EFCoreMcpTaskStore<TContext>', 'CloudNimble.McpEssentials.EntityFrameworkCore.Tasks', 'class', 'CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase', 'System.IDisposable']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.EntityFrameworkCore.dll
+
+**Namespace:** CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
+
+**Inheritance:** CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.EntityFrameworkCore.Tasks.EFCoreMcpTaskStore<TContext>
+```
+
+## Summary
+
+An [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) that persists snapshots on
+`TContext.Set<McpTaskEntity>()`. Register as a singleton. The host registers
+*TContext* as scoped (standard `AddDbContext`); this store opens
+a scope per operation.
+
+## Remarks
+
+Client-facing operations require a current user and treat another user's task as missing.
+Server-side completion skips the live-user check. Optional [IMcpTaskInputSignalBus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus)
+fans [McpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#inputresponsereceived) out to other nodes.
+The SDK `WithTasks` API captures the store instance before `Build()`; use
+`WithTasksPlus` so the provider is stamped on first use.
+
+## Type Parameters
+
+- `TContext` - The host [DbContext](https://learn.microsoft.com/dotnet/api/microsoft.entityframeworkcore.dbcontext). Map [McpTaskEntity](/api-reference/CloudNimble/McpEssentials/EntityFrameworkCore/Tasks/McpTaskEntity) with
+`ModelBuilder.AddMcpTasksTable` in `OnModelCreating`, or with
+`DbContextOptionsBuilder.AddMcpTasksTable` from `AddDbContext` when the context
+project must not reference this package.
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance of the `EFCoreMcpTaskStore`1` class.
+
+#### Syntax
+
+```csharp
+public EFCoreMcpTaskStore(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory, System.Func<string> getCurrentUserId, CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus signalBus = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `scopeFactory` | `Microsoft.Extensions.DependencyInjection.IServiceScopeFactory` | Opens a scope per operation to resolve *TContext*. |
+| `getCurrentUserId` | `System.Func<string?>` | Returns the current user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unauthenticated. |
+| `signalBus` | `CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus?` | Optional bus that fans resolved input out to other nodes. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *scopeFactory* or *getCurrentUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance of the `EFCoreMcpTaskStore`1` class
+that always uses *userId*.
+
+#### Syntax
+
+```csharp
+public EFCoreMcpTaskStore(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory, string userId, CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus signalBus = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `scopeFactory` | `Microsoft.Extensions.DependencyInjection.IServiceScopeFactory` | Opens a scope per operation to resolve *TContext*. |
+| `userId` | `string?` | The user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) to treat the process as unauthenticated. |
+| `signalBus` | `CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus?` | Optional bus that fans resolved input out to other nodes. |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance of the `EFCoreMcpTaskStore`1` class
+that resolves the user from a [ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.claimsprincipal).
+
+#### Syntax
+
+```csharp
+public EFCoreMcpTaskStore(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory scopeFactory, System.Func<System.Security.Claims.ClaimsPrincipal> getPrincipal, CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus signalBus = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `scopeFactory` | `Microsoft.Extensions.DependencyInjection.IServiceScopeFactory` | Opens a scope per operation to resolve *TContext*. |
+| `getPrincipal` | `System.Func<System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. |
+| `signalBus` | `CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus?` | Optional bus that fans resolved input out to other nodes. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *scopeFactory* or *getPrincipal* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance of the `EFCoreMcpTaskStore`1` class
+with deferred factories so the MCP server builder can capture the store before `Build()`.
+
+#### Syntax
+
+```csharp
+public EFCoreMcpTaskStore(System.Func<Microsoft.Extensions.DependencyInjection.IServiceScopeFactory> getScopeFactory, System.Func<string> getCurrentUserId, System.Func<CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus> getSignalBus = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `getScopeFactory` | `System.Func<Microsoft.Extensions.DependencyInjection.IServiceScopeFactory>` | Returns the scope factory from the built provider. |
+| `getCurrentUserId` | `System.Func<string?>` | Returns the current user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unauthenticated. |
+| `getSignalBus` | `System.Func<CloudNimble.McpEssentials.Core.Tasks.IMcpTaskInputSignalBus?>?` | Returns the optional bus from the built provider. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *getScopeFactory* or *getCurrentUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+## Methods
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Dispose <Badge color="orange">Virtual</Badge>
+
+#### Syntax
+
+```csharp
+public virtual void Dispose()
+```
+
+## Related APIs
+
+- System.IDisposable
+

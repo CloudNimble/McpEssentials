@@ -1,6 +1,8 @@
 ---
 title: "IDistributedCache"
 description: "Authenticated task store over whatever IDistributedCache you already registered. Specified; not in this repository yet."
+icon: "box-archive"
+tag: "Specified"
 keywords: ["IDistributedCache", "NCache", "FusionCache"]
 ---
 
@@ -8,17 +10,45 @@ keywords: ["IDistributedCache", "NCache", "FusionCache"]
 `McpEssentials.DistributedCache` is specified and is not in this repository yet.
 </Warning>
 
-Use this when the host already registered `IDistributedCache` (Redis, NCache, SQL Server cache, FusionCache, …) and you want tasks on that abstraction. Prefer [Redis](/guides/stores/redis) when the cache is Redis and you need pub/sub.
+Use this when the host already registered `IDistributedCache` (Redis, NCache, SQL Server cache, FusionCache, …) and you want tasks on that abstraction.
+
+<CardGroup cols={2}>
+  <Card title="When it ships" icon="circle-check">
+    The cache abstraction is already in DI and a host-supplied bus covers fan-out.
+  </Card>
+  <Card title="Until then" icon="bolt" href="/guides/stores/redis">
+    Prefer Redis when the cache is Redis and you need pub/sub for elicitation.
+  </Card>
+</CardGroup>
 
 ## Intended how-to
 
-1. Add `McpEssentials.DistributedCache`.
-2. Serialize the canonical `StoredMcpTask` record with source-generated JSON. Key `mcp:task:{taskId}`.
-3. Register the store as a singleton with the same current-user factory as [Authenticated tasks](/guides/authenticated-tasks).
-4. `IDistributedCache` has no pub/sub. For multi-node `ElicitAsync`, register [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus). Single-node hosts can skip the bus.
+<Steps>
+  <Step title="Add the package">
+    Add `McpEssentials.DistributedCache`.
+  </Step>
+  <Step title="Key the snapshot">
+    Serialize the canonical `StoredMcpTask` record with source-generated JSON. Key `mcp:task:{taskId}`.
+  </Step>
+  <Step title="Register the store">
+    Singleton, same current-user factory as [Authenticated tasks](/guides/authenticated-tasks).
+  </Step>
+  <Step title="Optional bus">
+    `IDistributedCache` has no pub/sub. For multi-node `ElicitAsync`, register [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus). Single-node hosts can skip the bus.
+  </Step>
+</Steps>
 
 ## TTL
 
 Set cache entry expiry from `DiscardAfter` (`CreatedAt + 2×TimeToLive`). A missing key is not found.
 
-See [Stores](/guides/stores).
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Redis" icon="bolt" href="/guides/stores/redis">
+    Shipped. Native `PEXPIREAT` plus pub/sub.
+  </Card>
+  <Card title="Stores" icon="database" href="/guides/stores">
+    Pick a backing store by the engine you already run.
+  </Card>
+</CardGroup>

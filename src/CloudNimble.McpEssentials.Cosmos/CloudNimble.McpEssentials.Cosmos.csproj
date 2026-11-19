@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net11.0;net10.0;net9.0;net8.0;</TargetFrameworks>
+        <Title>McpEssentials — Cosmos DB</Title>
+        <Description>Run MCP tasks on Azure Cosmos DB for NoSQL. Point reads by owner, native document TTL, and an index so background completion still finds the row.</Description>
+        <PackageTags>mcp;modelcontextprotocol;tasks;authentication;cosmos;azure;cloudnimble</PackageTags>
+        <!-- The Cosmos SDK is not AOT-safe; it still uses Newtonsoft for the wire protocol. -->
+        <IsAotCompatible>false</IsAotCompatible>
+        <IsTrimmable>false</IsTrimmable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.*" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.*" />
+        <ProjectReference Include="..\CloudNimble.McpEssentials.Core\CloudNimble.McpEssentials.Core.csproj" />
+    </ItemGroup>
+
+</Project>

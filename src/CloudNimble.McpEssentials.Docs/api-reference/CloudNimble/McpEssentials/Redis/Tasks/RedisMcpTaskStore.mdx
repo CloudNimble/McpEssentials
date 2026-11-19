@@ -1,0 +1,188 @@
+---
+title: RedisMcpTaskStore
+description: "An [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) that persists snapshots as Redis strings with `PEXPIREAT` from ..."
+icon: file-brackets-curly
+keywords: ['RedisMcpTaskStore', 'CloudNimble.McpEssentials.Redis.Tasks.RedisMcpTaskStore', 'CloudNimble.McpEssentials.Redis.Tasks', 'class', 'CloudNimble.McpEssentials.Core.Tasks.NotifyingMcpTaskStoreBase']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Redis.dll
+
+**Namespace:** CloudNimble.McpEssentials.Redis.Tasks
+
+**Inheritance:** CloudNimble.McpEssentials.Core.Tasks.NotifyingMcpTaskStoreBase
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Redis.Tasks.RedisMcpTaskStore
+```
+
+## Summary
+
+An [IMcpTaskStorePlus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) that persists snapshots as Redis strings with
+`PEXPIREAT` from [StoredMcpTask.DiscardAfter](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#discardafter) and fans resolved input
+over pub/sub.
+
+## Remarks
+
+Register as a singleton. The host owns `IConnectionMultiplexer`.
+Native expiry is the drain; [McpTaskStoreBase.AutoSweep](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#autosweep) defaults to
+[`false`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool). `WAIT` after create is off until
+[RedisMcpTaskStore.WaitReplicas](/api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTaskStore#waitreplicas) is positive. Eventually-consistent Redis without wait
+is not SEP-2663 durable across nodes.
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance of the [RedisMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Redis/Tasks/RedisMcpTaskStore) class.
+
+#### Syntax
+
+```csharp
+public RedisMcpTaskStore(StackExchange.Redis.IConnectionMultiplexer multiplexer, System.Func<string> getCurrentUserId)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `multiplexer` | `StackExchange.Redis.IConnectionMultiplexer` | The Redis connection. The host owns its lifetime. |
+| `getCurrentUserId` | `System.Func<string?>` | Returns the current user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unauthenticated. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *multiplexer* or *getCurrentUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance that always uses *userId*.
+
+#### Syntax
+
+```csharp
+public RedisMcpTaskStore(StackExchange.Redis.IConnectionMultiplexer multiplexer, string userId)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `multiplexer` | `StackExchange.Redis.IConnectionMultiplexer` | The Redis connection. The host owns its lifetime. |
+| `userId` | `string?` | The user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) to treat the process as unauthenticated. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *multiplexer* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance that resolves the user from a [ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.claimsprincipal).
+
+#### Syntax
+
+```csharp
+public RedisMcpTaskStore(StackExchange.Redis.IConnectionMultiplexer multiplexer, System.Func<System.Security.Claims.ClaimsPrincipal> getPrincipal)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `multiplexer` | `StackExchange.Redis.IConnectionMultiplexer` | The Redis connection. The host owns its lifetime. |
+| `getPrincipal` | `System.Func<System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *multiplexer* or *getPrincipal* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance with deferred factories so the MCP server builder can
+capture the store before `Build()`.
+
+#### Syntax
+
+```csharp
+public RedisMcpTaskStore(System.Func<StackExchange.Redis.IConnectionMultiplexer> getMultiplexer, System.Func<string> getCurrentUserId)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `getMultiplexer` | `System.Func<StackExchange.Redis.IConnectionMultiplexer>` | Returns the multiplexer from the built provider. |
+| `getCurrentUserId` | `System.Func<string?>` | Returns the current user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unauthenticated. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *getMultiplexer* or *getCurrentUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Database <Badge color="orange">Virtual</Badge>
+
+Gets or sets the Redis database index, or `-1` for the multiplexer default.
+
+#### Syntax
+
+```csharp
+public virtual int Database { get; set; }
+```
+
+#### Property Value
+
+Type: `int`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> KeyPrefix <Badge color="orange">Virtual</Badge>
+
+Gets or sets the key prefix. Task keys are `{prefix}:task:{taskId}`.
+
+#### Syntax
+
+```csharp
+public virtual string KeyPrefix { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> WaitReplicas <Badge color="orange">Virtual</Badge>
+
+Gets or sets how many replicas must acknowledge a create. Zero skips `WAIT`.
+
+#### Syntax
+
+```csharp
+public virtual int WaitReplicas { get; set; }
+```
+
+#### Property Value
+
+Type: `int`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> WaitTimeout <Badge color="orange">Virtual</Badge>
+
+Gets or sets how long to wait for replica acknowledgement.
+
+#### Syntax
+
+```csharp
+public virtual System.TimeSpan WaitTimeout { get; set; }
+```
+
+#### Property Value
+
+Type: `System.TimeSpan`
+

@@ -1,0 +1,421 @@
+---
+title: FormFieldDefinition
+description: "Immutable snapshot of one form field. Produced by [IFormElicitationSource.ToDefinition](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/IFor..."
+icon: lock
+tag: "SEALED"
+keywords: ['FormFieldDefinition', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'class']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Core.dll
+
+**Namespace:** CloudNimble.McpEssentials.Core.Tasks.Elicitations
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition
+```
+
+## Summary
+
+Immutable snapshot of one form field. Produced by [IFormElicitationSource.ToDefinition](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/IFormElicitationSource#todefinition)
+and by [FormXml.Parse](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormXml#parse).
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a field with *name* and *type*.
+Remaining facets are set with object initializers.
+
+#### Syntax
+
+```csharp
+public FormFieldDefinition(string name, CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldType type)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The camelCase wire name. |
+| `type` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldType` | The primitive kind. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentException` | Thrown when *name* is empty. |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public Object()
+```
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DefaultBool
+
+Gets the default boolean value, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unset.
+
+#### Syntax
+
+```csharp
+public bool? DefaultBool { get; init; }
+```
+
+#### Property Value
+
+Type: `bool?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DefaultNumber
+
+Gets the default numeric value, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unset.
+
+#### Syntax
+
+```csharp
+public double? DefaultNumber { get; init; }
+```
+
+#### Property Value
+
+Type: `double?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DefaultString
+
+Gets the default string or single-select value, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unset.
+
+#### Syntax
+
+```csharp
+public string DefaultString { get; init; }
+```
+
+#### Property Value
+
+Type: `string?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DefaultStrings
+
+Gets the default multi-select values, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unset.
+
+#### Syntax
+
+```csharp
+public System.Collections.Generic.IReadOnlyList<string> DefaultStrings { get; init; }
+```
+
+#### Property Value
+
+Type: `System.Collections.Generic.IReadOnlyList<string>?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Description
+
+Gets the description shown with the field.
+
+#### Syntax
+
+```csharp
+public string Description { get; init; }
+```
+
+#### Property Value
+
+Type: `string?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Format
+
+Gets the string format: `email`, `uri`, `date`, or `date-time`.
+
+#### Syntax
+
+```csharp
+public string Format { get; init; }
+```
+
+#### Property Value
+
+Type: `string?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Maximum
+
+Gets the maximum numeric value.
+
+#### Syntax
+
+```csharp
+public double? Maximum { get; init; }
+```
+
+#### Property Value
+
+Type: `double?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MaxItems
+
+Gets the maximum number of selected items on a multi-select field.
+
+#### Syntax
+
+```csharp
+public int? MaxItems { get; init; }
+```
+
+#### Property Value
+
+Type: `int?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MaxLength
+
+Gets the maximum string length.
+
+#### Syntax
+
+```csharp
+public int? MaxLength { get; init; }
+```
+
+#### Property Value
+
+Type: `int?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Minimum
+
+Gets the minimum numeric value.
+
+#### Syntax
+
+```csharp
+public double? Minimum { get; init; }
+```
+
+#### Property Value
+
+Type: `double?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MinItems
+
+Gets the minimum number of selected items on a multi-select field.
+
+#### Syntax
+
+```csharp
+public int? MinItems { get; init; }
+```
+
+#### Property Value
+
+Type: `int?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MinLength
+
+Gets the minimum string length.
+
+#### Syntax
+
+```csharp
+public int? MinLength { get; init; }
+```
+
+#### Property Value
+
+Type: `int?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Name
+
+Gets the camelCase wire name.
+
+#### Syntax
+
+```csharp
+public string Name { get; }
+```
+
+#### Property Value
+
+Type: `string`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Options
+
+Gets the allowed values for enum and multi fields.
+
+#### Syntax
+
+```csharp
+public System.Collections.Generic.IReadOnlyList<CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormOptionDefinition> Options { get; init; }
+```
+
+#### Property Value
+
+Type: `System.Collections.Generic.IReadOnlyList<CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormOptionDefinition>`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Required
+
+Gets whether the field is listed in `required`.
+
+#### Syntax
+
+```csharp
+public bool Required { get; init; }
+```
+
+#### Property Value
+
+Type: `bool`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Title
+
+Gets the display title.
+
+#### Syntax
+
+```csharp
+public string Title { get; init; }
+```
+
+#### Property Value
+
+Type: `string?`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Type
+
+Gets the primitive kind.
+
+#### Syntax
+
+```csharp
+public CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldType Type { get; }
+```
+
+#### Property Value
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldType`
+
+## Methods
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual bool Equals(object obj)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `obj` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool Equals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetHashCode <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual int GetHashCode()
+```
+
+#### Returns
+
+Type: `int`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetType <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public System.Type GetType()
+```
+
+#### Returns
+
+Type: `System.Type`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MemberwiseClone <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+protected internal object MemberwiseClone()
+```
+
+#### Returns
+
+Type: `object`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ReferenceEquals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool ReferenceEquals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToString <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual string ToString()
+```
+
+#### Returns
+
+Type: `string?`
+

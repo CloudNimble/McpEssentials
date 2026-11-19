@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net11.0;net10.0;net9.0;net8.0;</TargetFrameworks>
+        <Title>McpEssentials — Redis</Title>
+        <Description>Run MCP tasks on Redis. Keys expire on their own, and pub/sub wakes every node when a user answers an elicitation form.</Description>
+        <PackageTags>mcp;modelcontextprotocol;tasks;authentication;redis;stackexchange;cloudnimble</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="StackExchange.Redis" Version="2.*" />
+        <ProjectReference Include="..\CloudNimble.McpEssentials.Core\CloudNimble.McpEssentials.Core.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,91 @@
+---
+title: CosmosSystemTextJsonSerializer
+description: "Cosmos serializer that uses source-generated `CosmosMcpTasksJsonContext` with a reflection fallback for types the context does not list."
+icon: file-brackets-curly
+keywords: ['CosmosSystemTextJsonSerializer', 'CloudNimble.McpEssentials.Cosmos.Tasks.CosmosSystemTextJsonSerializer', 'CloudNimble.McpEssentials.Cosmos.Tasks', 'class', 'Microsoft.Azure.Cosmos.CosmosSerializer']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Cosmos.dll
+
+**Namespace:** CloudNimble.McpEssentials.Cosmos.Tasks
+
+**Inheritance:** Microsoft.Azure.Cosmos.CosmosSerializer
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Cosmos.Tasks.CosmosSystemTextJsonSerializer
+```
+
+## Summary
+
+Cosmos serializer that uses source-generated `CosmosMcpTasksJsonContext`
+with a reflection fallback for types the context does not list.
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance using [CosmosSystemTextJsonSerializer.CreateOptions](/api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosSystemTextJsonSerializer#createoptions).
+
+#### Syntax
+
+```csharp
+public CosmosSystemTextJsonSerializer()
+```
+
+## Methods
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> CreateOptions
+
+Builds the JSON options passed to Cosmos and used by unit tests.
+
+#### Syntax
+
+```csharp
+public static System.Text.Json.JsonSerializerOptions CreateOptions()
+```
+
+#### Returns
+
+Type: `System.Text.Json.JsonSerializerOptions`
+Camel-case options with the source-generated context first.
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> FromStream <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override T FromStream<T>(System.IO.Stream stream)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `stream` | `System.IO.Stream` | - |
+
+#### Returns
+
+Type: `T`
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToStream <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override System.IO.Stream ToStream<T>(T input)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `input` | `T` | - |
+
+#### Returns
+
+Type: `System.IO.Stream`
+

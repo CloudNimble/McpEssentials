@@ -1,0 +1,190 @@
+---
+title: RequestContext
+description: "Extension methods for RequestContext from ModelContextProtocol.Core"
+icon: file-brackets-curly
+keywords: ['RequestContext', 'ModelContextProtocol.Server.RequestContext<ModelContextProtocol.Protocol.CallToolRequestParams>', 'ModelContextProtocol.Server', 'error']
+---
+
+## Definition
+
+**Assembly:** ModelContextProtocol.Core.dll
+
+**Namespace:** ModelContextProtocol.Server
+
+## Syntax
+
+```csharp
+ModelContextProtocol.Server.RequestContext<ModelContextProtocol.Protocol.CallToolRequestParams>
+```
+
+## Summary
+
+This type is defined in ModelContextProtocol.Core.
+
+## Methods
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> RequireForm <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `ModelContextProtocol.Server.McpEssentials_Core_RequestContextExtensions`</Note>
+
+Resolves the named form from `Services` and
+either returns the client's answer or throws `InputRequiredException`.
+
+#### Syntax
+
+```csharp
+public static ModelContextProtocol.Protocol.ElicitResult RequireForm(ModelContextProtocol.Server.RequestContext<ModelContextProtocol.Protocol.CallToolRequestParams> context, string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `context` | `ModelContextProtocol.Server.RequestContext<ModelContextProtocol.Protocol.CallToolRequestParams>` | The current `tools/call` context. |
+| `name` | `string` | The name passed to `AddFormElicitation`. |
+
+#### Returns
+
+Type: `ModelContextProtocol.Protocol.ElicitResult`
+The elicitation result from the retry.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *context* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `ArgumentException` | Thrown when *name* is empty. |
+| `InvalidOperationException` | Thrown when the server has no service provider, or no form is registered under *name*. |
+| `InputRequiredException` | Thrown when the client has not answered yet. |
+
+#### Examples
+
+```csharp
+[McpServerTool(Name = "ShipOrder")]
+[McpElicitForm("ship")]
+public static string ShipOrder(RequestContext<CallToolRequestParams> context)
+{
+    var result = context.RequireForm("ship");
+    if (!result.IsAccepted)
+    {
+        return "Shipping cancelled.";
+    }
+
+    return $"Shipped as {result.Content!["trackingNumber"].GetString()}.";
+}
+```
+
+#### Remarks
+
+Pair this with [McpElicitFormAttribute](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/McpElicitFormAttribute) so `WithTasksPlus` keeps the call synchronous.
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> RequireForm <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `ModelContextProtocol.Server.McpEssentials_Core_RequestContextExtensions`</Note>
+
+Uses *form* directly: returns the client's answer or throws
+`InputRequiredException`.
+
+#### Syntax
+
+```csharp
+public static ModelContextProtocol.Protocol.ElicitResult RequireForm(ModelContextProtocol.Server.RequestContext<ModelContextProtocol.Protocol.CallToolRequestParams> context, CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource form)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `context` | `ModelContextProtocol.Server.RequestContext<ModelContextProtocol.Protocol.CallToolRequestParams>` | The current `tools/call` context. |
+| `form` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource` | A form builder or field facade whose `Name` is set. |
+
+#### Returns
+
+Type: `ModelContextProtocol.Protocol.ElicitResult`
+The elicitation result from the retry.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *context* or *form* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `InvalidOperationException` | Thrown when *form* has no name. |
+| `InputRequiredException` | Thrown when the client has not answered yet. |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> RequireForm <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `ModelContextProtocol.Server.McpEssentials_Core_RequestContextExtensions`</Note>
+
+Resolves the named form, then deserializes accepted content as *T*.
+
+#### Syntax
+
+```csharp
+public static ModelContextProtocol.Protocol.ElicitResult<T> RequireForm<T>(ModelContextProtocol.Server.RequestContext<ModelContextProtocol.Protocol.CallToolRequestParams> context, string name, System.Text.Json.JsonSerializerOptions options = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `context` | `ModelContextProtocol.Server.RequestContext<ModelContextProtocol.Protocol.CallToolRequestParams>` | The current `tools/call` context. |
+| `name` | `string` | The name passed to `AddFormElicitation`. |
+| `options` | `System.Text.Json.JsonSerializerOptions?` | Serializer options. When [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null), properties are camelCase and enums use their member names.
+Native AOT callers should pass options from a [JsonSerializerContext](https://learn.microsoft.com/dotnet/api/system.text.json.serialization.jsonserializercontext). |
+
+#### Returns
+
+Type: `ModelContextProtocol.Protocol.ElicitResult<T>`
+The typed elicitation result from the retry.
+
+#### Type Parameters
+
+- `T` - The CLR type to bind accepted content onto.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *context* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `ArgumentException` | Thrown when *name* is empty. |
+| `InvalidOperationException` | Thrown when the server has no service provider, or no form is registered under *name*. |
+| `InputRequiredException` | Thrown when the client has not answered yet. |
+
+### <Icon icon="puzzle-piece" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> RequireForm <Badge color="green">Extension</Badge>
+
+<Note>Extension method from `ModelContextProtocol.Server.McpEssentials_Core_RequestContextExtensions`</Note>
+
+Uses *form* directly, then deserializes accepted content as *T*.
+
+#### Syntax
+
+```csharp
+public static ModelContextProtocol.Protocol.ElicitResult<T> RequireForm<T>(ModelContextProtocol.Server.RequestContext<ModelContextProtocol.Protocol.CallToolRequestParams> context, CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource form, System.Text.Json.JsonSerializerOptions options = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `context` | `ModelContextProtocol.Server.RequestContext<ModelContextProtocol.Protocol.CallToolRequestParams>` | The current `tools/call` context. |
+| `form` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource` | A form builder or field facade whose `Name` is set. |
+| `options` | `System.Text.Json.JsonSerializerOptions?` | Serializer options. When [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null), properties are camelCase and enums use their member names.
+Native AOT callers should pass options from a [JsonSerializerContext](https://learn.microsoft.com/dotnet/api/system.text.json.serialization.jsonserializercontext). |
+
+#### Returns
+
+Type: `ModelContextProtocol.Protocol.ElicitResult<T>`
+The typed elicitation result from the retry.
+
+#### Type Parameters
+
+- `T` - The CLR type to bind accepted content onto.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *context* or *form* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `InvalidOperationException` | Thrown when *form* has no name. |
+| `InputRequiredException` | Thrown when the client has not answered yet. |
+

@@ -20,7 +20,7 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Integration
 
     /// <summary>
     /// Breakdance host tests that resolve the EF store from DI and prove per-user isolation
-    /// through both <see cref="IMcpTaskStore"/> and <see cref="IPerUserMcpTaskStore"/> against SQLite.
+    /// through both <see cref="IMcpTaskStore"/> and <see cref="IMcpTaskStorePlus"/> against SQLite.
     /// </summary>
     [TestClass]
     public class EntityFrameworkTaskStoreIntegrationTests : BreakdanceMSTestBase
@@ -86,9 +86,9 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Integration
         }
 
         [TestMethod]
-        public async Task Host_IPerUserMcpTaskStore_UsesExplicitPrincipals()
+        public async Task Host_IMcpTaskStorePlus_UsesExplicitPrincipals()
         {
-            var store = GetService<IPerUserMcpTaskStore>();
+            var store = GetService<IMcpTaskStorePlus>();
             var alice = TestUser.Authenticated("alice");
             var bob = TestUser.Authenticated("bob");
 
@@ -101,8 +101,8 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Integration
         public async Task Host_SameInstance_ForAllRegistrations()
         {
             var mcp = GetService<IMcpTaskStore>();
-            var perUser = GetService<IPerUserMcpTaskStore>();
-            var concrete = GetService<EntityFrameworkAuthenticatedTaskStore<McpTaskDbContext>>();
+            var perUser = GetService<IMcpTaskStorePlus>();
+            var concrete = GetService<EFCoreMcpTaskStore<McpTaskDbContext>>();
 
             mcp.Should().BeSameAs(perUser);
             mcp.Should().BeSameAs(concrete);
@@ -127,7 +127,7 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Integration
         [TestMethod]
         public async Task Host_ResolveInput_OnlyOwnerRaisesEvent()
         {
-            var store = GetService<IPerUserMcpTaskStore>();
+            var store = GetService<IMcpTaskStorePlus>();
             var created = await store!.CreateTaskAsync(TestUser.Authenticated("alice"));
             var raised = 0;
             store.InputResponseReceived += _ => raised++;

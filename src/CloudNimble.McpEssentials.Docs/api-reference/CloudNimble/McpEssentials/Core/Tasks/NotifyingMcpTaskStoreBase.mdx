@@ -1,0 +1,1104 @@
+---
+title: NotifyingMcpTaskStoreBase
+description: "[McpTaskStoreBase](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) for engines that fan resolved input over a native notification chann..."
+icon: shapes
+tag: "ABSTRACT"
+keywords: ['NotifyingMcpTaskStoreBase', 'CloudNimble.McpEssentials.Core.Tasks.NotifyingMcpTaskStoreBase', 'CloudNimble.McpEssentials.Core.Tasks', 'class', 'CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase', 'CloudNimble.McpEssentials.Core.Tasks.IMcpTaskStorePlus', 'ModelContextProtocol.Extensions.Tasks.IMcpTaskStore', 'System.IDisposable']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Core.dll
+
+**Namespace:** CloudNimble.McpEssentials.Core.Tasks
+
+**Inheritance:** CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Core.Tasks.NotifyingMcpTaskStoreBase
+```
+
+## Summary
+
+[McpTaskStoreBase](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) for engines that fan resolved input over a native
+notification channel (Redis pub/sub, Postgres `NOTIFY`, NATS). Subclasses
+implement publish, subscribe, and unsubscribe. This type skips this process's
+own echo and raises [McpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#inputresponsereceived) for remote payloads.
+
+## Remarks
+
+Call `EnsureSubscription` from request-path core methods. After a successful
+local resolve, call `NotifyResolvedInputAsync`. Providers without a native
+channel (EF Core, Cosmos v1) keep using optional [IMcpTaskInputSignalBus](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus).
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Initializes a new instance of the [McpTaskStoreBase](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) class.
+
+#### Syntax
+
+```csharp
+protected McpTaskStoreBase(System.Func<string> getCurrentUserId)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `getCurrentUserId` | `System.Func<string?>` | Returns the current user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when unauthenticated. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *getCurrentUserId* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Initializes a new instance of the [McpTaskStoreBase](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) class
+that always uses *userId*.
+
+#### Syntax
+
+```csharp
+protected McpTaskStoreBase(string userId)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `userId` | `string?` | The user identifier, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) to treat the process as unauthenticated. |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Initializes a new instance of the [McpTaskStoreBase](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) class
+that resolves the user from a [ClaimsPrincipal](https://learn.microsoft.com/dotnet/api/system.security.claims.claimsprincipal).
+
+#### Syntax
+
+```csharp
+protected McpTaskStoreBase(System.Func<System.Security.Claims.ClaimsPrincipal> getPrincipal)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `getPrincipal` | `System.Func<System.Security.Claims.ClaimsPrincipal?>` | Returns the principal for the current request. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *getPrincipal* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public Object()
+```
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> AutoSweep <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Gets or sets whether the store pulses a throttled flush after create and on get.
+
+#### Syntax
+
+```csharp
+public virtual bool AutoSweep { get; set; }
+```
+
+#### Property Value
+
+Type: `bool`
+The default is [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool).
+
+#### Remarks
+
+Set to [`false`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) and call [McpTaskStoreBase.SweepExpiredAsync](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#sweepexpiredasync) from your own job
+when you want to own the schedule. The public flush handle always runs a full pass.
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DefaultPollIntervalMs <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Gets or sets the default poll interval in milliseconds for new tasks.
+
+#### Syntax
+
+```csharp
+public virtual long DefaultPollIntervalMs { get; set; }
+```
+
+#### Property Value
+
+Type: `long`
+The default is 1000 milliseconds.
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DefaultTimeToLive <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Gets or sets the default time-to-live for new tasks, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) for unlimited.
+
+#### Syntax
+
+```csharp
+public virtual System.TimeSpan? DefaultTimeToLive { get; set; }
+```
+
+#### Property Value
+
+Type: `System.TimeSpan?`
+
+#### Remarks
+
+When set to a positive value, the work window ends at `CreatedAt + TimeToLive` and
+the row is discarded at `CreatedAt + 2×TimeToLive` (stamped as
+[StoredMcpTask.DiscardAfter](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#discardafter)), or sooner when a terminal
+`GetTaskAsync` serves it. A [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or non-positive value keeps tasks
+until a terminal get or until the store discards them.
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetCurrentUserId <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Gets the callback used by the [IMcpTaskStore](/api-reference/ModelContextProtocol/Extensions/Tasks/IMcpTaskStore) methods to resolve the current user.
+
+#### Syntax
+
+```csharp
+protected System.Func<string> GetCurrentUserId { get; }
+```
+
+#### Property Value
+
+Type: `System.Func<string?>`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> LastSweepTicks <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Gets or sets the UTC ticks of the last automatic flush pulse.
+Tests reset this to race the throttle.
+
+#### Syntax
+
+```csharp
+protected long LastSweepTicks { get; set; }
+```
+
+#### Property Value
+
+Type: `long`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ServeAndDrop <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Gets or sets whether an owner get of a terminal snapshot serves it and then drops the row.
+
+#### Syntax
+
+```csharp
+public virtual bool ServeAndDrop { get; set; }
+```
+
+#### Property Value
+
+Type: `bool`
+The default is [`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool).
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SweepInterval <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Gets or sets the minimum interval between automatic flush pulses.
+
+#### Syntax
+
+```csharp
+public virtual System.TimeSpan SweepInterval { get; set; }
+```
+
+#### Property Value
+
+Type: `System.TimeSpan`
+The default is 30 seconds. [Zero](https://learn.microsoft.com/dotnet/api/system.timespan.zero) skips the throttle.
+
+## Methods
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> CreateTaskAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> CreateTaskAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> CreateTaskAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> CreateTaskAsync(System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `user` | `System.Security.Claims.ClaimsPrincipal` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo>`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> CreateTaskCoreAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Abstract</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Creates a task owned by *userId*.
+
+#### Syntax
+
+```csharp
+protected abstract System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> CreateTaskCoreAsync(string userId, System.Threading.CancellationToken cancellationToken)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `userId` | `string` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Dispose <Badge color="orange">Virtual</Badge>
+
+#### Syntax
+
+```csharp
+public virtual void Dispose()
+```
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual bool Equals(object obj)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `obj` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool Equals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetHashCode <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual int GetHashCode()
+```
+
+#### Returns
+
+Type: `int`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetTaskAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> GetTaskAsync(string taskId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo?>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetTaskAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> GetTaskAsync(string taskId, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `user` | `System.Security.Claims.ClaimsPrincipal` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo?>`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetTaskCoreAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Abstract</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Returns the task when *userId* owns it; otherwise [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null).
+
+#### Syntax
+
+```csharp
+protected abstract System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo> GetTaskCoreAsync(string taskId, string userId, System.Threading.CancellationToken cancellationToken)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `userId` | `string` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task<ModelContextProtocol.Extensions.Tasks.McpTaskInfo?>`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetType <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public System.Type GetType()
+```
+
+#### Returns
+
+Type: `System.Type`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetUserId <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Resolves a stable user identifier from *principal*.
+
+#### Syntax
+
+```csharp
+public static string GetUserId(System.Security.Claims.ClaimsPrincipal principal)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `principal` | `System.Security.Claims.ClaimsPrincipal?` | The principal for the current request. |
+
+#### Returns
+
+Type: `string?`
+The first non-whitespace claim in lookup order, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null)
+when the principal is missing or unauthenticated.
+
+#### Remarks
+
+Claim lookup order:
+[NameIdentifier](https://learn.microsoft.com/dotnet/api/system.security.claims.claimtypes.nameidentifier), `sub`, [Upn](https://learn.microsoft.com/dotnet/api/system.security.claims.claimtypes.upn),
+[Name](https://learn.microsoft.com/dotnet/api/system.security.claims.claimtypes.name), then [Name](https://learn.microsoft.com/dotnet/api/system.security.principal.iidentity.name).
+The principal must be authenticated.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetUtcNow <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Returns the current UTC timestamp used for create, update, expiry, and sweep.
+
+#### Syntax
+
+```csharp
+protected virtual System.DateTimeOffset GetUtcNow()
+```
+
+#### Returns
+
+Type: `System.DateTimeOffset`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> IsOwnedBy <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Returns whether *ownerUserId* is the same user as *currentUserId*.
+
+#### Syntax
+
+```csharp
+protected virtual bool IsOwnedBy(string ownerUserId, string currentUserId)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `ownerUserId` | `string?` | - |
+| `currentUserId` | `string?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MemberwiseClone <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+protected internal object MemberwiseClone()
+```
+
+#### Returns
+
+Type: `object`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> NewTaskId <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Generates a unique task identifier.
+
+#### Syntax
+
+```csharp
+protected virtual string NewTaskId()
+```
+
+#### Returns
+
+Type: `string`
+A 32-character hex id.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> NormalizeTimeToLive <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Returns a positive TTL, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) when tasks should be retained until discarded.
+
+#### Syntax
+
+```csharp
+protected virtual System.TimeSpan? NormalizeTimeToLive(System.TimeSpan? timeToLive)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `timeToLive` | `System.TimeSpan?` | - |
+
+#### Returns
+
+Type: `System.TimeSpan?`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> OnInputResponseReceived <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Raises [McpTaskStoreBase.InputResponseReceived](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#inputresponsereceived) for a resolved input.
+
+#### Syntax
+
+```csharp
+protected virtual void OnInputResponseReceived(string taskId, string requestId, ModelContextProtocol.Protocol.InputResponse response)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `requestId` | `string` | - |
+| `response` | `ModelContextProtocol.Protocol.InputResponse` | - |
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> PulseSweepAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Pulses a throttled flush when [McpTaskStoreBase.AutoSweep](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#autosweep) is on.
+
+#### Syntax
+
+```csharp
+protected virtual System.Threading.Tasks.Task PulseSweepAsync(System.DateTimeOffset now, System.Threading.CancellationToken cancellationToken)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `now` | `System.DateTimeOffset` | The current UTC time used for discard and throttle checks. |
+| `cancellationToken` | `System.Threading.CancellationToken` | Observed during the pass. |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+A completed task when auto-sweep is off or the interval has not elapsed.
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ReferenceEquals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool ReferenceEquals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> RequireUserId <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Returns the current user identifier, throwing when none is authenticated.
+
+#### Syntax
+
+```csharp
+protected virtual string RequireUserId()
+```
+
+#### Returns
+
+Type: `string`
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `McpTaskUserRequiredException` | Thrown when the callback returns [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) or whitespace. |
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> RequireUserId <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Returns the user identifier from *user*, throwing when the principal is missing or unauthenticated.
+
+#### Syntax
+
+```csharp
+protected virtual string RequireUserId(System.Security.Claims.ClaimsPrincipal user)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `user` | `System.Security.Claims.ClaimsPrincipal` | The principal for the current operation. |
+
+#### Returns
+
+Type: `string`
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *user* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+| `McpTaskUserRequiredException` | Thrown when *user* is unauthenticated. |
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ResolveInputRequestsAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task ResolveInputRequestsAsync(string taskId, System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse> inputResponses, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `inputResponses` | `System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse>` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ResolveInputRequestsAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task ResolveInputRequestsAsync(string taskId, System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse> inputResponses, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `inputResponses` | `System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse>` | - |
+| `user` | `System.Security.Claims.ClaimsPrincipal` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ResolveInputRequestsCoreAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Abstract</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Resolves input requests when *userId* owns the task.
+
+#### Syntax
+
+```csharp
+protected abstract System.Threading.Tasks.Task ResolveInputRequestsCoreAsync(string taskId, System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse> inputResponses, string userId, System.Threading.CancellationToken cancellationToken)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `inputResponses` | `System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputResponse>` | - |
+| `userId` | `string` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetCancelledAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task<bool> SetCancelledAsync(string taskId, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task<bool>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetCancelledAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task<bool> SetCancelledAsync(string taskId, System.Security.Claims.ClaimsPrincipal user, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `user` | `System.Security.Claims.ClaimsPrincipal` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task<bool>`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetCancelledCoreAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Abstract</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Cancels the task when *userId* owns it and it is not terminal.
+
+#### Syntax
+
+```csharp
+protected abstract System.Threading.Tasks.Task<bool> SetCancelledCoreAsync(string taskId, string userId, System.Threading.CancellationToken cancellationToken)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `userId` | `string` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task<bool>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetCompletedAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task SetCompletedAsync(string taskId, System.Text.Json.JsonElement result, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `result` | `System.Text.Json.JsonElement` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetCompletedCoreAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Abstract</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Completes the task. Skips the live-user check.
+
+#### Syntax
+
+```csharp
+protected abstract System.Threading.Tasks.Task SetCompletedCoreAsync(string taskId, System.Text.Json.JsonElement result, System.Threading.CancellationToken cancellationToken)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `result` | `System.Text.Json.JsonElement` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetFailedAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task SetFailedAsync(string taskId, System.Text.Json.JsonElement error, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `error` | `System.Text.Json.JsonElement` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetFailedCoreAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Abstract</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Fails the task. Skips the live-user check.
+
+#### Syntax
+
+```csharp
+protected abstract System.Threading.Tasks.Task SetFailedCoreAsync(string taskId, System.Text.Json.JsonElement error, System.Threading.CancellationToken cancellationToken)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `error` | `System.Text.Json.JsonElement` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetInputRequestsAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task SetInputRequestsAsync(string taskId, System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputRequest> inputRequests, System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `inputRequests` | `System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputRequest>` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SetInputRequestsCoreAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Abstract</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Merges input requests onto the task. Skips the live-user check.
+
+#### Syntax
+
+```csharp
+protected abstract System.Threading.Tasks.Task SetInputRequestsCoreAsync(string taskId, System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputRequest> inputRequests, System.Threading.CancellationToken cancellationToken)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | - |
+| `inputRequests` | `System.Collections.Generic.IDictionary<string, ModelContextProtocol.Protocol.InputRequest>` | - |
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ShouldDiscard <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Returns whether *task* should be discarded at *now*.
+
+#### Syntax
+
+```csharp
+protected virtual bool ShouldDiscard(CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask task, System.DateTimeOffset now)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `task` | `CloudNimble.McpEssentials.Core.Tasks.StoredMcpTask` | The snapshot under consideration. |
+| `now` | `System.DateTimeOffset` | The current UTC time. |
+
+#### Returns
+
+Type: `bool`
+The default is [StoredMcpTask.HasExpired](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#hasexpired) (compares
+[StoredMcpTask.DiscardAfter](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask#discardafter)). Override for per-row Get and mutate.
+Set-based drains (EF `ExecuteDelete`) use the stamp; override
+[McpTaskStoreBase.SweepExpiredCoreAsync](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#sweepexpiredcoreasync) when bulk criteria must differ.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SweepExpiredAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+#### Syntax
+
+```csharp
+public virtual System.Threading.Tasks.Task SweepExpiredAsync(System.Threading.CancellationToken cancellationToken = default(System.Threading.CancellationToken))
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `cancellationToken` | `System.Threading.CancellationToken` | - |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> SweepExpiredCoreAsync <Badge color="gray">Inherited</Badge> <Badge color="orange">Abstract</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Deletes rows that have passed their discard time.
+
+#### Syntax
+
+```csharp
+protected abstract System.Threading.Tasks.Task SweepExpiredCoreAsync(System.DateTimeOffset now, System.Threading.CancellationToken cancellationToken)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `now` | `System.DateTimeOffset` | The current UTC time used for discard checks. |
+| `cancellationToken` | `System.Threading.CancellationToken` | Observed during the pass so a cancelled caller does not finish the walk. |
+
+#### Returns
+
+Type: `System.Threading.Tasks.Task`
+A task that completes when the pass finishes.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `OperationCanceledException` | *cancellationToken* was cancelled during the pass. |
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToString <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual string ToString()
+```
+
+#### Returns
+
+Type: `string?`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TryClaimSweep <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+Claims the automatic-flush interval so only one pulse walks at a time.
+
+#### Syntax
+
+```csharp
+protected virtual bool TryClaimSweep(System.DateTimeOffset now)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `now` | `System.DateTimeOffset` | The current UTC time. |
+
+#### Returns
+
+Type: `bool`
+[`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when this caller should run the pass.
+A [McpTaskStoreBase.SweepInterval](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase#sweepinterval) of [Zero](https://learn.microsoft.com/dotnet/api/system.timespan.zero) always claims.
+
+## Events
+
+### <Icon icon="bell" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> InputResponseReceived <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase`</Note>
+
+#### Syntax
+
+```csharp
+public virtual event System.Action<ModelContextProtocol.Extensions.Tasks.InputResponseReceivedEventArgs> InputResponseReceived
+```
+
+## Related APIs
+
+- CloudNimble.McpEssentials.Core.Tasks.IMcpTaskStorePlus
+- ModelContextProtocol.Extensions.Tasks.IMcpTaskStore
+- System.IDisposable
+

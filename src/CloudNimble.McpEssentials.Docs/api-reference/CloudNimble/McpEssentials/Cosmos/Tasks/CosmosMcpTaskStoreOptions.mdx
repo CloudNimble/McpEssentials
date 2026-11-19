@@ -1,0 +1,118 @@
+---
+title: CosmosMcpTaskStoreOptions
+description: "Registration knobs for [CosmosMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosMcpTaskStore)."
+icon: file-brackets-curly
+keywords: ['CosmosMcpTaskStoreOptions', 'CloudNimble.McpEssentials.Cosmos.Tasks.CosmosMcpTaskStoreOptions', 'CloudNimble.McpEssentials.Cosmos.Tasks', 'class', 'CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Cosmos.dll
+
+**Namespace:** CloudNimble.McpEssentials.Cosmos.Tasks
+
+**Inheritance:** CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreOptions
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Cosmos.Tasks.CosmosMcpTaskStoreOptions
+```
+
+## Summary
+
+Registration knobs for [CosmosMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosMcpTaskStore).
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor
+
+Initializes a new instance with Cosmos defaults: no request-path sweep
+([McpTaskStoreOptions.AutoSweep](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreOptions#autosweep) is [`false`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool)).
+Cosmos expires documents from the `ttl` property.
+
+#### Syntax
+
+```csharp
+public CosmosMcpTaskStoreOptions()
+```
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DatabaseId
+
+Gets or sets the Cosmos database id.
+
+#### Syntax
+
+```csharp
+public string DatabaseId { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+The default is `mcpessentials`.
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> IndexContainerId
+
+Gets or sets the index container id. Partition key is `/id` (the task id).
+
+#### Syntax
+
+```csharp
+public string IndexContainerId { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+The default is `McpTaskIndex`.
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TasksContainerId
+
+Gets or sets the tasks container id. Partition key is `/ownerUserId`.
+
+#### Syntax
+
+```csharp
+public string TasksContainerId { get; set; }
+```
+
+#### Property Value
+
+Type: `string`
+The default is `McpTasks`.
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Throughput
+
+Gets or sets the RU/s used when [CosmosMcpTaskStore](/api-reference/CloudNimble/McpEssentials/Cosmos/Tasks/CosmosMcpTaskStore) creates containers.
+
+#### Syntax
+
+```csharp
+public int? Throughput { get; set; }
+```
+
+#### Property Value
+
+Type: `int?`
+The default is 400. Set to [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null) on serverless accounts
+(or pre-create the containers yourself).
+
+## Methods
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ApplyTo <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override void ApplyTo(CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase store)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `store` | `CloudNimble.McpEssentials.Core.Tasks.McpTaskStoreBase` | - |
+

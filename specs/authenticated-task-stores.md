@@ -1,6 +1,6 @@
 # Authenticated MCP Task Stores
 
-**Status:** Core in-memory store and the Entity Framework Core provider are implemented. Other provider packages are specified here and are not in this repository yet.
+**Status:** Core in-memory, Entity Framework Core, Redis, Cosmos, and native PostgreSQL providers are implemented. Other provider packages are specified here and are not in this repository yet.
 
 **Audience:** Anyone adding `CloudNimble.McpEssentials.*` packages that persist MCP Tasks (SEP-2663) per logged-in user.
 
@@ -20,8 +20,8 @@ Every store, regardless of engine:
 
 | Rule | Detail |
 |---|---|
-| Interface | `IPerUserMcpTaskStore` : `IMcpTaskStore` (ClaimsPrincipal overloads for client-facing calls) |
-| User | `Func<string?>` / `Func<ClaimsPrincipal?>` / constant user id on `AuthenticatedMcpTaskStoreBase` |
+| Interface | `IMcpTaskStorePlus` : `IMcpTaskStore` (ClaimsPrincipal overloads for client-facing calls) |
+| User | `Func<string?>` / `Func<ClaimsPrincipal?>` / constant user id on `McpTaskStoreBase` |
 | Isolation helpers | `RequireUserId` / `IsOwnedBy` (ordinal) |
 | Lifetime | Singleton. Stateless HTTP creates a new `McpServer` per POST. |
 | Create durability | `CreateTaskAsync` does not return until a later `GetTaskAsync` on any node can see the task (SEP-2663 §306). |
@@ -32,7 +32,7 @@ Every store, regardless of engine:
 | TTL | Expired tasks disappear on access and via a sweep or native expiry. |
 | Thread safety | Every method may run concurrently. |
 
-Claim order for `AuthenticatedMcpTaskStoreBase.GetUserId` (same as the SDK session identity): `ClaimTypes.NameIdentifier`, `sub`, `ClaimTypes.Upn`, `ClaimTypes.Name`, `IIdentity.Name`. Principal must be authenticated.
+Claim order for `McpTaskStoreBase.GetUserId`: `ClaimTypes.NameIdentifier`, `sub`, `ClaimTypes.Upn`, `ClaimTypes.Name`, `IIdentity.Name`. Principal must be authenticated.
 
 ## Canonical record
 
@@ -66,11 +66,11 @@ NuGet package ids drop the `CloudNimble.` prefix (same as EasyAF / ClaudeEssenti
 
 ### 1. `McpEssentials.Core` — done
 
-- `IPerUserMcpTaskStore` extends `IMcpTaskStore` with `ClaimsPrincipal` overloads for create/get/cancel/resolve.
-- `AuthenticatedMcpTaskStoreBase` takes a current-user callback, fail-closed identity, and `InputResponseReceived`.
+- `IMcpTaskStorePlus` extends `IMcpTaskStore` with `ClaimsPrincipal` overloads for create/get/cancel/resolve.
+- `McpTaskStoreBase` takes a current-user callback, fail-closed identity, and `InputResponseReceived`.
 - `StoredMcpTask` is the persistence foundation: settable protocol fields, `McpTaskStatus`, ctor from `McpTaskInfo`, `ToMcpTaskInfo()`, `IsFinished` / `IsActive` / `HasExpired` / `IsExpired` / `IsOwnedBy`, and `Try*` transitions. `DiscardAfter` is stamped at write as `CreatedAt + 2×TimeToLive`. Cached `Info` avoids an allocation on unchanged gets.
-- `InMemoryAuthenticatedMcpTaskStore` owns `StoredMcpTask` snapshots in a `ConcurrentDictionary`, clones then `Try*` for compare-and-swap, and TTL sweep. It does not wrap the SDK `InMemoryMcpTaskStore`. Unsealed; methods are virtual.
-- `WithAuthenticatedTasks("userId")` (stdio). HTTP: `AddHttpContextAccessor()` then `WithAuthenticatedTasks(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User)`. The same `Func<IServiceProvider, ClaimsPrincipal?>` factory exists on `AddInMemoryAuthenticatedTaskStore`. Both take `Action<AuthenticatedMcpTaskStoreOptions>` to set `DefaultTimeToLive` and `DefaultPollIntervalMs` at registration.
+- `InMemoryMcpTaskStorePlus` owns `StoredMcpTask` snapshots in a `ConcurrentDictionary`, clones then `Try*` for compare-and-swap, and TTL sweep. It does not wrap the SDK `InMemoryMcpTaskStore`. Unsealed; methods are virtual.
+- `WithTasksPlus("userId")` (stdio). HTTP: `AddHttpContextAccessor()` then `WithTasksPlus(sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User)`. The same `Func<IServiceProvider, ClaimsPrincipal?>` factory exists on `AddInMemoryMcpTaskStorePlus`. Both take `Action<McpTaskStoreOptions>` to set `DefaultTimeToLive` and `DefaultPollIntervalMs` at registration.
 - Target frameworks: `net11.0;net10.0;net9.0;net8.0` (same as OData MCP). AOT compatible.
 
 Use for tests, local MCP, and single-instance remote MCP.
@@ -83,8 +83,8 @@ Use for tests, local MCP, and single-instance remote MCP.
 
 - `McpTaskEntity : StoredMcpTask` mapped to table `McpTasks` (configurable). Adds `RowVersion` only. Status and payloads convert to strings.
 - `IEntityTypeConfiguration<McpTaskEntity>` so hosts can call `modelBuilder.ApplyConfiguration`.
-- `EntityFrameworkAuthenticatedTaskStore<TContext>` where `TContext : DbContext`.
-- Extension `AddMcpEssentialsEntityFrameworkTasks<TContext>()` / `WithEntityFrameworkTasks<TContext>()`, same `AuthenticatedMcpTaskStoreOptions` as Core.
+- `EFCoreMcpTaskStore<TContext>` where `TContext : DbContext`.
+- Extension `AddMcpEssentialsEntityFrameworkTasks<TContext>()` / `WithTasksPlus<TContext>()`, same `McpTaskStoreOptions` as Core.
 
 **Concurrency:** rowversion / `xmin` / ETag on the entity; `SaveChanges` retry on unique-key races for create.
 
@@ -96,17 +96,17 @@ Use for tests, local MCP, and single-instance remote MCP.
 
 **Why this package first:** one implementation covers most CloudNimble hosts already on EF Core. Native PostgreSQL / SQL Server packages are only for hosts that do not want EF.
 
-### 3. `McpEssentials.PostgreSQL`
+### 3. `McpEssentials.PostgreSQL` — implemented
 
-**Engine:** Npgsql, no EF.
+**Engine:** Npgsql, no EF. Shipped.
 
-**Storage:** one table created by an embedded script the host can run (`EnsureCreatedAsync`).
+**Storage:** one `McpTasks` table created on first use (`CREATE TABLE IF NOT EXISTS`). Integer `RowVersion` for CAS.
 
-**Events:** `LISTEN mcp_essentials_tasks` / `NOTIFY` with payload `{ "taskId", "requestId" }`. Each process that holds a waiting `ElicitAsync` subscribes and raises `InputResponseReceived` locally. This is the reason a native Postgres package exists alongside EF Core.
+**Events:** `LISTEN mcp_essentials_tasks` / `pg_notify` with `McpTaskInputSignal` (`taskId` + newline + `requestId`). `PostgreSqlMcpTaskStore` subclasses `NotifyingMcpTaskStoreBase` (same as Redis): publish / subscribe / unsubscribe are the engine methods; this process's own echo is dropped. This native channel is the reason a Postgres package exists alongside EF Core.
 
-**Durability:** `INSERT ... RETURNING` inside a transaction; `CreateTaskAsync` awaits commit.
+**Durability:** `CreateTaskAsync` awaits `INSERT` commit so a later get on any node can see the row.
 
-**TTL:** `DiscardAfter timestamptz` plus `pg_cron` or a hosted service `DELETE WHERE "DiscardAfter" < now()`.
+**TTL:** `DiscardAfter timestamptz` (`CreatedAt + 2×TimeToLive`). `AutoSweep` defaults to true. Sweep is `DELETE WHERE "DiscardAfter" <= now`. Hosts can also call `SweepExpiredAsync` from `pg_cron`.
 
 ### 4. `McpEssentials.SqlServer`
 
@@ -120,22 +120,24 @@ Use for tests, local MCP, and single-instance remote MCP.
 
 ### 5. `McpEssentials.Redis`
 
-**Engine:** StackExchange.Redis.
+**Engine:** StackExchange.Redis. Shipped.
 
 **Key layout:**
 
 ```
-mcp:task:{taskId}            HASH or JSON  (full record, including OwnerUserId)
-mcp:user:{ownerUserId}:tasks SET           (optional index for admin sweep)
+{prefix}:task:{taskId}   JSON string  (RedisStoredMcpTask, including OwnerUserId)
+{prefix}:task:input      pub/sub      (McpTaskInputSignal: taskId + newline + requestId)
 ```
 
-**TTL:** `EXPIRE` / `EXPIREAT` on the task key from `DiscardAfter`. Native, no sweeper required. `GetTaskAsync` treats a missing key as not found and does not distinguish expiry from isolation.
+Default prefix is `mcp`. No per-user SET index: SET members do not expire with the task key.
 
-**Events:** `PUBLISH mcp:task:input {taskId}:{requestId}` after a successful `ResolveInputRequests`. Subscribers raise `InputResponseReceived`.
+**TTL:** `PEXPIREAT` on the task key from `DiscardAfter` (`CreatedAt + 2×TimeToLive`). Native, no sweeper required. `AutoSweep` defaults to `false`. `SweepExpiredCoreAsync` is a no-op. Per-row get still honors `ShouldDiscard` so a custom clock can drop a key before Redis does. Unlimited TTL leaves the key until a terminal owner get (`ServeAndDrop`) or an explicit delete. `GetTaskAsync` treats a missing key as not found and does not distinguish expiry from isolation.
 
-**Consistency:** `CreateTaskAsync` uses `SET` with wait for replica acknowledgement when the connection is configured with `Wait` / `waitReplicas`. Document that eventually-consistent Redis without wait is not SEP-2663 compliant.
+**Events:** native pub/sub. After a successful `ResolveInputRequests`, the publishing node raises `InputResponseReceived` locally, then `PUBLISH` `taskId` + newline + `requestId`. Subscribers skip their own echo (token dictionary keyed by that payload) and raise a stub `InputResponse` so `ElicitAsync` waiters on other nodes wake.
 
-**CAS:** Lua script that checks status before transitioning to a terminal state.
+**Consistency:** `CreateTaskAsync` Lua `EXISTS` then `SET` + `PEXPIREAT`, then `WAIT` when `WaitReplicas` is positive. Standalone Redis leaves wait at 0. Eventually-consistent Redis without wait is not SEP-2663 durable across nodes.
+
+**CAS:** Lua compares the expected JSON, then `SET` + `PEXPIREAT`. Retry on conflict.
 
 ### 6. `McpEssentials.DistributedCache`
 
@@ -147,15 +149,19 @@ mcp:user:{ownerUserId}:tasks SET           (optional index for admin sweep)
 
 **Use when:** the host already registered `IDistributedCache` and does not want a Redis-specific package. Prefer `McpEssentials.Redis` when the cache is Redis and you need pub/sub.
 
-### 7. `McpEssentials.Cosmos`
+### 7. `McpEssentials.Cosmos` — implemented
 
-**Engine:** Azure Cosmos DB for NoSQL.
+**Engine:** Azure Cosmos DB for NoSQL. Shipped.
 
-**Partition key:** `/ownerUserId`. Point reads are `taskId` + partition `ownerUserId`. Client-facing ops always have the user, so they are in-partition. Server-facing completion has `taskId` only: keep a second lookup document `mcp:task-index:{taskId}` → `ownerUserId`, or store `OwnerUserId` in the task id metadata the SDK already generated (do **not** encode PII in the task id). Recommended: a singleton-partition index container `McpTaskIndex` with `taskId` as partition key mapping to `ownerUserId`, written in the same transactional batch as the task document when possible (same partition only — so index container is separate and uses its own point write; `CreateTaskAsync` awaits both).
+**Partition key:** `/ownerUserId`. Point reads are `taskId` + partition `ownerUserId`. Client-facing ops always have the user, so they are in-partition. Server-facing completion has `taskId` only: index container `McpTaskIndex` partitioned by `/id` (the task id) mapping to `ownerUserId`. `CreateTaskAsync` writes the task, then the index, and rolls the task back if the index write fails. Do **not** encode PII in the task id.
 
-**Events:** change feed processor on `status == input_required` transitions and on input-request map changes. Or Azure Service Bus.
+**Events:** v1 does not subscribe to the change feed. Optional `IMcpTaskInputSignalBus` (Azure Service Bus is the usual pair) for multi-node `ElicitAsync`.
 
-**TTL:** Cosmos native TTL on the document (`DiscardAfter` as Unix seconds, or container default).
+**TTL:** Cosmos native TTL on the document from `DiscardAfter` (whole seconds from now, at least 1). The index row gets the same `ttl`. Both containers set `DefaultTimeToLive = -1` so per-document TTL applies. `AutoSweep` defaults to `false`. `SweepExpiredCoreAsync` is a no-op.
+
+**Client:** the host owns `CosmosClient` and must pass `CosmosMcpTaskStore.DefaultClientOptions()` so documents serialize with System.Text.Json. The SDK default is Newtonsoft.
+
+**Registration:** `WithCosmosTasks` / `AddMcpEssentialsCosmosTasks` / `UseCosmos`. On first use the store creates the database and containers when missing (default 400 RU/s; set `Throughput` to `null` on serverless and pre-create the containers).
 
 ### 8. `McpEssentials.MongoDB`
 
@@ -199,18 +205,18 @@ public interface IMcpTaskInputSignalBus
 }
 ```
 
-Providers that have a native bus (Redis pub/sub, Postgres NOTIFY, NATS) implement this internally. Providers that do not (EF Core, `IDistributedCache`, Azure Tables) take it as an optional constructor argument. Missing bus + multiple nodes = elicitation hangs until timeout. Document that as a host misconfiguration, not a silent fallback.
+Providers that have a native bus (Redis pub/sub, Postgres NOTIFY, NATS) implement this internally. Providers that do not (EF Core, Cosmos v1, `IDistributedCache`, Azure Tables) take it as an optional constructor argument. Missing bus + multiple nodes = elicitation hangs until timeout. Document that as a host misconfiguration, not a silent fallback.
 
 Do not put tokens, vault ids, or elicitation secrets on the bus payload. Task id + request id are enough; the store already has the response body.
 
-## Isolation vs session
+## Isolation
 
-The SDK's stateful HTTP mode can isolate tasks per MCP session. Stateless mode has no session id. Authenticated stores isolate per **user**, which is the right grain for a multi-user remote MCP API:
+Authenticated stores isolate per **user**, which is the grain for a multi-user remote MCP API:
 
-- Same user, two browser tabs / two agents: they can see each other's in-flight tasks for that user. That is acceptable; the alternative is session affinity.
+- Same user, two browser tabs / two agents: they can see each other's in-flight tasks for that user. That is acceptable.
 - Different users: never.
 
-Do not mix session id and user id in the owner key unless a host explicitly implements a custom accessor that returns `userId + ":" + sessionId`.
+The owner key is the user id from the identity factory. A host that wants a tighter grain implements a custom accessor.
 
 ## What not to build
 
@@ -218,15 +224,15 @@ Do not mix session id and user id in the owner key unless a host explicitly impl
 - `McpTaskId` on domain entities.
 - A scoped `IMcpTaskStore` under stateless HTTP.
 - Anonymous-by-default isolation in Core (hosts that want it pass a constant user id).
-- A provider that reimplements claim lookup. Call `AuthenticatedMcpTaskStoreBase.GetUserId` or override `RequireUserId`.
+- A provider that reimplements claim lookup. Call `McpTaskStoreBase.GetUserId` or override `RequireUserId`.
 
 ## Implementation order
 
 1. Core in-memory store (this repo, done).
 2. Entity Framework Core package + SQLite tests (this repo, done).
-3. Redis package (TTL + pub/sub).
-4. PostgreSQL native package if EF + Npgsql is not enough for NOTIFY.
-5. Cosmos, MongoDB, DistributedCache, Azure Tables, NATS as demand appears.
+3. Redis package (TTL + pub/sub) (this repo, done).
+4. PostgreSQL native package (this repo, done).
+5. Cosmos (this repo, done). MongoDB, DistributedCache, Azure Tables, NATS as demand appears.
 
 Each package: same TFMs as Core, MSTest + FluentAssertions, `InternalsVisibleTo` the matching `*.Tests.*` project, DotNetDocs API pages generated from XML comments.
 
@@ -234,7 +240,7 @@ Each package: same TFMs as Core, MSTest + FluentAssertions, `InternalsVisibleTo`
 
 | Decision | Rationale |
 |---|---|
-| Own in-memory storage in `InMemoryAuthenticatedMcpTaskStore` | Isolation, TTL, CAS, and leak-resistance stay under our control. Durable providers subclass `AuthenticatedMcpTaskStoreBase` and persist their own snapshots. |
+| Own in-memory storage in `InMemoryMcpTaskStorePlus` | Isolation, TTL, CAS, and leak-resistance stay under our control. Durable providers subclass `McpTaskStoreBase` and persist their own snapshots. |
 | Current-user callback, fail closed | `IMcpTaskStore` has no user argument; hosts pass `Func<string?>`, a principal factory, or a constant id. Missing user is a host bug. |
 | Server-side completion skips live user | Background DI scope has no `HttpContext`. |
 | Wrong user → not found | Do not leak that the task exists. |

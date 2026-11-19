@@ -8,6 +8,7 @@
         <IsSampleProject Condition="$(MSBuildProjectName.ToLower().Contains('.samples.'))">true</IsSampleProject>
         <IsTemplateProject Condition="$(MSBuildProjectName.ToLower().Contains('.templates.'))">true</IsTemplateProject>
         <IsDocumentationProject Condition="'$(MSBuildProjectExtension)' == '.docsproj'">true</IsDocumentationProject>
+        <IsAnalyzerProject Condition="$(MSBuildProjectName.ToLower().EndsWith('.analyzers'))">true</IsAnalyzerProject>
         <IsNetCore Condition=" '$(TargetFramework)' == 'net8.0' OR '$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net10.0' OR '$(TargetFramework)' == 'net11.0' ">true</IsNetCore>
         <IsPrimaryProject Condition=" '$(IsBenchmarkProject)' != 'true' And '$(IsTestProject)' != 'true' And '$(IsTestAssetProject)' != 'true' And '$(IsSampleProject)' != 'true' And '$(IsTemplateProject)' != 'true' And '$(IsDocumentationProject)' != 'true' ">true</IsPrimaryProject>
         <IncludeReadmeFile Condition="Exists('$(MSBuildProjectDirectory)\readme.md')">true</IncludeReadmeFile>
@@ -44,7 +45,7 @@
         <MaintainerEmail>opensource@nimbleapps.cloud</MaintainerEmail>
 
         <Summary>
-            Useful extensions to the Model Context Protocol C# SDK that make it easier to build generic MCP servers.
+            The .NET toolkit for multi-user Model Context Protocol servers—authenticated tasks, form elicitation, and durable stores.
         </Summary>
         <Description>
             $(Summary)
@@ -105,6 +106,17 @@
         <IsTrimmable>true</IsTrimmable>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(IsAnalyzerProject)' == 'true' ">
+        <IsAotCompatible>false</IsAotCompatible>
+        <IsTrimmable>false</IsTrimmable>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <IsRoslynComponent>true</IsRoslynComponent>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <DevelopmentDependency>true</DevelopmentDependency>
+        <IncludeSymbols>false</IncludeSymbols>
+        <NoWarn>$(NoWarn);NU5128;RS2008</NoWarn>
+    </PropertyGroup>
+
     <PropertyGroup Condition=" '$(IsTemplateProject)' == 'true' And '$(IsTemplatePackageProject)' != 'true' ">
         <IsPackable>false</IsPackable>
     </PropertyGroup>
@@ -125,7 +137,6 @@
         <PackageReference Include="FluentAssertions" Version="6.*" PrivateAssets="All" />
         <PackageReference Include="FluentAssertions.Analyzers" Version="0.*" PrivateAssets="All" />
         <PackageReference Include="MSTest" Version="4.*" />
-        <PackageReference Include="Breakdance.Extensions.MSTest2" Version="8.*-*" />
         <PackageReference Include="coverlet.msbuild" Version="6.*" PrivateAssets="All" />
 
         <!-- Class-level: methods in one class stay serial (shared Breakdance hosts). Workers=0 is processor count. -->
@@ -135,6 +146,15 @@
             <_Parameter2>Scope = Microsoft.VisualStudio.TestTools.UnitTesting.ExecutionScope.ClassLevel</_Parameter2>
             <_Parameter2_IsLiteral>true</_Parameter2_IsLiteral>
         </AssemblyAttribute>
+    </ItemGroup>
+
+    <!-- Breakdance 9 targets net10.0 and net11.0; its netstandard2.0 fallback lacks the keyed-service helpers, so net8.0 and net9.0 stay on the 8.x line. -->
+    <ItemGroup Condition=" $(IsTestProject) == 'true' and $(IsSampleProject) != 'true' and ('$(TargetFramework)' == 'net11.0' or '$(TargetFramework)' == 'net10.0') ">
+        <PackageReference Include="Breakdance.Extensions.MSTest2" Version="9.*" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" $(IsTestProject) == 'true' and $(IsSampleProject) != 'true' and ('$(TargetFramework)' == 'net9.0' or '$(TargetFramework)' == 'net8.0') ">
+        <PackageReference Include="Breakdance.Extensions.MSTest2" Version="8.*-*" />
     </ItemGroup>
 
     <ItemGroup>

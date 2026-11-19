@@ -1,0 +1,146 @@
+---
+title: FormElicitationExecutionMode
+description: "Selects Tasks wrapping from [McpElicitFormAttribute](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/McpElicitFormAttribute) and [McpElicitU..."
+icon: bolt
+tag: "STATIC"
+keywords: ['FormElicitationExecutionMode', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationExecutionMode', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'class']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Core.dll
+
+**Namespace:** CloudNimble.McpEssentials.Core.Tasks.Elicitations
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationExecutionMode
+```
+
+## Summary
+
+Selects Tasks wrapping from [McpElicitFormAttribute](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/McpElicitFormAttribute) and
+[McpElicitUrlAttribute](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/McpElicitUrlAttribute) when Tasks is registered.
+
+## Methods
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Apply
+
+Wraps `ExecutionModeSelector` so a
+[McpElicitFormAttribute](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/McpElicitFormAttribute) tool stays on `tools/call`
+(`Synchronous`) and a
+[McpElicitUrlAttribute](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/McpElicitUrlAttribute) tool is
+`Optional`.
+
+#### Syntax
+
+```csharp
+public static void Apply(ModelContextProtocol.Extensions.Tasks.McpTasksOptions options)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `options` | `ModelContextProtocol.Extensions.Tasks.McpTasksOptions` | The Tasks options being configured. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *options* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+#### Remarks
+
+Form wins when both attributes are present. URL tools wrap only when the client
+advertised Tasks on this call, so a waiter can outlive the POST.
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> IsFormTool
+
+Returns whether *context* matched a tool stamped with
+[McpElicitFormAttribute](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/McpElicitFormAttribute).
+
+#### Syntax
+
+```csharp
+public static bool IsFormTool(ModelContextProtocol.Server.RequestContext<ModelContextProtocol.Protocol.CallToolRequestParams> context)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `context` | `ModelContextProtocol.Server.RequestContext<ModelContextProtocol.Protocol.CallToolRequestParams>` | The current `tools/call` context. |
+
+#### Returns
+
+Type: `bool`
+[`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when the matched primitive carries the attribute.
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> IsFormTool
+
+Returns whether *primitive* carries
+[McpElicitFormAttribute](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/McpElicitFormAttribute) on the type or method.
+
+#### Syntax
+
+```csharp
+public static bool IsFormTool(ModelContextProtocol.Server.IMcpServerPrimitive primitive)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `primitive` | `ModelContextProtocol.Server.IMcpServerPrimitive?` | The matched tool, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+#### Returns
+
+Type: `bool`
+[`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when the attribute is present.
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> IsUrlTool
+
+Returns whether *context* matched a tool stamped with
+[McpElicitUrlAttribute](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/McpElicitUrlAttribute).
+
+#### Syntax
+
+```csharp
+public static bool IsUrlTool(ModelContextProtocol.Server.RequestContext<ModelContextProtocol.Protocol.CallToolRequestParams> context)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `context` | `ModelContextProtocol.Server.RequestContext<ModelContextProtocol.Protocol.CallToolRequestParams>` | The current `tools/call` context. |
+
+#### Returns
+
+Type: `bool`
+[`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when the matched primitive carries the attribute.
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> IsUrlTool
+
+Returns whether *primitive* carries
+[McpElicitUrlAttribute](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/McpElicitUrlAttribute) on the type or method.
+
+#### Syntax
+
+```csharp
+public static bool IsUrlTool(ModelContextProtocol.Server.IMcpServerPrimitive primitive)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `primitive` | `ModelContextProtocol.Server.IMcpServerPrimitive?` | The matched tool, or [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+#### Returns
+
+Type: `bool`
+[`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when the attribute is present.
+

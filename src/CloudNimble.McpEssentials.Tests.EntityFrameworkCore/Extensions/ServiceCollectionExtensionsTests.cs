@@ -7,10 +7,8 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ModelContextProtocol.Extensions.Tasks;
-using ModelContextProtocol.Server;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -19,7 +17,7 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Extensions
 {
 
     /// <summary>
-    /// Breakdance coverage for EF Core store DI registration and WithEntityFrameworkTasks.
+    /// Breakdance coverage for EF Core store DI registration and WithTasksPlus.
     /// </summary>
     [TestClass]
     public class ServiceCollectionExtensionsTests : BreakdanceMSTestBase
@@ -53,8 +51,8 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Extensions
             });
 
             var store1 = GetService<IMcpTaskStore>();
-            var store2 = GetService<IPerUserMcpTaskStore>();
-            var concrete = GetService<EntityFrameworkAuthenticatedTaskStore<McpTaskDbContext>>();
+            var store2 = GetService<IMcpTaskStorePlus>();
+            var concrete = GetService<EFCoreMcpTaskStore<McpTaskDbContext>>();
 
             store1.Should().BeSameAs(store2);
             store1.Should().BeSameAs(concrete);
@@ -124,7 +122,7 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Extensions
                 });
             });
 
-            var store = GetService<EntityFrameworkAuthenticatedTaskStore<McpTaskDbContext>>();
+            var store = GetService<EFCoreMcpTaskStore<McpTaskDbContext>>();
             var created = await store!.CreateTaskAsync();
 
             store.DefaultTimeToLive.Should().Be(TimeSpan.FromMinutes(5));
@@ -134,24 +132,19 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Extensions
         }
 
         [TestMethod]
-        public async Task WithEntityFrameworkTasks_Configure_SetsDefaultTimeToLive()
+        public async Task WithTasksPlus_Configure_SetsDefaultTimeToLive()
         {
-            using var sqlite = new SqliteStoreTestContext();
-            var builder = new TestMcpServerBuilder();
-            builder.Services.AddSingleton(sqlite.Connection);
-            builder.Services.AddDbContext<McpTaskDbContext>(o => o.UseSqlite(sqlite.Connection));
-
-            builder.WithEntityFrameworkTasks<McpTaskDbContext>("alice", o =>
+            ConfigureSqliteHost(services =>
             {
-                o.DefaultTimeToLive = TimeSpan.FromMinutes(5);
-                o.DefaultPollIntervalMs = 2500;
+                services.AddMcpServer().WithTasksPlus<McpTaskDbContext>("alice", o =>
+                {
+                    o.DefaultTimeToLive = TimeSpan.FromMinutes(5);
+                    o.DefaultPollIntervalMs = 2500;
+                });
             });
 
-            using var provider = builder.Services.BuildServiceProvider();
-            using var scope = provider.CreateScope();
-            scope.ServiceProvider.GetRequiredService<McpTaskDbContext>().Database.EnsureCreated();
-            var store = provider.GetRequiredService<EntityFrameworkAuthenticatedTaskStore<McpTaskDbContext>>();
-            var created = await store.CreateTaskAsync();
+            var store = GetService<EFCoreMcpTaskStore<McpTaskDbContext>>();
+            var created = await store!.CreateTaskAsync();
 
             store.DefaultTimeToLive.Should().Be(TimeSpan.FromMinutes(5));
             store.DefaultPollIntervalMs.Should().Be(2500);
@@ -160,96 +153,99 @@ namespace CloudNimble.McpEssentials.Tests.EntityFrameworkCore.Extensions
         }
 
         [TestMethod]
-        public async Task WithEntityFrameworkTasks_ConstantUser_CreatesIsolatedStore()
+        public async Task WithTasksPlus_ConstantUser_CreatesIsolatedStore()
         {
-            using var sqlite = new SqliteStoreTestContext();
-            var builder = new TestMcpServerBuilder();
-            builder.Services.AddSingleton(sqlite.Connection);
-            builder.Services.AddDbContext<McpTaskDbContext>(o => o.UseSqlite(sqlite.Connection));
+            ConfigureSqliteHost(services =>
+            {
+                services.AddMcpServer().WithTasksPlus<McpTaskDbContext>("alice");
+            });
 
-            builder.WithEntityFrameworkTasks<McpTaskDbContext>("alice");
-
-            using var provider = builder.Services.BuildServiceProvider();
-            var store = provider.GetRequiredService<IMcpTaskStore>();
-            var perUser = provider.GetRequiredService<IPerUserMcpTaskStore>();
-            var created = await store.CreateTaskAsync();
+            var store = GetService<IMcpTaskStore>();
+            var perUser = GetService<IMcpTaskStorePlus>();
+            var created = await store!.CreateTaskAsync();
 
             created.TaskId.Should().NotBeNullOrWhiteSpace();
-            store.Should().BeOfType<EntityFrameworkAuthenticatedTaskStore<McpTaskDbContext>>();
+            store.Should().BeOfType<EFCoreMcpTaskStore<McpTaskDbContext>>();
             store.Should().BeSameAs(perUser);
         }
 
         [TestMethod]
-        public async Task WithEntityFrameworkTasks_FromServiceProvider_ResolvesRegisteredPrincipal()
+        public async Task WithTasksPlus_FromServiceProvider_ResolvesRegisteredPrincipal()
         {
-            using var sqlite = new SqliteStoreTestContext();
-            var builder = new TestMcpServerBuilder();
-            builder.Services.AddSingleton(sqlite.Connection);
-            builder.Services.AddDbContext<McpTaskDbContext>(o => o.UseSqlite(sqlite.Connection));
-            builder.Services.AddSingleton(TestUser.Authenticated("alice"));
+            ConfigureSqliteHost(services =>
+            {
+                services.AddSingleton(TestUser.Authenticated("alice"));
+                services.AddMcpServer().WithTasksPlus<McpTaskDbContext>(sp => sp.GetRequiredService<ClaimsPrincipal>());
+            });
 
-            builder.WithEntityFrameworkTasks<McpTaskDbContext>(sp => sp.GetRequiredService<ClaimsPrincipal>());
-
-            using var provider = builder.Services.BuildServiceProvider();
-            var store = provider.GetRequiredService<IMcpTaskStore>();
-            var created = await store.CreateTaskAsync();
+            var store = GetService<IMcpTaskStore>();
+            var created = await store!.CreateTaskAsync();
 
             created.TaskId.Should().NotBeNullOrWhiteSpace();
             (await store.GetTaskAsync(created.TaskId)).Should().NotBeNull();
         }
 
         [TestMethod]
-        public void WithEntityFrameworkTasks_FromServiceProvider_CapturesProviderWhenOptionsAreConfigured()
+        public void WithTasksPlus_FromServiceProvider_CapturesProviderWhenOptionsAreConfigured()
         {
-            using var sqlite = new SqliteStoreTestContext();
-            var builder = new TestMcpServerBuilder();
-            builder.Services.AddSingleton(sqlite.Connection);
-            builder.Services.AddDbContext<McpTaskDbContext>(o => o.UseSqlite(sqlite.Connection));
-            builder.Services.AddSingleton(TestUser.Authenticated("alice"));
             var configured = false;
-
-            builder.WithEntityFrameworkTasks<McpTaskDbContext>(sp => sp.GetRequiredService<ClaimsPrincipal>(), configureTasks: _ => configured = true);
-
-            using var provider = builder.Services.BuildServiceProvider();
-            foreach (var configure in provider.GetServices<IConfigureOptions<McpServerOptions>>())
+            ConfigureSqliteHost(services =>
             {
-                if (configure is ConfigureOptions<McpServerOptions>)
-                {
-                    configure.Configure(new McpServerOptions());
-                }
-            }
+                services.AddSingleton(TestUser.Authenticated("alice"));
+                services.AddMcpServer().WithTasksPlus<McpTaskDbContext>(sp => sp.GetRequiredService<ClaimsPrincipal>(), configureTasks: _ => configured = true);
+            });
 
             configured.Should().BeTrue();
         }
 
         [TestMethod]
-        public void WithEntityFrameworkTasks_WhenUserIdIsWhitespace_Throws()
+        public void WithTasksPlus_WhenUserIdIsWhitespace_Throws()
         {
-            var builder = new TestMcpServerBuilder();
-
-            Action act = () => builder.WithEntityFrameworkTasks<McpTaskDbContext>("  ");
-
+            var act = () => new ServiceCollection().AddMcpServer().WithTasksPlus<McpTaskDbContext>("  ");
             act.Should().Throw<ArgumentException>().WithParameterName("userId");
         }
 
         [TestMethod]
-        public void WithEntityFrameworkTasks_WhenBuilderIsNull_Throws()
+        public void WithTasksPlus_WhenBuilderIsNull_Throws()
         {
             IMcpServerBuilder builder = null!;
 
-            Action act = () => builder.WithEntityFrameworkTasks<McpTaskDbContext>("alice");
+            Action act = () => builder.WithTasksPlus<McpTaskDbContext>("alice");
 
             act.Should().Throw<ArgumentNullException>().WithParameterName("builder");
         }
 
         [TestMethod]
-        public void WithEntityFrameworkTasks_WhenPrincipalFactoryIsNull_Throws()
+        public void WithTasksPlus_WhenPrincipalFactoryIsNull_Throws()
         {
-            var builder = new TestMcpServerBuilder();
-
-            Action act = () => builder.WithEntityFrameworkTasks<McpTaskDbContext>((Func<IServiceProvider, ClaimsPrincipal?>)null!);
-
+            var act = () => new ServiceCollection().AddMcpServer().WithTasksPlus<McpTaskDbContext>((Func<IServiceProvider, ClaimsPrincipal?>)null!);
             act.Should().Throw<ArgumentNullException>().WithParameterName("getPrincipal");
+        }
+
+        [TestMethod]
+        public async Task WithTasksPlus_FromUserIdFactory_CreatesTask()
+        {
+            ConfigureSqliteHost(services =>
+            {
+                services.AddMcpServer().WithTasksPlus<McpTaskDbContext>(() => "alice");
+            });
+
+            var store = GetService<IMcpTaskStore>();
+            var created = await store!.CreateTaskAsync();
+            created.TaskId.Should().NotBeNullOrWhiteSpace();
+        }
+
+        [TestMethod]
+        public async Task WithTasksPlus_FromPrincipalFactory_CreatesTask()
+        {
+            ConfigureSqliteHost(services =>
+            {
+                services.AddMcpServer().WithTasksPlus<McpTaskDbContext>(() => TestUser.Authenticated("alice"));
+            });
+
+            var store = GetService<IMcpTaskStore>();
+            var created = await store!.CreateTaskAsync();
+            created.TaskId.Should().NotBeNullOrWhiteSpace();
         }
 
         [TestMethod]

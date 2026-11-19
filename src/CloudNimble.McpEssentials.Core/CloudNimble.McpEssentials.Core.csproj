@@ -2,18 +2,26 @@
 
     <PropertyGroup>
         <TargetFrameworks>net11.0;net10.0;net9.0;net8.0;</TargetFrameworks>
-        <DocumentationFile>$(DocumentationFile)\$(AssemblyName).xml</DocumentationFile>
-        <Title>McpEssentials — Core</Title>
-        <Description>Authenticated MCP task stores and shared primitives for generic Model Context Protocol servers. Start with InMemoryAuthenticatedMcpTaskStore; swap in a durable provider later.</Description>
+        <Title>McpEssentials.Core</Title>
+        <Description>Build multi-user MCP servers in .NET. Isolate long-running tasks per user, elicit structured input with fluent forms, and start in-memory—then swap in Redis, EF Core, or Cosmos when you go to production.</Description>
         <PackageTags>mcp;modelcontextprotocol;tasks;authentication;cloudnimble</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="ModelContextProtocol.Extensions.Tasks" Version="2.*" />
+        <ProjectReference Include="..\CloudNimble.McpEssentials.Analyzers\CloudNimble.McpEssentials.Analyzers.csproj"
+                          ReferenceOutputAssembly="false"
+                          OutputItemType="Analyzer"
+                          PrivateAssets="all" />
+        <None Include="..\CloudNimble.McpEssentials.Analyzers\bin\$(Configuration)\netstandard2.0\CloudNimble.McpEssentials.Analyzers.dll"
+              Pack="true"
+              PackagePath="analyzers/dotnet/cs"
+              Visible="false"
+              Condition="Exists('..\CloudNimble.McpEssentials.Analyzers\bin\$(Configuration)\netstandard2.0\CloudNimble.McpEssentials.Analyzers.dll')" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="11.*-*" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="11.*" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">

@@ -89,9 +89,9 @@ namespace CloudNimble.McpEssentials.EntityFrameworkCore.Tasks
             builder.Property(e => e.StatusMessage)
                 .HasMaxLength(1024);
 
-            builder.Property(e => e.ResultJson);
-            builder.Property(e => e.ErrorJson);
-            builder.Property(e => e.InputRequestsJson);
+            builder.Property(e => e.ResultJson).UsePropertyAccessMode(PropertyAccessMode.Property);
+            builder.Property(e => e.ErrorJson).UsePropertyAccessMode(PropertyAccessMode.Property);
+            builder.Property(e => e.InputRequestsJson).UsePropertyAccessMode(PropertyAccessMode.Property);
 
             builder.Ignore(e => e.Result);
             builder.Ignore(e => e.Error);

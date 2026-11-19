@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net11.0;net10.0;net9.0;net8.0;</TargetFrameworks>
+        <Title>McpEssentials — PostgreSQL</Title>
+        <Description>Run MCP tasks on PostgreSQL without EF. Npgsql owns the row; LISTEN/NOTIFY wakes every node when a user answers an elicitation form.</Description>
+        <PackageTags>mcp;modelcontextprotocol;tasks;authentication;postgresql;npgsql;listen;notify;cloudnimble</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Npgsql" Version="9.*" />
+        <ProjectReference Include="..\CloudNimble.McpEssentials.Core\CloudNimble.McpEssentials.Core.csproj" />
+    </ItemGroup>
+
+</Project>

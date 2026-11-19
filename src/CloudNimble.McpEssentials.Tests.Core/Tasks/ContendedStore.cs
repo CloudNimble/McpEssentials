@@ -4,9 +4,9 @@ namespace CloudNimble.McpEssentials.Tests.Core.Tasks
 {
 
     /// <summary>
-    /// Loses the first compare-and-swap so <see cref="InMemoryAuthenticatedMcpTaskStore.TryApply"/> retries.
+    /// Loses the first compare-and-swap so <see cref="InMemoryMcpTaskStorePlus.TryApply"/> retries.
     /// </summary>
-    internal class ContendedStore : InMemoryAuthenticatedMcpTaskStore
+    internal class ContendedStore : InMemoryMcpTaskStorePlus
     {
 
         #region Properties

@@ -1,0 +1,78 @@
+---
+title: McpTaskInputSignal
+description: "Wire payload for a resolved-input notification: task id, a newline, then request id. Native channels (Redis pub/sub, Postgres `NOTIFY`) publish this string a..."
+icon: bolt
+tag: "STATIC"
+keywords: ['McpTaskInputSignal', 'CloudNimble.McpEssentials.Core.Tasks.McpTaskInputSignal', 'CloudNimble.McpEssentials.Core.Tasks', 'class']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Core.dll
+
+**Namespace:** CloudNimble.McpEssentials.Core.Tasks
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Core.Tasks.McpTaskInputSignal
+```
+
+## Summary
+
+Wire payload for a resolved-input notification: task id, a newline, then request id.
+Native channels (Redis pub/sub, Postgres `NOTIFY`) publish this string as-is.
+
+## Remarks
+
+Split is on the first newline so a request id may contain further newlines.
+Task ids from [McpTaskStoreBase](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskStoreBase) do not contain newlines.
+
+## Methods
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Format
+
+Builds the payload published on the native channel and used as the local-echo token.
+
+#### Syntax
+
+```csharp
+public static string Format(string taskId, string requestId)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `taskId` | `string` | The task identifier. |
+| `requestId` | `string` | The input-request identifier. |
+
+#### Returns
+
+Type: `string`
+*taskId*, a newline, then *requestId*.
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> TryParse
+
+Reads [McpTaskInputSignal.Format](/api-reference/CloudNimble/McpEssentials/Core/Tasks/McpTaskInputSignal#format) back into task id and request id.
+
+#### Syntax
+
+```csharp
+public static bool TryParse(string payload, out string taskId, out string requestId)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `payload` | `string?` | The channel payload. |
+| `taskId` | `string?` | The task identifier when parsing succeeds. |
+| `requestId` | `string?` | The input-request identifier when parsing succeeds. |
+
+#### Returns
+
+Type: `bool`
+[`true`](https://learn.microsoft.com/dotnet/csharp/language-reference/builtin-types/bool) when *payload* has a non-empty task id,
+a newline, and a non-whitespace request id.
+

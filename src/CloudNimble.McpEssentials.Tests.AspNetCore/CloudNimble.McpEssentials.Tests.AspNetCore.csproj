@@ -7,12 +7,20 @@
 
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
-        <PackageReference Include="Breakdance.AspNetCore" Version="8.*-*" />
         <PackageReference Include="ModelContextProtocol.AspNetCore" Version="2.*" />
     </ItemGroup>
 
+    <!-- Breakdance.AspNetCore 9 ships only net10.0 and net11.0 assets; net8.0 and net9.0 stay on the 8.x line. -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net11.0' or '$(TargetFramework)' == 'net10.0'">
+        <PackageReference Include="Breakdance.AspNetCore" Version="9.*" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net9.0' or '$(TargetFramework)' == 'net8.0'">
+        <PackageReference Include="Breakdance.AspNetCore" Version="8.*-*" />
+    </ItemGroup>
+
     <ItemGroup>
-        <ProjectReference Include="..\..\samples\CloudNimble.McpEssentials.Samples.Web\CloudNimble.McpEssentials.Samples.Web.csproj" />
+        <ProjectReference Include="..\..\samples\CloudNimble.McpEssentials.Samples.Basic\CloudNimble.McpEssentials.Samples.Basic.csproj" />
         <ProjectReference Include="..\CloudNimble.McpEssentials.Core\CloudNimble.McpEssentials.Core.csproj" />
     </ItemGroup>
 

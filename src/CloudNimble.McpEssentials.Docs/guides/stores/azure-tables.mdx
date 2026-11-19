@@ -1,6 +1,8 @@
 ---
 title: "Azure Tables"
 description: "Azure Table Storage authenticated task store. Specified; not in this repository yet."
+icon: "grid-2"
+tag: "Specified"
 keywords: ["Azure Table Storage", "Azure Tables"]
 ---
 
@@ -10,16 +12,39 @@ keywords: ["Azure Table Storage", "Azure Tables"]
 
 Cheap point reads for task handles that live minutes. Weak queries. Pair with a queue or Service Bus for elicitation.
 
-## When to use it
-
-The host already uses Azure Table Storage and wants `PartitionKey = OwnerUserId`, `RowKey = TaskId`.
+<CardGroup cols={2}>
+  <Card title="When it ships" icon="circle-check">
+    The host already uses Azure Table Storage and wants `PartitionKey = OwnerUserId`, `RowKey = TaskId`.
+  </Card>
+  <Card title="Until then" icon="globe" href="/guides/stores/cosmos">
+    Cosmos is the shipped Azure document store: partition by owner, native document TTL, index for background complete.
+  </Card>
+</CardGroup>
 
 ## Intended how-to
 
-1. Add `McpEssentials.AzureTables`.
-2. Table of tasks: `PartitionKey = OwnerUserId`, `RowKey = TaskId`.
-3. Secondary index table `McpTaskIndex` with `PartitionKey = TaskId`, `RowKey = OwnerUserId` so server-side complete can find the owner.
-4. Register the store as a singleton with the same current-user factory as [Authenticated tasks](/guides/authenticated-tasks).
-5. Register [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus) (Azure Queue or Service Bus) for multi-node `ElicitAsync`. Tables have no native pub/sub.
+<Steps>
+  <Step title="Add the package">
+    Add `McpEssentials.AzureTables`.
+  </Step>
+  <Step title="Create the tables">
+    Tasks table: `PartitionKey = OwnerUserId`, `RowKey = TaskId`. Secondary index `McpTaskIndex` with `PartitionKey = TaskId`, `RowKey = OwnerUserId` so server-side complete can find the owner.
+  </Step>
+  <Step title="Register the store">
+    Singleton, same current-user factory as [Authenticated tasks](/guides/authenticated-tasks).
+  </Step>
+  <Step title="Register a bus">
+    Tables have no native pub/sub. Register [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus) (Azure Queue or Service Bus) for multi-node `ElicitAsync`.
+  </Step>
+</Steps>
 
-See [Stores](/guides/stores).
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Cosmos DB" icon="globe" href="/guides/stores/cosmos">
+    Shipped Azure document store with native TTL.
+  </Card>
+  <Card title="Stores" icon="database" href="/guides/stores">
+    Pick a backing store by the engine you already run.
+  </Card>
+</CardGroup>

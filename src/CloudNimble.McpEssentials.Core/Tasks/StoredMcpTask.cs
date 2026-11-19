@@ -150,21 +150,26 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         /// <param name="createdAt">Creation timestamp, UTC.</param>
         /// <param name="timeToLive">Duration from create, or <see langword="null"/> for unlimited.</param>
         /// <param name="pollIntervalMs">Client poll interval in milliseconds.</param>
+        /// <exception cref="ArgumentException">Thrown when <paramref name="ownerUserId"/> is <see langword="null"/> or whitespace.</exception>
         public StoredMcpTask(string ownerUserId, string taskId, DateTimeOffset createdAt, TimeSpan? timeToLive, long pollIntervalMs)
-            : this(
-                ownerUserId,
-                new McpTaskInfo(
-                    taskId,
-                    McpTaskStatus.Working,
-                    createdAt,
-                    createdAt,
-                    NormalizeTimeToLive(timeToLive),
-                    pollIntervalMs,
-                    null,
-                    null,
-                    null,
-                    EmptyInputRequests))
         {
+            ArgumentException.ThrowIfNullOrWhiteSpace(ownerUserId);
+
+            OwnerUserId = ownerUserId;
+            TaskId = taskId;
+            Status = McpTaskStatus.Working;
+            CreatedAt = createdAt;
+            LastUpdatedAt = createdAt;
+            var ttl = NormalizeTimeToLive(timeToLive);
+            TimeToLive = ttl;
+            if (ttl is { } duration)
+            {
+                ExpiresAt = createdAt + duration;
+                DiscardAfter = createdAt + duration + duration;
+            }
+
+            PollIntervalMs = pollIntervalMs;
+            InputRequests = EmptyInputRequests;
         }
 
         #endregion
@@ -187,8 +192,18 @@ namespace CloudNimble.McpEssentials.Core.Tasks
             CreatedAt = info.CreatedAt;
             LastUpdatedAt = info.LastUpdatedAt;
             TimeToLive = info.TimeToLive;
-            ExpiresAt = ComputeExpiresAt(info.CreatedAt, info.TimeToLive);
-            DiscardAfter = ComputeDiscardAfter(info.CreatedAt, info.TimeToLive);
+            var ttl = NormalizeTimeToLive(info.TimeToLive);
+            if (ttl is { } duration)
+            {
+                ExpiresAt = info.CreatedAt + duration;
+                DiscardAfter = info.CreatedAt + duration + duration;
+            }
+            else
+            {
+                ExpiresAt = null;
+                DiscardAfter = null;
+            }
+
             PollIntervalMs = info.PollIntervalMs;
             StatusMessage = info.StatusMessage;
             Result = info.Result;
@@ -259,6 +274,41 @@ namespace CloudNimble.McpEssentials.Core.Tasks
         public virtual StoredMcpTask Clone() => (StoredMcpTask)MemberwiseClone();
 
         /// <summary>
+        /// Returns a mutated clone when this snapshot is still in progress and
+        /// <paramref name="mutate"/> succeeds; otherwise this instance.
+        /// </summary>
+        /// <param name="mutate">Runs against a clone. Return <see langword="true"/> to keep it.</param>
+        /// <returns>The clone when the mutation stuck; otherwise <c>this</c>.</returns>
+        public virtual StoredMcpTask WithTry(Func<StoredMcpTask, bool> mutate)
+        {
+            if (IsFinished)
+            {
+                return this;
+            }
+
+            var next = Clone();
+            return mutate(next) ? next : this;
+        }
+
+        /// <summary>
+        /// Returns a writable copy of <see cref="InputRequests"/>, or <see langword="null"/> when empty.
+        /// </summary>
+        /// <returns>
+        /// The live dictionary when this snapshot already owns one; otherwise a copy.
+        /// Empty maps return <see langword="null"/> so JSON DTOs can omit the property.
+        /// </returns>
+        public virtual Dictionary<string, InputRequest>? ToInputRequestDictionaryOrNull()
+        {
+            if (InputRequests is not { Count: > 0 })
+            {
+                return null;
+            }
+
+            return InputRequests as Dictionary<string, InputRequest>
+                ?? new Dictionary<string, InputRequest>(InputRequests, StringComparer.Ordinal);
+        }
+
+        /// <summary>
         /// Returns whether this task has reached <see cref="ExpiresAt"/> (or
         /// <c>CreatedAt + TimeToLive</c> when <see cref="ExpiresAt"/> is unset).
         /// </summary>
@@ -276,12 +326,12 @@ namespace CloudNimble.McpEssentials.Core.Tasks
             }
 
             var ttl = TimeToLive;
-            if (ttl is not { } duration || duration <= TimeSpan.Zero)
+            if (ttl is not { } duration || duration.Ticks <= 0)
             {
                 return false;
             }
 
-            return now >= CreatedAt + duration;
+            return now.UtcTicks >= CreatedAt.UtcTicks + duration.Ticks;
         }
 
         /// <summary>
@@ -306,13 +356,13 @@ namespace CloudNimble.McpEssentials.Core.Tasks
                 return false;
             }
 
-            var ttl = NormalizeTimeToLive(TimeToLive);
-            if (ttl is not { } duration)
+            var ttl = TimeToLive;
+            if (ttl is not { } duration || duration.Ticks <= 0)
             {
                 return true;
             }
 
-            return now - CreatedAt < duration;
+            return now.UtcTicks - CreatedAt.UtcTicks < duration.Ticks;
         }
 
         /// <summary>

@@ -1,40 +1,137 @@
 ---
 title: "PostgreSQL"
-description: "Native Npgsql authenticated task store with LISTEN/NOTIFY fan-out. Specified; not in this repository yet."
-keywords: ["PostgreSQL", "Npgsql", "LISTEN", "NOTIFY"]
+description: "Native Npgsql authenticated task store. Use this instead of EF when you want LISTEN/NOTIFY fan-out without a DbContext."
+icon: "database"
+keywords: ["PostgreSQL", "Npgsql", "LISTEN", "NOTIFY", "WithPostgreSqlTasks", "PostgreSqlMcpTaskStore"]
 ---
 
-<Warning>
-`McpEssentials.PostgreSQL` is specified and is not in this repository yet. Use [Entity Framework Core](/guides/stores/entity-framework-core) with `UseNpgsql` until it ships.
-</Warning>
+`McpEssentials.PostgreSQL` is the authenticated task store for hosts that already talk to Postgres through Npgsql or Dapper. It subclasses [`NotifyingMcpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase) and persists [`StoredMcpTask`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/StoredMcpTask) as one `McpTasks` table.
 
-This package exists for hosts that want PostgreSQL **without** an EF model, and for multi-node elicitation that uses `LISTEN` / `NOTIFY` instead of a separate bus.
+Prefer this over [Entity Framework Core](/guides/stores/entity-framework-core) with `UseNpgsql` when there is no `DbContext` to hang `AddMcpTasksTable` on, or when several MCP nodes wait on `ElicitAsync` and you want Postgres itself to wake the originating process. Redis pub/sub is the other native channel.
 
-## When to use it
+<CardGroup cols={3}>
+  <Card title="No EF model" icon="code">
+    The host already uses Npgsql or Dapper. There is no `DbContext` to hang `AddMcpTasksTable` on.
+  </Card>
+  <Card title="LISTEN / NOTIFY" icon="tower-broadcast">
+    Postgres itself wakes `ElicitAsync` waiters. Echoes of this process are dropped.
+  </Card>
+  <Card title="RowVersion CAS" icon="lock">
+    Integer `RowVersion` on `public.McpTasks`. `INSERT` is committed before create returns.
+  </Card>
+</CardGroup>
 
-- The host already talks to Postgres with Npgsql or Dapper.
-- Several MCP nodes wait on `ElicitAsync` and you want Postgres itself to wake the originating process.
+The host owns [`NpgsqlDataSource`](https://www.npgsql.org/doc/basic-usage.html). This package ships the store, the table script, and registration. Register the data source as a singleton.
 
-Stay on EF Core + Npgsql when you already have a `DbContext`. `LISTEN` / `NOTIFY` is the reason a native package sits beside EF.
+<Tip>
+[Entity Framework Core](/guides/stores/entity-framework-core) already talks to PostgreSQL (`UseNpgsql`). Stay there when the host has a `DbContext` and migrations. EF + Npgsql still needs an optional [`IMcpTaskInputSignalBus`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskInputSignalBus). Native Postgres **is** that bus.
+</Tip>
 
-## Intended how-to
+## Install
 
-1. Add `McpEssentials.PostgreSQL` and an Npgsql data source.
-2. Run the embedded table script (`EnsureCreatedAsync` or a host migration). One `McpTasks` table, same canonical row as Core, `DiscardAfter timestamptz`.
-3. Register the store as a singleton with the same current-user factory as [Authenticated tasks](/guides/authenticated-tasks).
-4. `CreateTaskAsync` awaits `INSERT ... RETURNING` inside a transaction so a later get on any node can see the row.
+<Steps>
+  <Step title="Add the package">
+    ```bash
+    dotnet add package McpEssentials.PostgreSQL
+    ```
+  </Step>
+  <Step title="Register the data source">
+    ```csharp
+    builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(connectionString));
+    ```
+  </Step>
+</Steps>
+
+## Wire the store
+
+Same identity factory as [Authenticated tasks](/guides/authenticated-tasks). PostgreSQL has no generic context type, so the MCP builder method is [`WithPostgreSqlTasks`](/api-reference/Microsoft/Extensions/DependencyInjection/IMcpServerBuilder) rather than `WithTasksPlus<TContext>`.
+
+<Tabs>
+  <Tab title="HTTP" icon="globe">
+    ```csharp
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(connectionString));
+
+    builder.Services.AddMcpServer()
+        .WithHttpTransport(o => o.Stateless = true)
+        .WithTools<MyTools>()
+        .WithPostgreSqlTasks(
+            sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
+            o =>
+            {
+                o.DefaultTimeToLive = TimeSpan.FromMinutes(5);
+                o.Schema = "public";
+                o.TableName = "McpTasks";
+                o.ListenChannel = "mcp_essentials_tasks";
+            });
+    ```
+  </Tab>
+  <Tab title="Stdio" icon="terminal">
+    ```csharp
+    builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(connectionString));
+
+    builder.Services.AddMcpServer()
+        .WithPostgreSqlTasks("local-user");
+    ```
+  </Tab>
+  <Tab title="Store only" icon="database">
+    Same factory, without `IMcpServerBuilder`:
+
+    ```csharp
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddSingleton(_ => NpgsqlDataSource.Create(connectionString));
+
+    builder.Services.AddMcpEssentialsPostgreSqlTasks(
+        sp => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User,
+        o => o.DefaultTimeToLive = TimeSpan.FromMinutes(5));
+    ```
+  </Tab>
+</Tabs>
+
+Schema, table, and listen-channel names must be 1–63 ASCII letters, digits, or underscores, starting with a letter or underscore. The store quotes them for DDL.
+
+## Table and TTL
+
+| Object | Role |
+|---|---|
+| `{schema}.{table}` (default `public.McpTasks`) | Canonical `StoredMcpTask` columns plus integer `RowVersion` for CAS |
+| `LISTEN {channel}` (default `mcp_essentials_tasks`) | Dedicated connection; payload is task id + request id |
+
+On first use the store creates the table when missing (`CREATE TABLE IF NOT EXISTS`) with indexes on `OwnerUserId` and `DiscardAfter`. Hosts that own migrations can create the same shape themselves.
+
+`CreateTaskAsync` awaits `INSERT` commit so a later get on any node can see the row. Updates compare `TaskId` and `RowVersion`. A terminal owner get with `ServeAndDrop` (default) deletes the row after serving it.
+
+`DiscardAfter` is `timestamptz`, stamped at write as `CreatedAt + 2×TimeToLive`. `AutoSweep` defaults to **true**. Sweep is `DELETE WHERE "DiscardAfter" <= now`. Call [`SweepExpiredAsync`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/IMcpTaskStorePlus) from a hosted service or `pg_cron` when `AutoSweep` is off. Unlimited TTL (`null`) leaves the row until a terminal owner get or an explicit delete.
+
+<Note>
+`LISTEN` holds one connection for the life of the store. Size the pool for ordinary CRUD plus that extra connection. Postgres does not deliver notifications on a connection that is sitting in the pool.
+</Note>
+
+## Isolation
+
+`CreateTaskAsync` stamps `OwnerUserId`. Client-facing get/cancel/resolve require that user. Server-side complete/fail/input-request skip the live-user check. Another user's task is not found. A missing row is not found; get does not distinguish expiry from isolation.
 
 ## Events
 
-```
-LISTEN mcp_essentials_tasks
-NOTIFY mcp_essentials_tasks, '{ "taskId", "requestId" }'
-```
+After a successful resolve, the publishing node raises `InputResponseReceived` locally, then `pg_notify` with `taskId` + newline + `requestId` on the listen channel. Other nodes `LISTEN` and raise a stub response so `ElicitAsync` waiters wake. The publisher drops its own notify echo.
 
-Each process that holds a waiting `ElicitAsync` subscribes and raises `InputResponseReceived` locally. Payload is task id plus request id.
+<Tip>
+Postgres **is** the bus. Redis pub/sub is the other native channel on [`NotifyingMcpTaskStoreBase`](/api-reference/CloudNimble/McpEssentials/Core/Tasks/NotifyingMcpTaskStoreBase).
+</Tip>
 
-## TTL
+## Related
 
-`DELETE WHERE "DiscardAfter" < now()`, from `pg_cron` or a hosted service that calls `SweepExpiredAsync`. `DiscardAfter` is `CreatedAt + 2×TimeToLive`, stamped at write.
-
-See [Stores](/guides/stores).
+<CardGroup cols={2}>
+  <Card title="Sample" icon="play" href="https://github.com/CloudNimble/McpEssentials/tree/main/samples/CloudNimble.McpEssentials.Samples.PostgreSQL">
+    Runnable host at `http://localhost:5320/`. Send `X-User-Id: alice`. Default connection string is `Host=localhost;Database=mcpessentials`.
+  </Card>
+  <Card title="Stores" icon="database" href="/guides/stores">
+    Pick a backing store by the engine you already run.
+  </Card>
+  <Card title="Entity Framework Core" icon="table" href="/guides/stores/entity-framework-core">
+    Stay on EF + `UseNpgsql` when the host already has a `DbContext`.
+  </Card>
+  <Card title="Redis" icon="bolt" href="/guides/stores/redis">
+    The other native channel: pub/sub plus `PEXPIREAT`.
+  </Card>
+</CardGroup>

@@ -1,15 +1,28 @@
 ---
-title: "Guides"
+title: "Overview"
 description: "Authenticated MCP task stores for generic servers, and the provider packages that persist them."
+icon: "circle-exclamation"
 ---
 
 Start with the in-memory store in Core. HTTP hosts call `AddHttpContextAccessor()` and pass a factory that resolves `IHttpContextAccessor` from the built provider. When the host scales out, swap in a durable provider of the same contract.
 
 <CardGroup cols={2}>
-  <Card title="Authenticated tasks" href="/guides/authenticated-tasks">
-    In-process store, identity wiring, isolation rules, and the web sample.
+  <Card title="Why MCP Essentials?" icon="square-question" href="/why-mcpessentials">
+    Companion to the official SDK: isolation, stores, forms, analyzers.
   </Card>
-  <Card title="Choose a store" href="/guides/stores">
+  <Card title="Quickstart" icon="play" href="/quickstart">
+    Install, wire HTTP or stdio, write a task tool, elicit a form, swap the store.
+  </Card>
+  <Card title="Authenticated tasks" icon="user-lock" href="/guides/authenticated-tasks">
+    In-process store, identity wiring, isolation rules, and the samples.
+  </Card>
+  <Card title="Form elicitation" icon="clipboard-list" href="/guides/form-elicitation">
+    FormElicitationBuilder, named forms, and RequireForm.
+  </Card>
+  <Card title="Analyzers" icon="wand-magic-sparkles" href="/guides/analyzers">
+    Compiler diagnostics for From&lt;T&gt;, colliding names, and invalid lambdas.
+  </Card>
+  <Card title="Choose a store" icon="database" href="/guides/stores">
     Database, distributed cache, and eventing providers. Start with Entity Framework Core.
   </Card>
 </CardGroup>

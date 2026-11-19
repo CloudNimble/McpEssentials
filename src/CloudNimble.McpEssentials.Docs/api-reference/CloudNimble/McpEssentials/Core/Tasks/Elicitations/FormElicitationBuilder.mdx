@@ -1,0 +1,1235 @@
+---
+title: FormElicitationBuilder
+description: "Typed form builder. [FormElicitationBuilder.From](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder#from) seeds mappabl..."
+icon: code-branch
+keywords: ['FormElicitationBuilder', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder<T>', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations', 'class', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource<T>', 'CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource']
+---
+
+## Definition
+
+**Assembly:** CloudNimble.McpEssentials.Core.dll
+
+**Namespace:** CloudNimble.McpEssentials.Core.Tasks.Elicitations
+
+**Inheritance:** CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase
+
+## Syntax
+
+```csharp
+CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder<T>
+```
+
+## Summary
+
+Typed form builder. [FormElicitationBuilder.From](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilder#from) seeds mappable properties,
+then expression starters reconfigure them and string starters add extra fields.
+
+## Type Parameters
+
+- `T` - The form type.
+
+## Constructors
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Initializes a builder with *message* as the prompt.
+
+#### Syntax
+
+```csharp
+protected FormElicitationBuilderBase(string message)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `message` | `string` | The message presented to the user. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *message* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="hammer" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> .ctor <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public Object()
+```
+
+## Properties
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Fields <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Gets the fields accumulated so far, in insertion order.
+
+#### Syntax
+
+```csharp
+internal System.Collections.Generic.List<CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationField> Fields { get; }
+```
+
+#### Property Value
+
+Type: `System.Collections.Generic.List<CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationField>`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> IsSealed <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Gets whether field changes are refused because an output method has already run.
+
+#### Syntax
+
+```csharp
+internal bool IsSealed { get; }
+```
+
+#### Property Value
+
+Type: `bool`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Message <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Gets the prompt presented with the form.
+
+#### Syntax
+
+```csharp
+public string Message { get; }
+```
+
+#### Property Value
+
+Type: `string`
+
+### <Icon icon="tag" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Name <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Gets or sets the optional keyed-DI name published on the XML island.
+
+#### Syntax
+
+```csharp
+public string Name { get; set; }
+```
+
+#### Property Value
+
+Type: `string?`
+
+## Methods
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ApplyCommon <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Applies common title, description, and required facets, overwriting Titleize defaults.
+
+#### Syntax
+
+```csharp
+internal static void ApplyCommon(CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition field, CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationField target)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `field` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition` | The snapshot field. |
+| `target` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationField` | The live field created by a starter. |
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ApplyField <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Applies one snapshot field onto this builder using the public starters.
+
+#### Syntax
+
+```csharp
+internal void ApplyField(CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition field)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `field` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition` | The snapshot field. |
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `InvalidOperationException` | Thrown when the field type or format is unknown. |
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Boolean <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.BooleanFieldBuilder<T> Boolean(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | - |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.BooleanFieldBuilder<T>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Boolean <Badge color="orange">Virtual</Badge>
+
+Adds or reconfigures a boolean field for *property*.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.BooleanFieldBuilder<T> Boolean<TProp>(System.Linq.Expressions.Expression<System.Func<T, TProp>> property)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `property` | `System.Linq.Expressions.Expression<System.Func<T, TProp>>` | A simple property access on *T*. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.BooleanFieldBuilder<T>`
+The boolean field facade.
+
+#### Type Parameters
+
+- `TProp` - The property type.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Boolean <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Adds or reconfigures a boolean field named *name*.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.BooleanFieldBuilder Boolean(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The field identifier. CamelCased on the wire. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.BooleanFieldBuilder`
+The boolean field facade.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Build <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Builds SDK `ElicitRequestParams` for form mode.
+
+#### Syntax
+
+```csharp
+public virtual ModelContextProtocol.Protocol.ElicitRequestParams Build()
+```
+
+#### Returns
+
+Type: `ModelContextProtocol.Protocol.ElicitRequestParams`
+The elicitation request parameters.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `InvalidOperationException` | Thrown when the message is blank or a field is invalid. |
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Choice <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.ChoiceFieldBuilder<T> Choice(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | - |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.ChoiceFieldBuilder<T>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Choice <Badge color="orange">Virtual</Badge>
+
+Adds or reconfigures a single-select field for *property*.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.ChoiceFieldBuilder<T> Choice<TProp>(System.Linq.Expressions.Expression<System.Func<T, TProp>> property)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `property` | `System.Linq.Expressions.Expression<System.Func<T, TProp>>` | A simple property access on *T*. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.ChoiceFieldBuilder<T>`
+The choice field facade.
+
+#### Type Parameters
+
+- `TProp` - The property type.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Choice <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Adds or reconfigures a single-select field named *name*.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.ChoiceFieldBuilder Choice(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The field identifier. CamelCased on the wire. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.ChoiceFieldBuilder`
+The choice field facade.
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Date <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> Date(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | - |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Date <Badge color="orange">Virtual</Badge>
+
+Adds or reconfigures a date field for *property*.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> Date<TProp>(System.Linq.Expressions.Expression<System.Func<T, TProp>> property)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `property` | `System.Linq.Expressions.Expression<System.Func<T, TProp>>` | A simple property access on *T*. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T>`
+The string field facade.
+
+#### Type Parameters
+
+- `TProp` - The property type.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Date <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Adds or reconfigures a string field with format `date`.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder Date(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The field identifier. CamelCased on the wire. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder`
+The string field facade.
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DateTime <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> DateTime(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | - |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DateTime <Badge color="orange">Virtual</Badge>
+
+Adds or reconfigures a date-time field for *property*.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> DateTime<TProp>(System.Linq.Expressions.Expression<System.Func<T, TProp>> property)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `property` | `System.Linq.Expressions.Expression<System.Func<T, TProp>>` | A simple property access on *T*. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T>`
+The string field facade.
+
+#### Type Parameters
+
+- `TProp` - The property type.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> DateTime <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Adds or reconfigures a string field with format `date-time`.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder DateTime(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The field identifier. CamelCased on the wire. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder`
+The string field facade.
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Email <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> Email(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | - |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Email <Badge color="orange">Virtual</Badge>
+
+Adds or reconfigures an email field for *property*.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> Email<TProp>(System.Linq.Expressions.Expression<System.Func<T, TProp>> property)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `property` | `System.Linq.Expressions.Expression<System.Func<T, TProp>>` | A simple property access on *T*. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T>`
+The string field facade.
+
+#### Type Parameters
+
+- `TProp` - The property type.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Email <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Adds or reconfigures a string field with format `email`.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder Email(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The field identifier. CamelCased on the wire. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder`
+The string field facade.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual bool Equals(object obj)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `obj` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Equals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool Equals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Exclude <Badge color="orange">Virtual</Badge>
+
+Removes the field for *property* if it was seeded or added.
+No-ops when the property was unmappable or never added.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder<T> Exclude<TProp>(System.Linq.Expressions.Expression<System.Func<T, TProp>> property)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `property` | `System.Linq.Expressions.Expression<System.Func<T, TProp>>` | A simple property access on *T*. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder<T>`
+This builder.
+
+#### Type Parameters
+
+- `TProp` - The property type.
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> From
+
+Starts a form seeded from the public instance properties of *T*.
+
+#### Syntax
+
+```csharp
+public static CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder<T> From(string message)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `message` | `string` | The message presented to the user. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilder<T>`
+A typed form builder.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentNullException` | Thrown when *message* is [`null`](https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/null). |
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetHashCode <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual int GetHashCode()
+```
+
+#### Returns
+
+Type: `int`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetOrAdd <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Gets the field with camelCase name *name*, adding it when missing.
+Reconfiguring a different kind resets kind-specific constraints.
+
+#### Syntax
+
+```csharp
+internal CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationField GetOrAdd(string name, CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationFieldKind kind)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The field identifier. |
+| `kind` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationFieldKind` | The field kind. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationField`
+The field.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `ArgumentException` | Thrown when *name* is empty. |
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> GetType <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public System.Type GetType()
+```
+
+#### Returns
+
+Type: `System.Type`
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Integer <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder<T> Integer(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | - |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder<T>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Integer <Badge color="orange">Virtual</Badge>
+
+Adds or reconfigures an integer field for *property*.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder<T> Integer<TProp>(System.Linq.Expressions.Expression<System.Func<T, TProp>> property)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `property` | `System.Linq.Expressions.Expression<System.Func<T, TProp>>` | A simple property access on *T*. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder<T>`
+The number field facade.
+
+#### Type Parameters
+
+- `TProp` - The property type.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Integer <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Adds or reconfigures an integer field named *name*.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder Integer(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The field identifier. CamelCased on the wire. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder`
+The number field facade.
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MemberwiseClone <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+protected internal object MemberwiseClone()
+```
+
+#### Returns
+
+Type: `object`
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MultiChoice <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> MultiChoice(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | - |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MultiChoice <Badge color="orange">Virtual</Badge>
+
+Adds or reconfigures a multi-select field for *property*.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T> MultiChoice<TProp>(System.Linq.Expressions.Expression<System.Func<T, TProp>> property)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `property` | `System.Linq.Expressions.Expression<System.Func<T, TProp>>` | A simple property access on *T*. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder<T>`
+The multi-choice field facade.
+
+#### Type Parameters
+
+- `TProp` - The property type.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> MultiChoice <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Adds or reconfigures a multi-select field named *name*.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder MultiChoice(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The field identifier. CamelCased on the wire. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.MultiChoiceFieldBuilder`
+The multi-choice field facade.
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Number <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder<T> Number(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | - |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder<T>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Number <Badge color="orange">Virtual</Badge>
+
+Adds or reconfigures a number field for *property*.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder<T> Number<TProp>(System.Linq.Expressions.Expression<System.Func<T, TProp>> property)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `property` | `System.Linq.Expressions.Expression<System.Func<T, TProp>>` | A simple property access on *T*. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder<T>`
+The number field facade.
+
+#### Type Parameters
+
+- `TProp` - The property type.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Number <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Adds or reconfigures a floating-point field named *name*.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder Number(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The field identifier. CamelCased on the wire. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.NumberFieldBuilder`
+The number field facade.
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ReferenceEquals <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public static bool ReferenceEquals(object objA, object objB)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `objA` | `object?` | - |
+| `objB` | `object?` | - |
+
+#### Returns
+
+Type: `bool`
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Remove <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Removes the field whose wire name matches *name*, if present.
+
+#### Syntax
+
+```csharp
+internal void Remove(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The field identifier. |
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> String <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> String(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | - |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> String <Badge color="orange">Virtual</Badge>
+
+Adds or reconfigures a string field for *property*.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> String<TProp>(System.Linq.Expressions.Expression<System.Func<T, TProp>> property)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `property` | `System.Linq.Expressions.Expression<System.Func<T, TProp>>` | A simple property access on *T*. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T>`
+The string field facade.
+
+#### Type Parameters
+
+- `TProp` - The property type.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> String <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Adds or reconfigures a string field named *name*.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder String(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The field identifier. CamelCased on the wire. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder`
+The string field facade.
+
+### <Icon icon="function" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ThrowIfSealed <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Throws when an output method has already materialized this form.
+
+#### Syntax
+
+```csharp
+internal void ThrowIfSealed()
+```
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `InvalidOperationException` | Thrown when the form is sealed. |
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToDefinition <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Snapshots this form as an immutable definition.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormDefinition ToDefinition()
+```
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormDefinition`
+The field graph independent of the fluent builder.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `InvalidOperationException` | Thrown when the message is blank or a field is invalid. |
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToFieldDefinition <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Projects a live field onto an immutable snapshot, marking default options as selected.
+
+#### Syntax
+
+```csharp
+internal static CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition ToFieldDefinition(CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationField field)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `field` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationField` | The live field. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldDefinition`
+The snapshot field.
+
+### <Icon icon="thumbtack" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToFieldType <Badge color="gray">Inherited</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Maps a live kind onto the public snapshot type.
+
+#### Syntax
+
+```csharp
+internal static CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldType ToFieldType(CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationFieldKind kind)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `kind` | `CloudNimble.McpEssentials.Core.Tasks.Elicitations.ElicitationFieldKind` | The live kind. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormFieldType`
+The snapshot type.
+
+#### Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `InvalidOperationException` | Thrown when *kind* is unknown. |
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToInputRequest <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Builds an `InputRequest` wrapping [FormElicitationBuilderBase.Build](/api-reference/CloudNimble/McpEssentials/Core/Tasks/Elicitations/FormElicitationBuilderBase#build).
+
+#### Syntax
+
+```csharp
+public virtual ModelContextProtocol.Protocol.InputRequest ToInputRequest()
+```
+
+#### Returns
+
+Type: `ModelContextProtocol.Protocol.InputRequest`
+An elicitation input request for task attachment.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToJson <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Returns the elicitation JSON already stored on `Params`.
+
+#### Syntax
+
+```csharp
+public virtual System.Text.Json.JsonElement? ToJson()
+```
+
+#### Returns
+
+Type: `System.Text.Json.JsonElement?`
+The cached request parameters as JSON.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToString <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `object`</Note>
+
+#### Syntax
+
+```csharp
+public virtual string ToString()
+```
+
+#### Returns
+
+Type: `string?`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> ToXml <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Serializes this form as a compact XML island.
+
+#### Syntax
+
+```csharp
+public virtual string ToXml(string xmlNamespace = null)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `xmlNamespace` | `string?` | Optional xmlns on the `Form` element. |
+
+#### Returns
+
+Type: `string`
+The island text, with no XML declaration.
+
+### <Icon icon="code-merge" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Uri <Badge color="blue">Override</Badge>
+
+#### Syntax
+
+```csharp
+public override CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> Uri(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | - |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T>`
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Uri <Badge color="orange">Virtual</Badge>
+
+Adds or reconfigures a URI field for *property*.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T> Uri<TProp>(System.Linq.Expressions.Expression<System.Func<T, TProp>> property)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `property` | `System.Linq.Expressions.Expression<System.Func<T, TProp>>` | A simple property access on *T*. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder<T>`
+The string field facade.
+
+#### Type Parameters
+
+- `TProp` - The property type.
+
+### <Icon icon="code-fork" iconType="duotone" color="#419AC5" size={24} className="mr-2" /> Uri <Badge color="gray">Inherited</Badge> <Badge color="orange">Virtual</Badge>
+
+<Note>Inherited from `CloudNimble.McpEssentials.Core.Tasks.Elicitations.FormElicitationBuilderBase`</Note>
+
+Adds or reconfigures a string field with format `uri`.
+
+#### Syntax
+
+```csharp
+public virtual CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder Uri(string name)
+```
+
+#### Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `name` | `string` | The field identifier. CamelCased on the wire. |
+
+#### Returns
+
+Type: `CloudNimble.McpEssentials.Core.Tasks.Elicitations.StringFieldBuilder`
+The string field facade.
+
+## Related APIs
+
+- CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource&lt;T&gt;
+- CloudNimble.McpEssentials.Core.Tasks.Elicitations.IFormElicitationSource
+
